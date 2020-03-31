@@ -1,0 +1,26 @@
+.project
+.pydevproject
+*.pyc
+build/
+dist/
+jinjasql.egg-info/
+*.sqlite3
+staticfiles
+.env
+.idea/
+*.log.*
+*.log
+*.in
+.coverage
+*.DS_Store
+*.idea/
+*.vscode
+
+# Environments
+.env*
+.venv*
+env*/
+venv*/
+ENV*/
+env*.bak/
+venv*.bak/
