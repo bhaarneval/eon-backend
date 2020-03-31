@@ -1,6 +1,20 @@
+.project
+.pydevproject
+*.pyc
+build/
+dist/
+jinjasql.egg-info/
+*.sqlite3
+staticfiles
+.env
+.idea/
+*.log.*
+*.log
+*.in
+.coverage
+*.DS_Store
 *.idea/
 *.vscode
-.idea/
 
 # Environments
 .env*
