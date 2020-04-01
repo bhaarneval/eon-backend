@@ -24,7 +24,7 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bzr%nozw=25$vj)'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Installed packages
+    'rest_framework',
+    'authentication'
 ]
 
 MIDDLEWARE = [
@@ -76,8 +80,8 @@ WSGI_APPLICATION = 'eon_backend.wsgi.application'
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
 
-ACCESS_TOKEN_LIFETIME = os.environ["ACCESS_TOKEN_LIFETIME"]
-REFRESH_TOKEN_LIFETIME = os.environ["REFRESH_TOKEN_LIFETIME"]
+ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 60)
+REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 1)
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(ACCESS_TOKEN_LIFETIME)),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=int(REFRESH_TOKEN_LIFETIME)),
