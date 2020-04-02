@@ -25,6 +25,9 @@ class Login(APIView):
         password = request.POST.get('password', None)
 
         user = authenticate(username=email, password=password)
+
+        if user is None:
+            return Response(data={"User with the given credentials does not exist"}, status=400)
         token = self.get_token_for_user(user)
         token['user_id'] = user.id
         return Response(data=token)

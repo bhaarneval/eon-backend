@@ -23,6 +23,18 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('user_type', const.ADMIN)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
+
 
 class User(AbstractUser, ModelBase):
     email = models.EmailField(unique=True)
@@ -58,14 +70,14 @@ class Status(ModelBase):
         managed = True
         db_table = "status"
         verbose_name = "Status"
-        verbose_name_plural = "Statuse"
+        verbose_name_plural = "Statuses"
 
 
 class UserDetails(ModelBase):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=250, null=True, blank=True)
     contact_number = models.CharField(max_length=10)
     organization = models.CharField(max_length=250)
     address = models.CharField(max_length=250)
-    status = models.ForeignKey(Status, on_delete=models.CASCADE, null=True)
-    role = models.ForeignKey(Role, on_delete=models.CASCADE, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING)
