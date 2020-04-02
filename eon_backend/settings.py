@@ -76,8 +76,8 @@ WSGI_APPLICATION = 'eon_backend.wsgi.application'
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
 
-ACCESS_TOKEN_LIFETIME = os.environ["ACCESS_TOKEN_LIFETIME"]
-REFRESH_TOKEN_LIFETIME = os.environ["REFRESH_TOKEN_LIFETIME"]
+ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 60)
+REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 1)
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(ACCESS_TOKEN_LIFETIME)),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=int(REFRESH_TOKEN_LIFETIME)),
@@ -104,11 +104,11 @@ SIMPLE_JWT = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ["DB_NAME"],
-        "USER": os.environ["DB_USERNAME"],
-        "PASSWORD": os.environ["DB_PASSWORD"],
-        "HOST": os.environ["DB_HOSTNAME"],
-        "PORT": os.environ["DB_PORT"],
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USERNAME"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOSTNAME"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 
