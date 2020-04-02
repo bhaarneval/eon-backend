@@ -74,7 +74,7 @@ class Status(ModelBase):
 
 
 class UserDetails(ModelBase):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=250, null=True, blank=True)
     contact_number = models.CharField(max_length=10)
     organization = models.CharField(max_length=250)
