@@ -10,9 +10,8 @@ from .models import User, Status, Role, UserDetails
 
 class Login(APIView):
     """
-        API for dealer/buyer login
+        API for login
     """
-    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         """
@@ -22,8 +21,6 @@ class Login(APIView):
             :param request: password : user's password for logging in
             :return: json containing access and refresh token if the user is authenticated
         """
-        req_token = request.META.get('HTTP_AUTHORIZATION', None)
-        secret_key = request.POST.get('secret_key', None)
         email = request.POST.get('email', None)
         password = request.POST.get('password', None)
 
