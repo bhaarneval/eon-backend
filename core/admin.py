@@ -23,7 +23,7 @@ class PromotionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Event)
-class PromotionAdmin(admin.ModelAdmin):
+class EventAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "status")
     search_fields = ("name", "type", "status")
 

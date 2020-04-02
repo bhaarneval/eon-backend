@@ -21,8 +21,9 @@ class EventType(models.Model):
 
 
 class Promotion(models.Model):
+    name = models.CharField(max_length=48)
     discount_percentage = models.PositiveIntegerField()
-    channel = models.CharField(max_length=256)
+    channel = models.CharField(max_length=20)
 
     def __str__(self):
         return "{}-{}".format(self.discount_percentage, self.channel)
@@ -31,6 +32,7 @@ class Promotion(models.Model):
 class Event(models.Model):
     name = models.CharField(max_length=256)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
+    description = models.CharField(max_length=512)
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
@@ -39,6 +41,7 @@ class Event(models.Model):
     no_of_tickets = models.PositiveIntegerField()
     status = models.ForeignKey(EventStatus, on_delete=models.DO_NOTHING)
     promotion = models.ForeignKey(Promotion, on_delete=models.DO_NOTHING, null=True)
+    external_links = models.CharField(max_length=1024)
 
     class Meta:
         unique_together = ("name", "type", "date", "time")

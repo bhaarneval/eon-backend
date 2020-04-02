@@ -19,5 +19,5 @@ from django.urls import include
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^bitseon/', include('core.urls')),
+    url(r'^core/', include('core.urls')),
 ]
