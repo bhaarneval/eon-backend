@@ -1,9 +1,10 @@
 from django.db import models
 
 # Create your models here.
+from authentication.models import ModelBase
 
 
-class EventStatus(models.Model):
+class EventStatus(ModelBase):
     type = models.CharField(unique=True, max_length=256)
 
     class Meta:
@@ -13,14 +14,14 @@ class EventStatus(models.Model):
         return self.type
 
 
-class EventType(models.Model):
+class EventType(ModelBase):
     type = models.CharField(unique=True, max_length=256)
 
     def __str__(self):
         return self.type
 
 
-class Promotion(models.Model):
+class Promotion(ModelBase):
     name = models.CharField(max_length=48)
     discount_percentage = models.PositiveIntegerField()
     channel = models.CharField(max_length=20)
@@ -29,7 +30,7 @@ class Promotion(models.Model):
         return "{}-{}".format(self.discount_percentage, self.channel)
 
 
-class Event(models.Model):
+class Event(ModelBase):
     name = models.CharField(max_length=256)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     description = models.CharField(max_length=512)

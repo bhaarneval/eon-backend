@@ -1,33 +1,33 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import status
 from django.contrib.auth import authenticate
+
+from utils.common import api_error_response, api_success_response
 from .models import User, Status, Role, UserDetails
 
 
 class Login(APIView):
-    """
-        API for login
-    """
+    """API for login"""
 
     def post(self, request):
         """
-
             :param request: Header containing JWT and secret for User
-            'HTTP_AUTHORIZATION':param request: email : user's emailId for logging in
+            'HTTP_AUTHORIZATION':param request: email : user's email id for logging in
             :param request: password : user's password for logging in
             :return: json containing access and refresh token if the user is authenticated
         """
         email = request.POST.get('email', None)
         password = request.POST.get('password', None)
 
-        user = authenticate(username=email, password=password)
+        try:
+            user = authenticate(username=email, password=password)
+        except Exception as err:
+            return api_error_response(message=str(err), status=400)
+
         token = self.get_token_for_user(user)
         token['user_id'] = user.id
-        return Response(data=token)
+        return api_success_response(data=token)
 
     def get_token_for_user(self, user):
         """
@@ -63,7 +63,7 @@ class Register(APIView):
         status = request.POST.get('status')
 
         if email is None or password is None or contact_number is None or organization is None:
-            return Response(data='Complete details are not provided', status_code=400)
+            return api_error_response(message='Complete details are not provided', status=400)
 
         try:
             role_obj = None
@@ -86,8 +86,8 @@ class Register(APIView):
                                                           role=role_obj)
             user_details_obj.save()
 
-            return Response(data='User created successfully', status=201)
+            return api_success_response(message='User created successfully', status=201)
         except Exception as err:
-            return Response(data=str(err))
+            return api_error_response(message=str(err), status=400)
 
 

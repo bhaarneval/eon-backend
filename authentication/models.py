@@ -1,5 +1,4 @@
 from django.db import models
-
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
@@ -22,6 +21,17 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save()
         return user
+
+    def create_superuser(self, email, password, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser, ModelBase):
@@ -58,11 +68,11 @@ class Status(ModelBase):
         managed = True
         db_table = "status"
         verbose_name = "Status"
-        verbose_name_plural = "Statuse"
+        verbose_name_plural = "Statuses"
 
 
 class UserDetails(ModelBase):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=250, null=True, blank=True)
     contact_number = models.CharField(max_length=10)
     organization = models.CharField(max_length=250)
