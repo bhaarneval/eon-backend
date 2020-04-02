@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
+from rest_framework.decorators import api_view
 from utils.common import api_error_response, api_success_response
 from .models import User, Status, Role, UserDetails
 
@@ -25,6 +26,9 @@ class Login(APIView):
         except Exception as err:
             return api_error_response(message=str(err), status=400)
 
+        if user is None:
+            message = "Given Credentials does not matches with any registered user"
+            return api_error_response(message=message, status=400)
         token = self.get_token_for_user(user)
         token['user_id'] = user.id
         return api_success_response(data=token)
@@ -89,5 +93,39 @@ class Register(APIView):
             return api_success_response(message='User created successfully', status=201)
         except Exception as err:
             return api_error_response(message=str(err), status=400)
+
+
+@api_view(['POST'])
+def change_user_password(request):
+    """
+        Function to set current user's password
+        :param request: password: password to be reset
+                        email: emailId as a username
+        :return: JSON confirming password was changed or not
+    """
+    email = request.POST.get('email')
+    old_password = request.POST.get('old_password')
+    new_password = request.POST.get('new_password')
+
+    if email is None or old_password is None or new_password is None:
+        return api_error_response(message='No field can be left blank')
+
+    try:
+        user = authenticate(username=email, password=old_password)
+    except Exception as err:
+        return api_error_response(message=str(err), status=400)
+
+    if user is None:
+        message = "Given Credentials does not matches with any registered user"
+        return api_error_response(message=message, status=400)
+
+    try:
+        user.set_password(new_password)
+        user.save()
+        return api_success_response(message='Password updated successfully')
+    except Exception as err:
+        return api_error_response(message=str(err))
+
+
 
 
