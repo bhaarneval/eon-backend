@@ -36,21 +36,6 @@ class Login(APIView):
         token['user_id'] = user.id
         return api_success_response(data=token)
 
-    def get_token_for_user(self, user):
-        """
-        :param user: user for which token is generated
-        :return: {
-            access_token: <value>
-            refresh_token: <value>
-        }
-        """
-        refresh = RefreshToken.for_user(user)
-
-        return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-
 
 class Register(APIView):
 
@@ -78,10 +63,7 @@ class Register(APIView):
                 try:
                     role_obj = Role.objects.get(role=role_name)
                 except Role.DoesNotExist:
-                    role_obj = None
-            if role_obj is None:
-                return api_error_response(message='Role assigned is not matching with any role type', status=400)
-
+                    return api_error_response(message='Role assigned is not matching with any role type', status=400)
             try:
                 user = User.objects.get(email=email)
                 if user is not None:
@@ -93,7 +75,10 @@ class Register(APIView):
                                                           organization=organization, address=address, role=role_obj)
             user_details_obj.save()
 
-            return api_success_response(message='User created successfully', status=201)
+            token = get_token_for_user(user)
+            token['user_id'] = user.id
+
+            return api_success_response(data=token, message='User created successfully', status=201)
         except Exception as err:
             return api_error_response(message=str(err), status=400)
 
@@ -131,5 +116,17 @@ def change_user_password(request):
         return api_error_response(message=str(err))
 
 
+def get_token_for_user(user):
+    """
+    :param user: user for which token is generated
+    :return: {
+        access_token: <value>
+        refresh_token: <value>
+    }
+    """
+    refresh = RefreshToken.for_user(user)
 
-
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
