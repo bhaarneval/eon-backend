@@ -32,7 +32,7 @@ def api_success_response(message=None, data=None, status=None):
         status = http_status.HTTP_200_OK
 
     if data is not None and isinstance(data, list) or isinstance(data, dict):
-        return Response({"data": data, "status": status}, status=status)
+        return Response({"data": data, "status": status, "message":message}, status=status)
     if message:
         return Response({"message": message, "status": status}, status=status)
     return Response(status=status)
