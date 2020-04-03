@@ -17,6 +17,8 @@ class UserManager(BaseUserManager):
         """
         if not email:
             raise ValueError('The email must be set')
+        if 'username' in extra_fields:
+            extra_fields.pop('username')
         user = self.model(username=email, email=email, **extra_fields)
         user.set_password(password)
         user.save()
