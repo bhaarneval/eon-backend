@@ -77,5 +77,5 @@ class UserDetails(ModelBase):
     contact_number = models.CharField(max_length=10)
     organization = models.CharField(max_length=250)
     address = models.CharField(max_length=250)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, default=1)
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING)

@@ -82,19 +82,15 @@ class Register(APIView):
             if role_obj is None:
                 return api_error_response(message='Role assigned is not matching with any role type', status=400)
 
-            # Checking if new_role is created or not
-            try:
-                status_obj = Status.objects.get(status='active')
-            except Status.DoesNotExist:
-                status_obj = None
-
             try:
                 user = User.objects.get(email=email)
+                if user is not None:
+                    return api_error_response(message='A user already exist with the given email id: {}'.format(email),
+                                              status=400)
             except User.DoesNotExist:
                 user = User.objects.create_user(email=email, password=password)
             user_details_obj = UserDetails.objects.create(user=user, name=name, contact_number=contact_number,
-                                                          organization=organization, address=address, status=status_obj,
-                                                          role=role_obj)
+                                                          organization=organization, address=address, role=role_obj)
             user_details_obj.save()
 
             return api_success_response(message='User created successfully', status=201)
