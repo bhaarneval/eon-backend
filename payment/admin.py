@@ -5,12 +5,12 @@ from payment.models import Payment, PaymentType
 
 
 @admin.register(Payment)
-class EventStatusAdmin(admin.ModelAdmin):
+class PaymentAdmin(admin.ModelAdmin):
     list_display = ("id", "type", 'discount', 'status')
     search_fields = ("type", 'status')
 
 
 @admin.register(PaymentType)
-class EventTypeAdmin(admin.ModelAdmin):
+class PaymentTypeAdmin(admin.ModelAdmin):
     list_display = ("id", "type")
     search_fields = ("type", )
