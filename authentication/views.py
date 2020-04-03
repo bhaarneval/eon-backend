@@ -1,13 +1,13 @@
 import json
 
+from django.db import transaction
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
 from rest_framework.decorators import api_view
 from utils.common import api_error_response, api_success_response
-from .models import User, Status, Role, UserDetails
+from .models import User, Role, UserDetails
 
 
 class Login(APIView):
@@ -54,6 +54,7 @@ class Login(APIView):
 
 class Register(APIView):
 
+    @transaction.atomic()
     def post(self, request):
         """
             :param request: email : user's emailId for logging in
