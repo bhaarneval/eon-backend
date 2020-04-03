@@ -1,11 +1,13 @@
+import json
+
+from django.db import transaction
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
 from rest_framework.decorators import api_view
 from utils.common import api_error_response, api_success_response
-from .models import User, Status, Role, UserDetails
+from .models import User, Role, UserDetails
 
 
 class Login(APIView):
@@ -18,8 +20,9 @@ class Login(APIView):
             :param request: password : user's password for logging in
             :return: json containing access and refresh token if the user is authenticated
         """
-        email = request.POST.get('email', None)
-        password = request.POST.get('password', None)
+        data = json.loads(request.body)
+        email = data.get('email', None)
+        password = data.get('password', None)
 
         try:
             user = authenticate(username=email, password=password)
@@ -51,43 +54,44 @@ class Login(APIView):
 
 class Register(APIView):
 
+    @transaction.atomic()
     def post(self, request):
         """
             :param request: email : user's emailId for logging in
             :param request: password : user's password for logging in
             :return: api success response if registration is successful
         """
-        email = request.POST.get('email')
-        name = request.POST.get('name')
-        contact_number = request.POST.get('contact')
-        address = request.POST.get('address')
-        password = request.POST.get('password')
-        organization = request.POST.get('organization')
-        role_name = request.POST.get('role')
-        status = request.POST.get('status')
+        data = json.loads(request.body)
+        email = data.get('email')
+        name = data.get('name')
+        contact_number = data.get('contact')
+        address = data.get('address')
+        password = data.get('password')
+        organization = data.get('organization')
+        role_name = data.get('role')
 
         if email is None or password is None or contact_number is None or organization is None:
             return api_error_response(message='Complete details are not provided', status=400)
 
         try:
-            role_obj = None
-            status_obj = None
             # Checking if new_role is created or not
             if role_name is not None:
-                role_obj = Role.objects.get(role=role_name)
-                if role_obj is None:
-                    role_obj = Role.objects.create(role=role_name)
+                try:
+                    role_obj = Role.objects.get(role=role_name)
+                except Role.DoesNotExist:
+                    role_obj = None
+            if role_obj is None:
+                return api_error_response(message='Role assigned is not matching with any role type', status=400)
 
-            # Checking if new_role is created or not
-            if status is not None:
-                status_obj = Status.objects.get(status=status)
-                if status_obj is None:
-                    status_obj = Status.objects.create(status=status)
-
-            user = User.objects.create_user(email=email, password=password)
+            try:
+                user = User.objects.get(email=email)
+                if user is not None:
+                    return api_error_response(message='A user already exist with the given email id: {}'.format(email),
+                                              status=400)
+            except User.DoesNotExist:
+                user = User.objects.create_user(email=email, password=password)
             user_details_obj = UserDetails.objects.create(user=user, name=name, contact_number=contact_number,
-                                                          organization=organization, address=address, status=status_obj,
-                                                          role=role_obj)
+                                                          organization=organization, address=address, role=role_obj)
             user_details_obj.save()
 
             return api_success_response(message='User created successfully', status=201)
@@ -103,9 +107,10 @@ def change_user_password(request):
                         email: emailId as a username
         :return: JSON confirming password was changed or not
     """
-    email = request.POST.get('email')
-    old_password = request.POST.get('old_password')
-    new_password = request.POST.get('new_password')
+    data = json.loads(request.body)
+    email = data.get('email')
+    old_password = data.get('old_password')
+    new_password = data.get('new_password')
 
     if email is None or old_password is None or new_password is None:
         return api_error_response(message='No field can be left blank')
