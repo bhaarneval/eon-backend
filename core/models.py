@@ -2,6 +2,7 @@ from django.db import models
 
 # Create your models here.
 from authentication.models import ModelBase, User
+from payment.models import Payment
 
 
 class EventStatus(ModelBase):
@@ -62,7 +63,7 @@ class Subscription(ModelBase):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.PositiveIntegerField()
-    payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING)
+    payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.no_of_tickets)
