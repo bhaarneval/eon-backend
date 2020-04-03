@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authentication.models import ModelBase
+from authentication.models import ModelBase, User
 
 
 class EventStatus(ModelBase):
