@@ -29,9 +29,10 @@ class Event(ModelBase):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
-    images = models.URLField()
+    images = models.CharField(max_length=512)
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
+    sold_tickets = models.PositiveIntegerField(default=0)
     status = models.ForeignKey(EventStatus, on_delete=models.DO_NOTHING,)
     external_links = models.CharField(max_length=1024)
 
