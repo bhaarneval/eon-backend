@@ -32,7 +32,7 @@ class Login(APIView):
         if user is None:
             message = "Given Credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
-        token = self.get_token_for_user(user)
+        token = get_token_for_user(user)
         token['user_id'] = user.id
         return api_success_response(data=token)
 
