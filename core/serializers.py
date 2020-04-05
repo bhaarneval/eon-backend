@@ -2,7 +2,7 @@ from rest_framework import serializers
 from core.models import Event, Subscription
 
 
-class ListEventSerializer(serializers.ModelSerializer):
+class ListUpdateEventSerializer(serializers.ModelSerializer):
     event_type = serializers.CharField()
 
     class Meta:

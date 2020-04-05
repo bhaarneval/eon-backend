@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Event
+from eon_backend import settings
 from utils.common import api_success_response, api_error_response
 from utils.s3 import AwsS3
 
@@ -21,7 +22,7 @@ class PresignedUrl(APIView):
         except:
             return api_error_response(message="Event is not valid", status=400)
         image_name = event.images
-        bucket = "bitseonresources"
+        bucket = settings.BUCKET
         object_name = image_name
         s3 = AwsS3()
         presigned_url = s3.get_presigned_url(
@@ -37,9 +38,9 @@ class PresignedUrl(APIView):
         :return:
         """
         asset = json.loads(request.body)
-        bucket = "bitseonresources"
+        bucket = settings.BUCKET
         secret = secrets.token_hex(12)
-        path = 'events/'
+        path = settings.BUCKET_PATH
         name = os.path.splitext(asset["path_name"])
         object_name = path + name[0] + "_" + secret + name[1]
         s3 = AwsS3()

@@ -1,13 +1,14 @@
 import json
 from datetime import date
+
+from django.db import transaction
 from django.db.models import ExpressionWrapper, IntegerField
 from django.db.models import F
 from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from core.models import Event, Subscription, EventStatus
-from core.serializers import EventSerializer, SubscriptionSerializer, ListEventSerializer
+from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer
 # Create your views here.
 from eon_backend import settings
 from utils.common import api_success_response, api_error_response
@@ -15,11 +16,10 @@ from utils.common import api_success_response, api_error_response
 
 class EventViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
+    queryset = Event.objects.all().select_related('type').annotate(event_type=F('type__type'))
+    serializer_class = ListUpdateEventSerializer
 
     def list(self, request, *args, **kwargs):
-        self.serializer_class = ListEventSerializer
         location = request.GET.get("location", None)
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
@@ -38,9 +38,11 @@ class EventViewSet(ModelViewSet):
             self.queryset = self.queryset.annotate(diff=ExpressionWrapper(
                          F('sold_tickets')*100000/F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
-        self.queryset = self.queryset.select_related("type")
-        self.queryset = self.queryset.annotate(event_type=F('type__type'))
         return super(EventViewSet, self).list(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        self.serializer_class = EventSerializer
+        return super(EventViewSet, self).create(request, *args, **kwargs)
 
 
 class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
@@ -48,6 +50,7 @@ class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
+    @transaction.atomic()
     def post(self, request):
         """
             Function to set subscription of a user to a particular event
