@@ -188,3 +188,24 @@ def get_token_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+
+
+@api_view(['POST'])
+def reset_password(request):
+    """
+    API for forgot password, will be called after sms integration
+    :param request: email and password as {"email": <email_id> , "password": "password"}
+    :return: Success if password is changed
+    """
+    data = json.loads(request.body)
+    email = data.get('email')
+    password = data.get('password')
+    try:
+        if email is None or password is None:
+            return api_error_response(message='Email_id and password must be provided')
+        user = User.objects.get(email=email)
+        user.set_password(password)
+        user.save()
+        return api_success_response(message='Password updated successfully')
+    except Exception as err:
+        return api_error_response(message=str(err))
