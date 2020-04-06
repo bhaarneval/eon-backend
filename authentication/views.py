@@ -4,10 +4,11 @@ from django.db import transaction
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-
-from rest_framework.decorators import api_view
-from utils.common import api_error_response, api_success_response
-from .models import User, Role, UserDetails
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from utils.common import api_error_response, api_success_response, default_password
+from .models import User, Role, UserDetail
 
 
 class Login(APIView):
@@ -15,8 +16,7 @@ class Login(APIView):
 
     def post(self, request):
         """
-            :param request: Header containing JWT and secret for User
-            'HTTP_AUTHORIZATION':param request: email : user's email id for logging in
+            :param request: email : user's email id for logging in
             :param request: password : user's password for logging in
             :return: json containing access and refresh token if the user is authenticated
         """
@@ -54,37 +54,93 @@ class Register(APIView):
         password = data.get('password')
         organization = data.get('organization')
         role_name = data.get('role')
+        guest_login = False
 
-        if email is None or password is None or contact_number is None or organization is None:
+        if email is None:
             return api_error_response(message='Complete details are not provided', status=400)
 
+        # check for guest login: everything should be null except email
+        if password is None:
+            if role_name is None and name is None and contact_number is None and address is None and \
+                    organization is None:
+                # guest login
+                guest_login = True
+            else:
+                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
+                                          status=400)
+        else:
+            # for every other case except Guest login, role_name is mandatory field
+            if role_name is None:
+                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
+                                          status=400)
+
         try:
-            # Checking if new_role is created or not
-            if role_name is not None:
-                try:
-                    role_obj = Role.objects.get(role=role_name)
-                except Role.DoesNotExist:
-                    return api_error_response(message='Role assigned is not matching with any role type', status=400)
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            # if user is None then new_user will be created
+            user = None
+        if guest_login:
+            # checking if a user already exist or not
+            # guest registration
+            guest_login = False
             try:
-                user = User.objects.get(email=email)
                 if user is not None:
                     return api_error_response(message='A user already exist with the given email id: {}'.format(email),
                                               status=400)
-            except User.DoesNotExist:
-                user = User.objects.create_user(email=email, password=password)
-            user_details_obj = UserDetails.objects.create(user=user, name=name, contact_number=contact_number,
-                                                          organization=organization, address=address, role=role_obj)
-            user_details_obj.save()
+                else:
+                    user = User.objects.create_user(email=email, password=default_password)
+                    user_details_obj = UserDetail.objects.create(user=user)
+                    user_details_obj.save()
 
-            token = get_token_for_user(user)
-            token['user_id'] = user.id
+                    token = get_token_for_user(user)
+                    token['user_id'] = user.id
+                    return api_success_response(data=token, message='Guest User created successfully', status=201)
 
-            return api_success_response(data=token, message='User created successfully', status=201)
-        except Exception as err:
-            return api_error_response(message=str(err), status=400)
+            except Exception as err:
+                return api_error_response(message=str(err), status=400)
+
+        else:
+            try:
+                try:
+                    # Checking if role is correct or not
+                    role_name = role_name.lower()
+                    role_obj = Role.objects.get(role=role_name)
+                except Role.DoesNotExist:
+                    return api_error_response(message='Role assigned is not matching with any role type', status=400)
+                if user is not None:
+                    # check if a guest user exist with same email, if exist then update the details and return
+                    user_details_object = UserDetail.objects.get(user=user)
+                    user_is_guest = user_details_object.role.role == 'guest'
+                    if user_is_guest:
+                        # set new details to the already existed user object
+                        user.set_password(password)
+                        user.save()
+                        UserDetail.objects.filter(user=user).update(name=name, contact_number=contact_number,
+                                                                    organization=organization, address=address,
+                                                                    role=role_obj)
+                    else:
+                        return api_error_response(message='A user already exist with the given email id: {}'.
+                                                  format(email), status=400)
+
+                else:
+                    user = User.objects.create_user(email=email, password=password)
+
+                    user_details_obj = UserDetail.objects.create(user=user, name=name, contact_number=contact_number,
+                                                                 organization=organization, address=address,
+                                                                 role=role_obj)
+                    user_details_obj.save()
+
+                token = get_token_for_user(user)
+                token['user_id'] = user.id
+
+                return api_success_response(data=token, message='User created successfully', status=201)
+            except Exception as err:
+                return api_error_response(message=str(err), status=400)
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
 def change_user_password(request):
     """
         Function to set current user's password
@@ -92,6 +148,7 @@ def change_user_password(request):
                         email: emailId as a username
         :return: JSON confirming password was changed or not
     """
+
     data = json.loads(request.body)
     email = data.get('email')
     old_password = data.get('old_password')

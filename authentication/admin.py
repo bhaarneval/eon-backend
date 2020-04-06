@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, UserDetails, Status, Role
+from .models import User, UserDetail, Status, Role
 
 
 @admin.register(User)
@@ -20,8 +20,8 @@ class StatusAdmin(admin.ModelAdmin):
     search_fields = ("status", )
 
 
-@admin.register(UserDetails)
-class UserDetailsAdmin(admin.ModelAdmin):
+@admin.register(UserDetail)
+class UserDetailAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "status", "role")
     search_fields = ("user", "contact_number", "organization", "status", "role")
 

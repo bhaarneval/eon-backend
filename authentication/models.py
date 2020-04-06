@@ -48,7 +48,7 @@ class User(AbstractUser, ModelBase):
 
 
 class Role(ModelBase):
-    role = models.CharField(max_length=15, default='user')
+    role = models.CharField(max_length=15, default='guest')
 
     def __str__(self):
         return self.role
@@ -73,11 +73,11 @@ class Status(ModelBase):
         verbose_name_plural = "Statuses"
 
 
-class UserDetails(ModelBase):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+class UserDetail(ModelBase):
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING)
     name = models.CharField(max_length=250, null=True, blank=True)
-    contact_number = models.CharField(max_length=10)
-    organization = models.CharField(max_length=250)
-    address = models.CharField(max_length=250)
+    contact_number = models.CharField(max_length=10, null=True, blank=True)
+    organization = models.CharField(max_length=250, null=True, blank=True)
+    address = models.CharField(max_length=250, null=True, blank=True)
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, default=1)
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, default=4)

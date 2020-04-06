@@ -36,3 +36,6 @@ def api_success_response(message=None, data=None, status=None):
     if message:
         return Response({"message": message, "status": status}, status=status)
     return Response(status=status)
+
+
+default_password = 'default'
