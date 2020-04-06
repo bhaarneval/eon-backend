@@ -40,7 +40,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 class SubscriptionListSerializer(serializers.ModelSerializer):
     name = serializers.CharField()
     email = serializers.EmailField()
-    discount = serializers.CharField()
+    discount = serializers.IntegerField()
 
     class Meta:
         model = Subscription
