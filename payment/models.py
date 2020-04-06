@@ -17,7 +17,6 @@ class Payment(ModelBase):
     discount_amount = models.PositiveIntegerField()
     total_amount = models.PositiveIntegerField()
     ref_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    invoice = models.CharField(max_length=128, unique=True)
     status = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["status"], default=0)
 
     def __str__(self):

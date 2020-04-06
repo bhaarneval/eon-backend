@@ -1,6 +1,4 @@
 import json
-import random
-import string
 
 from django.conf import settings
 from rest_framework import mixins, generics
@@ -30,9 +28,8 @@ class PaymentViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
         if not total_amount:
             total_amount = amount - discount_amount
 
-        invoice = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         data = dict(type=PAYMENT_VALUES['type'][const_type], amount=amount, discount_amount=discount_amount,
-                    total_amount=total_amount, invoice=invoice)
+                    total_amount=total_amount)
 
         serializer = PaymentSerializer(data=data)
         serializer.is_valid(raise_exception=True)
