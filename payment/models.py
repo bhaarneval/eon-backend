@@ -1,6 +1,3 @@
-import string
-from random import random
-
 import uuid as uuid
 from django.conf import settings
 from django.db import models
@@ -19,4 +16,4 @@ class Payment(ModelBase):
     status = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["status"], default=0)
 
     def __str__(self):
-        return "{}-{}-{}-{}".format(self.type, self.amount, self.discount_amount, self.status)
+        return "{}-{}-{}".format(self.amount, self.discount_amount, self.status)
