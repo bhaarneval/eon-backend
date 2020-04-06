@@ -7,8 +7,8 @@ from django.db.models import F
 from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from core.models import Event, Subscription, EventStatus
-from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer
+from core.models import Event, Subscription, EventStatus, Invitation
+from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer, InvitationSerializer
 # Create your views here.
 from eon_backend import settings
 from utils.common import api_success_response, api_error_response
@@ -36,7 +36,7 @@ class EventViewSet(ModelViewSet):
             self.queryset = self.queryset.filter(date__range=[start_date, end_date], status__type='ACTIVE')
         if len(self.queryset) > 1:
             self.queryset = self.queryset.annotate(diff=ExpressionWrapper(
-                         F('sold_tickets')*100000/F('no_of_tickets'), output_field=IntegerField()))
+                F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
         return super(EventViewSet, self).list(request, *args, **kwargs)
 
@@ -63,21 +63,28 @@ class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
         payment_id = data.get('payment_id', None)
         user_id = data.get('user_id', None)
         # getting user_id from token
+        if not event_id or not no_of_tickets or not user_id:
+            return api_error_response(message="Required Fields are not present")
 
         data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment_id=payment_id)
         try:
-            event = Event.objects.get(id=event_id)
+            self.event = Event.objects.get(id=event_id)
         except:
-            return api_error_response(message="Invalid event_id", status=400)
+            return api_error_response("Invalid event_id")
 
-        if event.no_of_tickets-event.sold_tickets >= no_of_tickets:
-            event.sold_tickets += no_of_tickets
-            event.save()
-
+        if self.event.no_of_tickets - self.event.sold_tickets >= no_of_tickets:
             serializer = SubscriptionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-
             return api_success_response(message="Subscribed Successfully", status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
+
+
+# class InvitationViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
+#     authentication_classes = (JWTAuthentication,)
+#     queryset = Invitation.objects.all()
+#     serializer_class = InvitationSerializer
+#
+#     @transaction.atomic()
+#     def post(self, request):
