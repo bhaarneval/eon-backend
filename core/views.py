@@ -2,8 +2,8 @@ import json
 from datetime import date
 
 from django.db import transaction
-from django.db.models import ExpressionWrapper, IntegerField
-from django.db.models import F, When, Case, Value
+from django.db.models import ExpressionWrapper, IntegerField, When, Value, Case
+from django.db.models import F, CharField
 from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -57,14 +57,18 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
         if event_id:
             self.queryset = self.queryset.filter(event=event_id)
             self.queryset = self.queryset.select_related('user').annotate(email=F('user__email'),
-                                                                          name=F('user__userdetails__name'))
-            queryset = self.queryset
-            self.queryset = self.queryset.filter(payment__isnull=False)
-            # queryset = queryset.filter(payment__isnull=True).annotate(
-            #     discount=Case(When(payment__isnull=True, then=Value(0)), output_field=IntegerField()))
-            self.queryset = self.queryset.select_related('payment').annotate(dis=ExpressionWrapper(
-                F('payment__discount') * 100 / F('payment__amount'), output_field=IntegerField()))
-            self.queryset = self.queryset.union(queryset)
+                                                                          name=F('user__userdetails__name'),
+                                                                          contact_number=F(
+                                                                              'user__userdetails__contact_number'))
+            self.queryset = self.queryset.select_related('payment').annotate(
+                paid_amount=Case(
+                     When(payment__isnull=True,
+                          then=Value(0),
+                          ),
+                     When(payment__isnull=False,
+                          then=Value(1),
+                          ),
+                     output_field=IntegerField()))
         serializer = SubscriptionListSerializer(self.queryset, many=True)
         return api_success_response(data=serializer.data, status=200)
 
