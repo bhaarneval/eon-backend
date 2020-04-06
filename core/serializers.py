@@ -45,9 +45,10 @@ class SubscriptionListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = ('name',
+                  "id",
                   'email',
                   'no_of_tickets',
-                  'discount')
+                  'paid_amount')
 
 
 class InvitationSerializer(serializers.ModelSerializer):
