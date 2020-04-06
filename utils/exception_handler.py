@@ -1,5 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
+from rest_framework.views import exception_handler
+
 from core.exceptions import CoreAppException
 
 
@@ -39,4 +41,6 @@ def api_exception_handler(exception, context):
             ),
             status=400,
         )
+    else:
+        response = exception_handler(exception, context)
     return response

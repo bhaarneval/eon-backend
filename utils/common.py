@@ -14,7 +14,7 @@ def api_error_response(message, status=None):
         status = http_status.HTTP_400_BAD_REQUEST
 
     if isinstance(message, str):
-        return Response({"message": message, "status": status}, status=status)
+        return Response({"message": message}, status=status)
     return Response(message, status=status)
 
 
@@ -32,7 +32,10 @@ def api_success_response(message=None, data=None, status=None):
         status = http_status.HTTP_200_OK
 
     if data is not None and isinstance(data, list) or isinstance(data, dict):
-        return Response({"data": data, "status": status, "message":message}, status=status)
+        if message:
+            return Response({"data": data, "message": message}, status=status)
+        else:
+            return Response({"data": data}, status=status)
     if message:
-        return Response({"message": message, "status": status}, status=status)
+        return Response({"message": message}, status=status)
     return Response(status=status)
