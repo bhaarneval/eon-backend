@@ -8,7 +8,7 @@ from payment.models import Payment
 from payment.serializers import PaymentSerializer
 from utils.common import api_error_response, api_success_response
 
-PAYMENT_CONSTANTS = settings.APPLICATION_CONSTANTS["transaction"]
+PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 PAYMENT_VALUES = PAYMENT_CONSTANTS['values']
 
 

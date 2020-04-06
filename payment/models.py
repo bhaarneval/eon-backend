@@ -8,7 +8,7 @@ from django.db import models
 # Create your models here.
 from authentication.models import ModelBase
 
-PAYMENT_CONSTANTS = settings.APPLICATION_CONSTANTS["transaction"]
+PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 
 
 class Payment(ModelBase):
