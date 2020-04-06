@@ -46,7 +46,7 @@ class Event(ModelBase):
 
 class Invitation(ModelBase):
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, unique=True)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     discount_percentage = models.PositiveIntegerField()
 
     def __str__(self):

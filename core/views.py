@@ -7,11 +7,14 @@ from django.db.models import F
 from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from core.models import Event, Subscription, EventStatus, Invitation
-from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer, InvitationSerializer
-# Create your views here.
-from eon_backend import settings
+
+from core.models import Event, Subscription, EventStatus
+from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer, \
+    SubscriptionListSerializer
 from utils.common import api_success_response, api_error_response
+
+
+# Create your views here.
 
 
 class EventViewSet(ModelViewSet):
@@ -45,10 +48,19 @@ class EventViewSet(ModelViewSet):
         return super(EventViewSet, self).create(request, *args, **kwargs)
 
 
-class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
+class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
     authentication_classes = (JWTAuthentication,)
     queryset = Subscription.objects.all()
-    serializer_class = SubscriptionSerializer
+
+    def get(self, request, *args, **kwargs):
+        event_id = request.GET.get("event_id", None)
+        if event_id:
+            self.queryset = self.queryset.filter(event=event_id)
+            self.queryset = self.queryset.select_related('user').annotate(email=F('user__email'),
+                                                                          name=F('user__userdetails__name'))
+            self.queryset = self.queryset.select_related('payment').annotate(discount=F('payment__discount_amount')*100/F('payment__amount'))
+        serializer = SubscriptionListSerializer(self.queryset, many=True)
+        return api_success_response(data=serializer.data, status=200)
 
     @transaction.atomic()
     def post(self, request):

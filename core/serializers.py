@@ -31,7 +31,23 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = "__all__"
+        fields = ('user',
+                  'event',
+                  'no_of_tickets',
+                  'payment')
+
+
+class SubscriptionListSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    email = serializers.EmailField()
+    discount = serializers.CharField()
+
+    class Meta:
+        model = Subscription
+        fields = ('name',
+                  'email',
+                  'no_of_tickets',
+                  'discount')
 
 
 class InvitationSerializer(serializers.ModelSerializer):
