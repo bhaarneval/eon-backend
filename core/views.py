@@ -2,9 +2,8 @@ import json
 from datetime import date
 
 from django.db import transaction
-from django.db.models import ExpressionWrapper, IntegerField, When, Value, Case
+from django.db.models import ExpressionWrapper, IntegerField, Value
 from django.db.models import F
-from django.db.models.functions import Cast
 from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
