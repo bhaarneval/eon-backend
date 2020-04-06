@@ -79,12 +79,3 @@ class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
             return api_success_response(message="Subscribed Successfully", status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
-
-
-# class InvitationViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
-#     authentication_classes = (JWTAuthentication,)
-#     queryset = Invitation.objects.all()
-#     serializer_class = InvitationSerializer
-#
-#     @transaction.atomic()
-#     def post(self, request):
