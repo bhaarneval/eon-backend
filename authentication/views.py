@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from utils.common import api_error_response, api_success_response, default_password
-from .models import User, Role, UserDetail
+from .models import User, Role
+from core.models import UserProfile
 
 
 class Login(APIView):
@@ -32,8 +33,10 @@ class Login(APIView):
         if user is None:
             message = "Given Credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
+        import pdb
+        pdb.set_trace()
         token = get_token_for_user(user)
-        token['user_id'] = user.id
+        token['user'] = produce_object(user)
         return api_success_response(data=token)
 
 
@@ -76,6 +79,8 @@ class Register(APIView):
 
         try:
             user = User.objects.get(email=email)
+            import pdb
+            pdb.set_trace()
         except User.DoesNotExist:
             # if user is None then new_user will be created
             user = None
@@ -89,7 +94,7 @@ class Register(APIView):
                                               status=400)
                 else:
                     user = User.objects.create_user(email=email, password=default_password)
-                    user_details_obj = UserDetail.objects.create(user=user)
+                    user_details_obj = UserProfile.objects.create(user=user)
                     user_details_obj.save()
 
                     token = get_token_for_user(user)
@@ -109,13 +114,13 @@ class Register(APIView):
                     return api_error_response(message='Role assigned is not matching with any role type', status=400)
                 if user is not None:
                     # check if a guest user exist with same email, if exist then update the details and return
-                    user_details_object = UserDetail.objects.get(user=user)
+                    user_details_object = UserProfile.objects.get(user=user)
                     user_is_guest = user_details_object.role.role == 'guest'
                     if user_is_guest:
                         # set new details to the already existed user object
                         user.set_password(password)
                         user.save()
-                        UserDetail.objects.filter(user=user).update(name=name, contact_number=contact_number,
+                        UserProfile.objects.filter(user=user).update(name=name, contact_number=contact_number,
                                                                     organization=organization, address=address,
                                                                     role=role_obj)
                     else:
@@ -125,7 +130,7 @@ class Register(APIView):
                 else:
                     user = User.objects.create_user(email=email, password=password)
 
-                    user_details_obj = UserDetail.objects.create(user=user, name=name, contact_number=contact_number,
+                    user_details_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
                                                                  organization=organization, address=address,
                                                                  role=role_obj)
                     user_details_obj.save()
