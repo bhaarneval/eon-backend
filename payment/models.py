@@ -12,7 +12,6 @@ PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 
 
 class Payment(ModelBase):
-    type = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["type"])
     amount = models.PositiveIntegerField()
     discount_amount = models.PositiveIntegerField()
     total_amount = models.PositiveIntegerField()
