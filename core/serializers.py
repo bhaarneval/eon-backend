@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Event, Subscription
+from core.models import Event, Subscription, UserProfile
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -15,3 +15,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = "__all__"
 
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"

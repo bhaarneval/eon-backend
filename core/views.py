@@ -6,10 +6,10 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from core.models import Event, EventStatus, Subscription
-from core.serializers import EventSerializer, SubscriptionSerializer
+from core.models import Event, EventStatus, Subscription, UserProfile
+from core.serializers import EventSerializer, SubscriptionSerializer, UserProfileSerializer
 from datetime import date
-# Create your views here.
+
 from eon_backend import settings
 from utils.common import api_success_response, api_error_response
 
@@ -69,4 +69,21 @@ class SubscriptionViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
         return api_success_response(message="Subscribed Successfully", status=201)
 
 
+class UserViewSet(ModelViewSet):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+
+    def put(self, request):
+        """
+        Function to update the user_details
+        :param request: will contain user_id and details that need to be updated as
+        {
+            'user': <int:id>
+            fields to be updated in same json format
+        }
+        :return: Updated UserProfile object as response or error_message if failed
+        """
+        return self.update(request)
 
