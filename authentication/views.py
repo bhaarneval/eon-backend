@@ -84,37 +84,37 @@ class Register(APIView):
             return api_error_response(message=str(err), status=400)
 
 
-@api_view(['POST'])
-def change_user_password(request):
-    """
-        Function to set current user's password
-        :param request: password: password to be reset
-                        email: emailId as a username
-        :return: JSON confirming password was changed or not
-    """
-    data = json.loads(request.body)
-    email = data.get('email')
-    old_password = data.get('old_password')
-    new_password = data.get('new_password')
+class change_user_password(APIView):
+    def post(self, request):
+        """
+            Function to set current user's password
+            :param request: password: password to be reset
+                            email: emailId as a username
+            :return: JSON confirming password was changed or not
+        """
+        data = json.loads(request.body)
+        email = data.get('email')
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
 
-    if email is None or old_password is None or new_password is None:
-        return api_error_response(message='No field can be left blank')
+        if email is None or old_password is None or new_password is None:
+            return api_error_response(message='No field can be left blank')
 
-    try:
-        user = authenticate(username=email, password=old_password)
-    except Exception as err:
-        return api_error_response(message=str(err), status=400)
+        try:
+            user = authenticate(username=email, password=old_password)
+        except Exception as err:
+            return api_error_response(message=str(err), status=400)
 
-    if user is None:
-        message = "Given Credentials does not matches with any registered user"
-        return api_error_response(message=message, status=400)
+        if user is None:
+            message = "Given Credentials does not matches with any registered user"
+            return api_error_response(message=message, status=400)
 
-    try:
-        user.set_password(new_password)
-        user.save()
-        return api_success_response(message='Password updated successfully')
-    except Exception as err:
-        return api_error_response(message=str(err))
+        try:
+            user.set_password(new_password)
+            user.save()
+            return api_success_response(message='Password updated successfully')
+        except Exception as err:
+            return api_error_response(message=str(err))
 
 
 def get_token_for_user(user):
