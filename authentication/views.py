@@ -84,7 +84,6 @@ class Register(APIView):
             return api_error_response(message=str(err), status=400)
 
 
-# @api_view(['POST'])
 class change_user_password(APIView):
     def post(self, request):
         """
