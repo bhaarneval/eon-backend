@@ -1,6 +1,5 @@
 from django.conf.urls import url
 from django.urls import include
-from django.views.decorators.csrf import csrf_exempt
 
 from core.presigned_url import PresignedUrl
 from core.routes import router
