@@ -1,18 +1,8 @@
 from django.db import models
 
 # Create your models here.
-from authentication.models import ModelBase, User
+from authentication.models import ModelBase, User, Role
 from payment.models import Payment
-
-
-class EventStatus(ModelBase):
-    type = models.CharField(unique=True, max_length=256)
-
-    class Meta:
-        verbose_name_plural = "Event Status"
-
-    def __str__(self):
-        return self.type
 
 
 class EventType(ModelBase):
@@ -33,14 +23,15 @@ class Event(ModelBase):
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
     sold_tickets = models.PositiveIntegerField(default=0)
-    status = models.ForeignKey(EventStatus, on_delete=models.DO_NOTHING,)
+    is_cancelled = models.BooleanField(default=False)
     external_links = models.CharField(max_length=1024)
+    event_created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     class Meta:
         unique_together = ("name", "type", "date", "time")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.name, self.type, self.status)
+        return "{}-{}".format(self.name, self.type)
 
 
 class Invitation(ModelBase):
@@ -66,5 +57,22 @@ class Subscription(ModelBase):
     no_of_tickets = models.PositiveIntegerField()
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        self.event.sold_tickets += self.no_of_tickets
+        self.event.save()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.no_of_tickets)
+
+
+class UserProfile(ModelBase):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=250, null=True, blank=True)
+    contact_number = models.CharField(max_length=10, null=True, blank=True)
+    organization = models.CharField(max_length=250, null=True, blank=True)
+    address = models.CharField(max_length=250, null=True, blank=True)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, default=1)
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.user, self.name, self.contact_number)

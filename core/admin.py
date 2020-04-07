@@ -1,13 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from core.models import EventStatus, EventType, Event, Invitation, EventPreference, Subscription
-
-
-@admin.register(EventStatus)
-class EventStatusAdmin(admin.ModelAdmin):
-    list_display = ("id", "type")
-    search_fields = ("type",)
+from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile
 
 
 @admin.register(EventType)
@@ -19,8 +13,8 @@ class EventTypeAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "status")
-    search_fields = ("name", "type", "status")
+        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "is_cancelled")
+    search_fields = ("name", "type", "event_created_by")
 
 
 @admin.register(Invitation)
@@ -39,3 +33,9 @@ class EventPreferenceAdmin(admin.ModelAdmin):
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ("id", "event", "user", "no_of_tickets", "payment")
     search_fields = ("event", "user")
+
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "contact_number", "organization", "role")
+    search_fields = ("user", "contact_number", "organization", "role")
