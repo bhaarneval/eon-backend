@@ -1,5 +1,6 @@
 from rest_framework import status as http_status
 from rest_framework.response import Response
+from core.models import UserProfile, User
 
 
 def api_error_response(message, status=None):
@@ -39,3 +40,20 @@ def api_success_response(message=None, data=None, status=None):
 
 
 default_password = 'default'
+
+
+def produce_object_for_user(user):
+    """
+    Function to produce object for user_Details
+    :param user: user object
+    :return: An Object with complete details
+    """
+    user_profile = UserProfile.objects.get(user=user)
+    response = {'user_id': user.id, 'email': user.email, 'active_status': user.is_active, 'name': user_profile.name,
+                'created_on': user_profile.created_on, 'updated_on': user_profile.updated_on,
+                'contact_number': user_profile.contact_number, 'organization': user_profile.organization,
+                'address': user_profile.address, 'role': {'id': user_profile.role.id, 'role': user_profile.role.role}}
+    return response
+
+
+

@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from utils.common import api_error_response, api_success_response, default_password
+from utils.common import api_error_response, api_success_response, default_password, produce_object_for_user
 from .models import User, Role
 from core.models import UserProfile
 
@@ -34,7 +34,7 @@ class Login(APIView):
             message = "Given Credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
-        token['user'] = user.id
+        token['user'] = produce_object_for_user(user)
         return api_success_response(data=token)
 
 
@@ -77,8 +77,6 @@ class Register(APIView):
 
         try:
             user = User.objects.get(email=email)
-            import pdb
-            pdb.set_trace()
         except User.DoesNotExist:
             # if user is None then new_user will be created
             user = None
@@ -128,14 +126,13 @@ class Register(APIView):
                 else:
                     user = User.objects.create_user(email=email, password=password)
 
-                    user_details_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
+                    user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
                                                                  organization=organization, address=address,
                                                                  role=role_obj)
-                    user_details_obj.save()
+                    user_profile_obj.save()
 
                 token = get_token_for_user(user)
-                token['user_id'] = user.id
-
+                token['user'] = produce_object_for_user(user)
                 return api_success_response(data=token, message='User created successfully', status=201)
             except Exception as err:
                 return api_error_response(message=str(err), status=400)
