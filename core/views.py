@@ -86,7 +86,7 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
         if not event_id or not no_of_tickets or not user_id:
             return api_error_response(message="Required Fields are not present")
 
-        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment_id=payment_id)
+        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment=payment_id)
         try:
             self.event = Event.objects.get(id=event_id)
         except:
@@ -96,6 +96,20 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
             serializer = SubscriptionSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return api_success_response(message="Subscribed Successfully", status=201)
+
+            if serializer.instance.payment:
+                queryset = Subscription.objects.filter(id=serializer.instance.id)
+                queryset = queryset.select_related('payment')
+                queryset = queryset.select_related('event')
+                queryset = queryset.annotate(pay=F('payment__id'), amount=F('payment__total_amount'),
+                                             events=F('event'), event_name=F('event__name'),
+                                             event_date=F('event__date'), event_time=F('event__time'),
+                                             event_location=F('event__location'))
+                data = dict(no_of_tickets=queryset[0].no_of_tickets, payment_id=queryset[0].pay,
+                            amount=queryset[0].amount, event_name=queryset[0].event_name,
+                            event_date=queryset[0].event_date, event_time=queryset[0].event_time,
+                            event_location=queryset[0].event_location)
+
+            return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
