@@ -6,15 +6,12 @@ from rest_framework import mixins, generics
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from core.models import Event, Subscription, EventType
-from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer, EventTypeSerializer
+from core.models import Event, Subscription, EventType, UserProfile
+from core.serializers import SubscriptionSerializer, EventTypeSerializer, UserProfileSerializer
+
 
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
-
-
-from core.models import UserProfile
-from core.serializers import UserProfileSerializer
 
 # Create your views here.
 
