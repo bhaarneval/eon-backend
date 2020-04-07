@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Event, Subscription
+from core.models import Event, Subscription, EventType
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -32,4 +32,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = "__all__"
+
+
+class EventTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = EventType
+        exclude = ('created_on', 'updated_on')
 

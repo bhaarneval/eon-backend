@@ -171,3 +171,46 @@ APP_CONSTANTS = APPLICATION_CONSTANTS
 # AWS constants
 BUCKET = os.environ.get('BUCKET_NAME')
 BUCKET_PATH = os.environ.get('AWS_BUCKET_PATH')
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION")
+EMAIL_ID = os.environ.get("EMAIL_ID")
+
+# config for sms and email
+SMS_CONFIG = {
+    "invitation": {"status": True,
+                   "message": "You are invited for the event. Please registered to avail the discount for the event."}
+}
+
+EMAIL_CONFIG = {
+    "user_created": {"status": True,
+                     "message": "Thank you for registering with BITS-EOn.",
+                     "subject": "REGISTRATION SUCCESSFUL"},
+    "change_password": {"status": True,
+                        "message": "Your password is changed recently.",
+                        "subject": "PASSWORD CHANGED"},
+    "event_updated": {"status": True,
+                      "message": "Your registered event is modified by the organiser.",
+                      "subject": "EVENT UPDATED"},
+    "event_deleted": {"status": True,
+                      "message": "Your registered event is deleted by the organiser.",
+                      "subject": "REGISTERED EVENT DELETED"},
+    "event_reminder": {"status": True,
+                       "message": "Reminder for the registered event.",
+                       "subject": "REGISTERED EVENT REMINDER"},
+    "invitation": {"status": True,
+                   "message": "You are invited for the event. Please registered to avail the discount for the event.",
+                   "subject": "INVITATION FOR AN EVENT"},
+    "user_share": {"status": True,
+                   "message": "Your friend is going for the event asking you to join along with him.",
+                   "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."}
+}
+
+NOTIFICATION_CONFIG = {
+    "event_updated": {"status": True,
+                      "message": "Your registered event is modified by the organiser."},
+    "event_deleted": {"status": True,
+                      "message": "Your registered event is deleted by the organiser."},
+    "event_reminder": {"status": True,
+                       "message": "Reminder for the registered event."}
+}
