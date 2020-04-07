@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authentication.models import ModelBase, User
+from authentication.models import ModelBase, User, Role
 from payment.models import Payment
 from utils.common import api_error_response
 
@@ -74,3 +74,12 @@ class Subscription(ModelBase):
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.no_of_tickets)
+
+
+class UserProfile(ModelBase):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=250, null=True, blank=True)
+    contact_number = models.CharField(max_length=10, null=True, blank=True)
+    organization = models.CharField(max_length=250, null=True, blank=True)
+    address = models.CharField(max_length=250, null=True, blank=True)
+    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, default=1)

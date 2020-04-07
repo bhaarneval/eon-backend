@@ -15,6 +15,7 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a User with the given email and password.
         """
+        extra_fields.setdefault('is_active', True)
         if not email:
             raise ValueError('The email must be set')
         if 'username' in extra_fields:
@@ -48,7 +49,7 @@ class User(AbstractUser, ModelBase):
 
 
 class Role(ModelBase):
-    role = models.CharField(max_length=15, default='user')
+    role = models.CharField(max_length=15, default='guest')
 
     def __str__(self):
         return self.role
@@ -58,26 +59,3 @@ class Role(ModelBase):
         db_table = "role"
         verbose_name = "role"
         verbose_name_plural = "roles"
-
-
-class Status(ModelBase):
-    status = models.CharField(max_length=30)
-
-    def __str__(self):
-        return self.status
-
-    class Meta:
-        managed = True
-        db_table = "status"
-        verbose_name = "Status"
-        verbose_name_plural = "Statuses"
-
-
-class UserDetails(ModelBase):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=250, null=True, blank=True)
-    contact_number = models.CharField(max_length=10)
-    organization = models.CharField(max_length=250)
-    address = models.CharField(max_length=250)
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, default=1)
-    role = models.ForeignKey(Role, on_delete=models.DO_NOTHING)

@@ -1,13 +1,13 @@
 import json
 from django.test import TestCase
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from authentication.models import Role, Status, User
 
 
 class AuthenticationTestCase(TestCase):
 
     def _submit_request(self, view_name, method='POST', raw_json=None,
-                        view_kwargs=None, getargs=None):
+                        view_kwargs=None, getargs=None, header=None, reverse_url=False):
         """Submits a request to the client running inside the test engine.
 
         :param view_name: the reverse-lookup name for the view to submit the
@@ -136,7 +136,7 @@ class AuthenticationTestCase(TestCase):
         expected_response = {'message': 'Password updated successfully', 'status': 200}
 
         # Run
-        response = self._submit_request('change_user_password', raw_json=pay_load)
+        response = self._submit_request('change-password', raw_json=pay_load)
 
         # check
         self.assertEqual(response, expected_response)
@@ -153,7 +153,7 @@ class AuthenticationTestCase(TestCase):
         expected_response = {'message': 'Given Credentials does not matches with any registered user', 'status': 400}
 
         # Run
-        response = self._submit_request('change_user_password', raw_json=pay_load)
+        response = self._submit_request('change-password', raw_json=pay_load)
 
         # check
         self.assertEqual(response, expected_response)
@@ -170,7 +170,37 @@ class AuthenticationTestCase(TestCase):
         expected_response = {'message': 'No field can be left blank', 'status': 400}
 
         # Run
-        response = self._submit_request('change_user_password', raw_json=pay_load)
+        response = self._submit_request('change-password', raw_json=pay_load)
 
         # check
         self.assertEqual(response, expected_response)
+
+    def test_reset_password(self):
+        """
+        Unit test to check reset_password API
+        :return:
+        """
+        old_password = "password"
+        new_password = "new_password"
+        # Setup
+        User.objects.create_user(email='email@mail.com', password='password')
+
+        # Run
+        reset_response = self._submit_request('reset-password', raw_json={"email": 'email@mail.com', "password": new_password})
+        self.assertEqual(reset_response['status'], 200)
+
+        # login with changed password should be successful
+        login_response_with_new_password = \
+            self._submit_request('login', raw_json={"email": 'email@mail.com',"password": new_password})
+
+        self.assertEqual(login_response_with_new_password['status'], 200)
+
+        # login won't be successful with old password
+        login_response_with_old_password = \
+            self._submit_request('login', raw_json={"email": 'email@mail.com',"password": old_password})
+        self.assertEqual(login_response_with_old_password['message'],
+                         "Given Credentials does not matches with any registered user")
+        self.assertEqual(login_response_with_old_password['status'], 400)
+
+
+
