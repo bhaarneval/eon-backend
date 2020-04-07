@@ -68,7 +68,8 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
             queryset = self.queryset.union(queryset)
 
         serializer = SubscriptionListSerializer(queryset, many=True)
-        return api_success_response(data=serializer.data, status=200)
+        data = dict(total=len(queryset), subscribtion_list=serializer.data)
+        return api_success_response(data=data, status=200)
 
     @transaction.atomic()
     def post(self, request):
