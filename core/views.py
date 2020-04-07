@@ -59,17 +59,17 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
         event_id = request.GET.get("event_id", None)
         if event_id:
             self.queryset = self.queryset.filter(event=event_id)
-            self.queryset = self.queryset.select_related('user').annotate(email=F('user__email'),
-                                                                          name=F('user__userdetails__name'),
-                                                                          contact_number=F(
-                                                                              'user__userdetails__contact_number'))
 
-            queryset = self.queryset.filter(payment__isnull=True)
-            self.queryset = self.queryset.filter(payment__isnull=False)
-            self.queryset = self.queryset.select_related('payment').annotate(paid_amount=F('payment__total_amount'))
-            queryset = queryset.select_related('payment').annotate(paid_amount=Value(0, IntegerField()))
-            queryset = self.queryset.union(queryset)
+        self.queryset = self.queryset.select_related('user').annotate(email=F('user__email'),
+                                                                      name=F('user__userdetails__name'),
+                                                                      contact_number=F(
+                                                                          'user__userdetails__contact_number'))
 
+        queryset = self.queryset.filter(payment__isnull=True)
+        self.queryset = self.queryset.filter(payment__isnull=False)
+        self.queryset = self.queryset.select_related('payment').annotate(paid_amount=F('payment__total_amount'))
+        queryset = queryset.select_related('payment').annotate(paid_amount=Value(0, IntegerField()))
+        queryset = self.queryset.union(queryset)
         serializer = SubscriptionListSerializer(queryset, many=True)
         data = dict(total=len(queryset), subscribtion_list=serializer.data)
         return api_success_response(data=data, status=200)
@@ -95,6 +95,9 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
             self.event = Event.objects.get(id=event_id)
         except:
             return api_error_response("Invalid event_id")
+
+        if self.event.subscription_fee > 0 and not payment_id:
+            return api_error_response(message="Required Fields are not present")
 
         if self.event.no_of_tickets - self.event.sold_tickets >= no_of_tickets:
             serializer = SubscriptionSerializer(data=data)
