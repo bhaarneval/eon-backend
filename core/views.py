@@ -8,9 +8,12 @@ from rest_framework import mixins, generics
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Event, Subscription, EventStatus
-from core.serializers import EventSerializer, SubscriptionSerializer, ListUpdateEventSerializer, \
-    SubscriptionListSerializer
+from core.models import Event, EventStatus, Subscription, UserProfile
+from core.serializers import EventSerializer, SubscriptionSerializer, UserProfileSerializer, ListUpdateEventSerializer, SubscriptionListSerializer
+from datetime import date
+
+from eon_backend import settings
+
 from utils.common import api_success_response, api_error_response
 
 
@@ -101,19 +104,21 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, generi
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-            if serializer.instance.payment:
-                queryset = Subscription.objects.filter(id=serializer.instance.id)
-                queryset = queryset.select_related('payment')
-                queryset = queryset.select_related('event')
-                queryset = queryset.annotate(pay=F('payment__id'), amount=F('payment__total_amount'),
-                                             events=F('event'), event_name=F('event__name'),
-                                             event_date=F('event__date'), event_time=F('event__time'),
-                                             event_location=F('event__location'))
-                data = dict(no_of_tickets=queryset[0].no_of_tickets, payment_id=queryset[0].pay,
-                            amount=queryset[0].amount, event_name=queryset[0].event_name,
-                            event_date=queryset[0].event_date, event_time=queryset[0].event_time,
-                            event_location=queryset[0].event_location)
 
-            return api_success_response(message="Subscribed Successfully", data=data, status=201)
-        else:
-            return api_error_response(message="Number of tickets are invalid", status=400)
+class UserViewSet(ModelViewSet):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+
+    def put(self, request):
+        """
+        Function to update the user_details
+        :param request: will contain user_id and details that need to be updated as
+        {
+            'user': <int:id>
+            fields to be updated in same json format
+        }
+        :return: Updated UserProfile object as response or error_message if failed
+        """
+        return self.update(request)

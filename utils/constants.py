@@ -5,3 +5,5 @@ PAYMENT_CONSTANTS = dict(
     ),
 )
 APPLICATION_CONSTANTS = dict(transaction=PAYMENT_CONSTANTS)
+
+DEFAULT_PASSWORD = dict(password='default')

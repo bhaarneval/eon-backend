@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from core.models import Event, Subscription, Invitation
+
+from core.models import Event, Subscription, UserProfile, Invitation
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -56,3 +57,9 @@ class InvitationSerializer(serializers.ModelSerializer):
         model = Invitation
         fields = "__all__"
 
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
