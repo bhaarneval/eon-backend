@@ -39,7 +39,7 @@ class EventViewSet(ModelViewSet):
             self.queryset = self.queryset.filter(date__range=[start_date, end_date], status__type='ACTIVE')
         if len(self.queryset) > 1:
             self.queryset = self.queryset.annotate(diff=ExpressionWrapper(
-                F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
+                F('sold_tickets')*100000/F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
         return super(EventViewSet, self).list(request, *args, **kwargs)
 
