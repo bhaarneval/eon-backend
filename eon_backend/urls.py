@@ -22,5 +22,4 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^core/', include('core.urls')),
     path('authentication/', include('authentication.urls')),
-    url(r'^payment/', include('payment.urls')),
 ]
