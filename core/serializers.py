@@ -2,7 +2,6 @@ from rest_framework import serializers
 from core.models import Event, Subscription, UserProfile, Invitation, EventType
 
 
-
 class ListUpdateEventSerializer(serializers.ModelSerializer):
     event_type = serializers.CharField()
 
