@@ -88,3 +88,29 @@ class SubscriptionAPITest(APITestCase):
         )
         self.assertEquals(response.status_code, 201)
 
+    def test_subscription_api_with_invalid_event_id(self):
+        """ payment_id is required field"""
+        data = {
+            "event_id": 4000,
+            "user_id": 28,
+            "no_of_tickets": 4
+        }
+        response = self.client.post(
+            self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        self.assertEquals(response.status_code, 400)
+
+    def test_subscription_api_with_no_of_tickets_greater_than_tickets_left(self):
+        """ payment_id is required field"""
+        data = {
+            "event_id": 3,
+            "user_id": 28,
+            "no_of_tickets": 1000,
+        }
+        response = self.client.post(
+            self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        self.assertEquals(response.status_code, 400)
+
