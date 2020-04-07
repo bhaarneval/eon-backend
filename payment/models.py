@@ -1,23 +1,19 @@
+import uuid as uuid
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
 from authentication.models import ModelBase
-from utils.constants import PAYMENT_CONSTANTS
 
-
-class PaymentType(ModelBase):
-    type = models.CharField(max_length=64)
-
-    def __str__(self):
-        return self.type
+PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 
 
 class Payment(ModelBase):
-    type = models.ForeignKey(PaymentType, on_delete=models.DO_NOTHING)
     amount = models.PositiveIntegerField()
-    discount = models.PositiveIntegerField()
+    discount_amount = models.PositiveIntegerField()
     total_amount = models.PositiveIntegerField()
-    status = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["status"])
+    ref_number = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    status = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["status"], default=0)
 
     def __str__(self):
-        return "{}-{}-{}-{}".format(self.type, self.amount, self.discount, self.status)
+        return "{}-{}-{}".format(self.amount, self.discount_amount, self.status)

@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'core',
     'authentication',
     'rest_framework',
-    'payment'
+    'payment',
 ]
 
 MIDDLEWARE = [
@@ -167,3 +167,7 @@ REST_FRAMEWORK = {
 
 # constant
 APP_CONSTANTS = APPLICATION_CONSTANTS
+
+# AWS constants
+BUCKET = os.environ.get('BUCKET_NAME')
+BUCKET_PATH = os.environ.get('AWS_BUCKET_PATH')

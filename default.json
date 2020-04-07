@@ -1,0 +1,1000 @@
+[
+{
+    "model": "core.eventstatus",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.113Z",
+        "updated_on": "2020-04-02T13:18:26.140Z",
+        "type": "ACTIVE"
+    }
+},
+{
+    "model": "core.eventstatus",
+    "pk": 2,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.113Z",
+        "updated_on": "2020-04-02T13:18:26.140Z",
+        "type": "DRAFTED"
+    }
+},
+{
+    "model": "core.eventstatus",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.113Z",
+        "updated_on": "2020-04-02T13:18:26.140Z",
+        "type": "CANCELLED"
+    }
+},
+{
+    "model": "core.eventstatus",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.113Z",
+        "updated_on": "2020-04-02T13:18:26.140Z",
+        "type": "COMPLETED"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Festivals"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 2,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Conferences"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Crermonies"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Athletic Competitions"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 5,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Seminars"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 6,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Trade Fair"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 7,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Formal Parties"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 8,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Concerts"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 9,
+    "fields": {
+        "created_on": "2020-04-02T13:18:26.165Z",
+        "updated_on": "2020-04-02T13:18:26.192Z",
+        "type": "Convocation"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-03T10:21:00.836Z",
+        "updated_on": "2020-04-06T18:44:16.136Z",
+        "name": "Chilling",
+        "type": 1,
+        "description": "New Event",
+        "date": "2020-04-02",
+        "time": "12:38:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 200,
+        "sold_tickets": 5,
+        "status": 3,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-03T11:37:21.997Z",
+        "updated_on": "2020-04-04T15:01:50.819Z",
+        "name": "Test2",
+        "type": 2,
+        "description": "New Event",
+        "date": "2020-04-02",
+        "time": "12:38:00",
+        "location": "karnal",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 250,
+        "sold_tickets": 2,
+        "status": 3,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 5,
+    "fields": {
+        "created_on": "2020-04-03T11:41:22.877Z",
+        "updated_on": "2020-04-04T15:01:55.898Z",
+        "name": "Test3",
+        "type": 3,
+        "description": "New Event",
+        "date": "2020-04-03",
+        "time": "12:38:00",
+        "location": "karnal",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 270,
+        "sold_tickets": 2,
+        "status": 3,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 6,
+    "fields": {
+        "created_on": "2020-04-03T11:42:20.778Z",
+        "updated_on": "2020-04-05T10:52:33.849Z",
+        "name": "Holi",
+        "type": 4,
+        "description": "New Event",
+        "date": "2020-04-03",
+        "time": "12:38:00",
+        "location": "karnal",
+        "images": "events/mohit_4b11c74a40a31f833bd486d4.jpg",
+        "subscription_fee": 499,
+        "no_of_tickets": 290,
+        "sold_tickets": 2,
+        "status": 3,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 7,
+    "fields": {
+        "created_on": "2020-04-03T11:42:47.004Z",
+        "updated_on": "2020-04-04T17:01:13.101Z",
+        "name": "Test5",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-05",
+        "time": "12:38:00",
+        "location": "karnal",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 300,
+        "sold_tickets": 2,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 8,
+    "fields": {
+        "created_on": "2020-04-03T11:42:57.256Z",
+        "updated_on": "2020-04-06T06:26:47.862Z",
+        "name": "Test7",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-20",
+        "time": "12:38:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 110,
+        "sold_tickets": 24,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 9,
+    "fields": {
+        "created_on": "2020-04-03T11:43:06.173Z",
+        "updated_on": "2020-04-06T06:40:36.673Z",
+        "name": "Test8",
+        "type": 6,
+        "description": "New Event",
+        "date": "2020-04-22",
+        "time": "12:38:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 20,
+        "sold_tickets": 5,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 10,
+    "fields": {
+        "created_on": "2020-04-04T17:42:39.892Z",
+        "updated_on": "2020-04-06T14:59:48.652Z",
+        "name": "Diwali",
+        "type": 1,
+        "description": "New Event",
+        "date": "2020-04-09",
+        "time": "12:38:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 200,
+        "sold_tickets": 8,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 11,
+    "fields": {
+        "created_on": "2020-04-05T10:59:07.408Z",
+        "updated_on": "2020-04-06T15:21:33.042Z",
+        "name": "Lohri",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-10",
+        "time": "13:40:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 499,
+        "no_of_tickets": 200,
+        "sold_tickets": 8,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "core.event",
+    "pk": 12,
+    "fields": {
+        "created_on": "2020-04-05T11:22:51.854Z",
+        "updated_on": "2020-04-07T03:29:26.423Z",
+        "name": "DJ",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-10",
+        "time": "13:40:00",
+        "location": "Panipat",
+        "images": "events/test_0a649ff03c0d16cc26f8d5b6.png",
+        "subscription_fee": 499,
+        "no_of_tickets": 200,
+        "sold_tickets": 40,
+        "status": 1,
+        "external_links": "google.com"
+    }
+},
+{
+    "model": "authentication.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$sotnwdOZV6lR$q1ZuGInOMiVwHM//mAlFnV/4qtN1BlsTcuSEH8NlhMY=",
+        "last_login": "2020-04-02T12:19:00.957Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2020-04-02T12:18:47.191Z",
+        "created_on": "2020-04-02T12:18:47.580Z",
+        "updated_on": "2020-04-02T12:18:47.580Z",
+        "email": "mohit@admin.com",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "authentication.user",
+    "pk": 28,
+    "fields": {
+        "password": "pbkdf2_sha256$180000$off2KtSUA8XJ$mrN50dtClbNY93H8CgOD2TvRg77gU7fPBW98L7M+rNY=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "user2@gmail.com",
+        "first_name": "",
+        "last_name": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2020-04-03T10:12:06.312Z",
+        "created_on": "2020-04-03T10:12:06.600Z",
+        "updated_on": "2020-04-03T10:12:06.600Z",
+        "email": "user2@gmail.com",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "authentication.role",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-02T16:46:14.328Z",
+        "updated_on": "2020-04-02T16:46:14.328Z",
+        "role": "Event Organizer"
+    }
+},
+{
+    "model": "authentication.role",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-02T16:46:53.520Z",
+        "updated_on": "2020-04-02T16:46:53.520Z",
+        "role": "EventSubscriber"
+    }
+},
+{
+    "model": "authentication.role",
+    "pk": 5,
+    "fields": {
+        "created_on": "2020-04-02T16:47:00.305Z",
+        "updated_on": "2020-04-02T16:47:00.305Z",
+        "role": "Guestuser"
+    }
+},
+{
+    "model": "authentication.status",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-02T17:20:33.184Z",
+        "updated_on": "2020-04-02T17:20:33.184Z",
+        "status": "Active"
+    }
+},
+{
+    "model": "authentication.status",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-03T06:15:50.883Z",
+        "updated_on": "2020-04-03T06:15:50.883Z",
+        "status": "Event Organizer"
+    }
+},
+{
+    "model": "authentication.userdetails",
+    "pk": 8,
+    "fields": {
+        "created_on": "2020-04-03T10:12:06.602Z",
+        "updated_on": "2020-04-03T10:12:06.603Z",
+        "user": 28,
+        "name": null,
+        "contact_number": "9896846744",
+        "organization": "hashedin",
+        "address": "Bangalore",
+        "status": 1,
+        "role": 3
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-06T12:13:01.509Z",
+        "updated_on": "2020-04-06T12:13:01.509Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "2a4ce77d-d9a7-436c-bcb6-e49bb837961f",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 11,
+    "fields": {
+        "created_on": "2020-04-06T12:22:32.082Z",
+        "updated_on": "2020-04-06T12:22:32.082Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "800d0d01-f787-4b19-9ab9-14b6cbeec9bd",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 12,
+    "fields": {
+        "created_on": "2020-04-06T12:22:45.931Z",
+        "updated_on": "2020-04-06T12:22:45.931Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "2de3d163-c903-4cb3-b0c7-61b00c29025b",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 13,
+    "fields": {
+        "created_on": "2020-04-06T17:20:59.802Z",
+        "updated_on": "2020-04-06T17:20:59.802Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "ae27a6a3-5487-4f72-a045-0708ddf592a6",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 14,
+    "fields": {
+        "created_on": "2020-04-06T18:05:01.607Z",
+        "updated_on": "2020-04-06T18:05:01.607Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "69ac9769-159f-46aa-8318-277ab40a492a",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 15,
+    "fields": {
+        "created_on": "2020-04-07T03:34:22.820Z",
+        "updated_on": "2020-04-07T03:34:22.820Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "093316a6-81b1-4980-a6e6-a55f1046400d",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 16,
+    "fields": {
+        "created_on": "2020-04-07T03:35:10.612Z",
+        "updated_on": "2020-04-07T03:35:10.612Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "3c52a546-85cc-45fc-9d81-a34222801c0d",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 17,
+    "fields": {
+        "created_on": "2020-04-07T03:35:22.084Z",
+        "updated_on": "2020-04-07T03:35:22.084Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "a7280318-cf0c-4bfe-9c22-75ac7ec9484c",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 18,
+    "fields": {
+        "created_on": "2020-04-07T03:36:50.804Z",
+        "updated_on": "2020-04-07T03:36:50.804Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "5d6152ce-bac9-474d-8b07-2850a5651cc5",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 19,
+    "fields": {
+        "created_on": "2020-04-07T03:39:32.165Z",
+        "updated_on": "2020-04-07T03:39:32.165Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "8ee1b06d-7ec3-46fe-9261-0f1350406d71",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 20,
+    "fields": {
+        "created_on": "2020-04-07T03:39:52.715Z",
+        "updated_on": "2020-04-07T03:39:52.715Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "1d15743c-757a-4331-aaf0-4de3ebc1fe1c",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 21,
+    "fields": {
+        "created_on": "2020-04-07T03:40:08.948Z",
+        "updated_on": "2020-04-07T03:40:08.948Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "017f3c01-7103-4153-b049-052ec7300986",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 22,
+    "fields": {
+        "created_on": "2020-04-07T03:40:34.830Z",
+        "updated_on": "2020-04-07T03:40:34.830Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "84fae9ce-87c8-43a0-a6f3-9dc694ca97de",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 23,
+    "fields": {
+        "created_on": "2020-04-07T03:41:23.792Z",
+        "updated_on": "2020-04-07T03:41:23.793Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "f42706f5-b1f8-4b03-b461-57c9396cc2b0",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 24,
+    "fields": {
+        "created_on": "2020-04-07T03:41:40.994Z",
+        "updated_on": "2020-04-07T03:41:40.994Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "c71fd410-ca88-460c-a918-efb13d1068d5",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 25,
+    "fields": {
+        "created_on": "2020-04-07T03:41:50.816Z",
+        "updated_on": "2020-04-07T03:41:50.816Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "e9457df0-ff32-4ee6-8060-fdf1312d0415",
+        "status": 0
+    }
+},
+{
+    "model": "payment.payment",
+    "pk": 26,
+    "fields": {
+        "created_on": "2020-04-07T03:42:54.254Z",
+        "updated_on": "2020-04-07T03:42:54.254Z",
+        "amount": 4000,
+        "discount_amount": 300,
+        "total_amount": 3700,
+        "ref_number": "088d6e18-813a-4f49-8b42-679edbc4df52",
+        "status": 0
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-03T19:10:54.959Z",
+        "updated_on": "2020-04-03T19:10:54.959Z",
+        "user": 28,
+        "event": 3,
+        "no_of_tickets": 1,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 2,
+    "fields": {
+        "created_on": "2020-04-04T13:22:03.575Z",
+        "updated_on": "2020-04-04T13:22:03.575Z",
+        "user": 28,
+        "event": 6,
+        "no_of_tickets": 5,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-04T13:22:13.437Z",
+        "updated_on": "2020-04-04T13:22:13.438Z",
+        "user": 28,
+        "event": 6,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-04T13:22:24.877Z",
+        "updated_on": "2020-04-04T13:22:24.877Z",
+        "user": 28,
+        "event": 9,
+        "no_of_tickets": 10,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 5,
+    "fields": {
+        "created_on": "2020-04-04T13:22:36.371Z",
+        "updated_on": "2020-04-06T18:44:16.138Z",
+        "user": 28,
+        "event": 3,
+        "no_of_tickets": 3,
+        "payment": 14
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 6,
+    "fields": {
+        "created_on": "2020-04-04T15:01:50.826Z",
+        "updated_on": "2020-04-04T15:01:50.826Z",
+        "user": 28,
+        "event": 4,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 7,
+    "fields": {
+        "created_on": "2020-04-04T15:01:55.910Z",
+        "updated_on": "2020-04-04T15:01:55.910Z",
+        "user": 28,
+        "event": 5,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 8,
+    "fields": {
+        "created_on": "2020-04-04T15:02:07.068Z",
+        "updated_on": "2020-04-04T15:02:07.068Z",
+        "user": 28,
+        "event": 7,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 9,
+    "fields": {
+        "created_on": "2020-04-04T15:02:10.550Z",
+        "updated_on": "2020-04-04T15:02:10.550Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 10,
+    "fields": {
+        "created_on": "2020-04-04T16:21:26.281Z",
+        "updated_on": "2020-04-04T16:21:26.281Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 11,
+    "fields": {
+        "created_on": "2020-04-04T17:02:57.738Z",
+        "updated_on": "2020-04-04T17:02:57.738Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 12,
+    "fields": {
+        "created_on": "2020-04-05T10:12:27.666Z",
+        "updated_on": "2020-04-05T10:12:27.666Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 13,
+    "fields": {
+        "created_on": "2020-04-06T06:24:47.861Z",
+        "updated_on": "2020-04-06T06:24:47.861Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 14,
+    "fields": {
+        "created_on": "2020-04-06T06:26:47.873Z",
+        "updated_on": "2020-04-06T06:26:47.873Z",
+        "user": 28,
+        "event": 8,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 15,
+    "fields": {
+        "created_on": "2020-04-06T06:40:36.678Z",
+        "updated_on": "2020-04-06T06:40:36.679Z",
+        "user": 28,
+        "event": 9,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 16,
+    "fields": {
+        "created_on": "2020-04-06T06:40:55.748Z",
+        "updated_on": "2020-04-06T06:40:55.748Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 17,
+    "fields": {
+        "created_on": "2020-04-06T06:59:42.088Z",
+        "updated_on": "2020-04-06T06:59:42.088Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 18,
+    "fields": {
+        "created_on": "2020-04-06T07:02:39.479Z",
+        "updated_on": "2020-04-06T07:02:39.479Z",
+        "user": 28,
+        "event": 11,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 19,
+    "fields": {
+        "created_on": "2020-04-06T07:02:51.740Z",
+        "updated_on": "2020-04-06T07:02:51.740Z",
+        "user": 28,
+        "event": 10,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 20,
+    "fields": {
+        "created_on": "2020-04-06T14:59:48.654Z",
+        "updated_on": "2020-04-06T14:59:48.654Z",
+        "user": 28,
+        "event": 10,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 21,
+    "fields": {
+        "created_on": "2020-04-06T15:00:17.580Z",
+        "updated_on": "2020-04-06T15:00:17.580Z",
+        "user": 28,
+        "event": 11,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 22,
+    "fields": {
+        "created_on": "2020-04-06T15:21:33.045Z",
+        "updated_on": "2020-04-06T15:21:33.045Z",
+        "user": 28,
+        "event": 11,
+        "no_of_tickets": 2,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 23,
+    "fields": {
+        "created_on": "2020-04-06T19:33:25.889Z",
+        "updated_on": "2020-04-06T19:33:25.889Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 24,
+    "fields": {
+        "created_on": "2020-04-07T03:14:20.232Z",
+        "updated_on": "2020-04-07T03:14:20.232Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 25,
+    "fields": {
+        "created_on": "2020-04-07T03:14:59.173Z",
+        "updated_on": "2020-04-07T03:14:59.173Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 26,
+    "fields": {
+        "created_on": "2020-04-07T03:15:08.496Z",
+        "updated_on": "2020-04-07T03:15:08.496Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 27,
+    "fields": {
+        "created_on": "2020-04-07T03:16:14.463Z",
+        "updated_on": "2020-04-07T03:16:14.463Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 41,
+    "fields": {
+        "created_on": "2020-04-07T03:26:27.027Z",
+        "updated_on": "2020-04-07T03:26:27.027Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": 11
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 42,
+    "fields": {
+        "created_on": "2020-04-07T03:26:41.676Z",
+        "updated_on": "2020-04-07T03:26:41.676Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": 11
+    }
+},
+{
+    "model": "core.subscription",
+    "pk": 43,
+    "fields": {
+        "created_on": "2020-04-07T03:29:26.426Z",
+        "updated_on": "2020-04-07T03:29:26.426Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": 11
+    }
+}
+]

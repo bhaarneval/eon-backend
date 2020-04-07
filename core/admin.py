@@ -7,18 +7,19 @@ from core.models import EventStatus, EventType, Event, Invitation, EventPreferen
 @admin.register(EventStatus)
 class EventStatusAdmin(admin.ModelAdmin):
     list_display = ("id", "type")
-    search_fields = ("type", )
+    search_fields = ("type",)
 
 
 @admin.register(EventType)
 class EventTypeAdmin(admin.ModelAdmin):
     list_display = ("id", "type")
-    search_fields = ("type", )
+    search_fields = ("type",)
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "status")
+    list_display = (
+        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "status")
     search_fields = ("name", "type", "status")
 
 

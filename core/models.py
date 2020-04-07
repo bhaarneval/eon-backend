@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 from authentication.models import ModelBase, User, Role
 from payment.models import Payment
+from utils.common import api_error_response
 
 
 class EventStatus(ModelBase):
@@ -29,9 +30,10 @@ class Event(ModelBase):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
-    images = models.URLField()
+    images = models.CharField(max_length=512)
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
+    sold_tickets = models.PositiveIntegerField(default=0)
     status = models.ForeignKey(EventStatus, on_delete=models.DO_NOTHING,)
     external_links = models.CharField(max_length=1024)
 
@@ -64,6 +66,11 @@ class Subscription(ModelBase):
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.PositiveIntegerField()
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.event.sold_tickets += self.no_of_tickets
+        self.event.save()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.no_of_tickets)

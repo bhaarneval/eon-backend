@@ -1,16 +1,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from payment.models import Payment, PaymentType
+from payment.models import Payment
 
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("id", "type", 'discount', 'status')
-    search_fields = ("type", 'status')
+    list_display = ("id", 'amount', 'discount_amount', 'total_amount', 'status', 'ref_number')
+    search_fields = ('status', 'id')
 
-
-@admin.register(PaymentType)
-class PaymentTypeAdmin(admin.ModelAdmin):
-    list_display = ("id", "type")
-    search_fields = ("type", )

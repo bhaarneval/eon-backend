@@ -1,5 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
+from rest_framework.views import exception_handler
+
 from core.exceptions import CoreAppException
 
 
@@ -12,9 +14,7 @@ def api_exception_handler(exception, context):
     """
     if isinstance(exception, CoreAppException):
         response = Response(
-            dict(
-                errorCode=exception.default_code, errorMessage=exception.default_detail
-            ),
+            message=exception.default_detail,
             status=exception.status_code,
         )
     elif isinstance(exception, ValidationError) and "unique" in list(
@@ -22,10 +22,10 @@ def api_exception_handler(exception, context):
     )[0][0].get("code"):
         response = Response(
             dict(
-                errorMessage=list(exception.get_full_details().values())[0][0].get(
+                message=list(exception.get_full_details().values())[0][0].get(
                     "message"
                 ),
-                errorDetail=exception.__dict__,
+                details=exception.__dict__,
             ),
             status=400,
         )
@@ -34,9 +34,11 @@ def api_exception_handler(exception, context):
         error_details = error_details['detail']
         response = Response(
             dict(
-                errorMessage="Request Parameters are invalid",
-                errorDetail=error_details,
+                message="Request Parameters are invalid",
+                details=error_details,
             ),
             status=400,
         )
+    else:
+        response = exception_handler(exception, context)
     return response
