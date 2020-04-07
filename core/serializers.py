@@ -25,7 +25,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = '__all__'
+        exclude = ('created_on', 'updated_on')
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

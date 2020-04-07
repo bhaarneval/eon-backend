@@ -3,17 +3,6 @@ from django.db import models
 # Create your models here.
 from authentication.models import ModelBase, User, Role
 from payment.models import Payment
-from utils.common import api_error_response
-
-
-class EventStatus(ModelBase):
-    type = models.CharField(unique=True, max_length=256)
-
-    class Meta:
-        verbose_name_plural = "Event Status"
-
-    def __str__(self):
-        return self.type
 
 
 class EventType(ModelBase):
@@ -84,3 +73,6 @@ class UserProfile(ModelBase):
     organization = models.CharField(max_length=250, null=True, blank=True)
     address = models.CharField(max_length=250, null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.DO_NOTHING, default=1)
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.user, self.name, self.contact_number)
