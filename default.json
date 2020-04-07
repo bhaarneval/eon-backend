@@ -1,41 +1,5 @@
 [
 {
-    "model": "core.eventstatus",
-    "pk": 1,
-    "fields": {
-        "created_on": "2020-04-02T13:18:26.113Z",
-        "updated_on": "2020-04-02T13:18:26.140Z",
-        "type": "ACTIVE"
-    }
-},
-{
-    "model": "core.eventstatus",
-    "pk": 2,
-    "fields": {
-        "created_on": "2020-04-02T13:18:26.113Z",
-        "updated_on": "2020-04-02T13:18:26.140Z",
-        "type": "DRAFTED"
-    }
-},
-{
-    "model": "core.eventstatus",
-    "pk": 3,
-    "fields": {
-        "created_on": "2020-04-02T13:18:26.113Z",
-        "updated_on": "2020-04-02T13:18:26.140Z",
-        "type": "CANCELLED"
-    }
-},
-{
-    "model": "core.eventstatus",
-    "pk": 4,
-    "fields": {
-        "created_on": "2020-04-02T13:18:26.113Z",
-        "updated_on": "2020-04-02T13:18:26.140Z",
-        "type": "COMPLETED"
-    }
-},
-{
     "model": "core.eventtype",
     "pk": 1,
     "fields": {
@@ -181,39 +145,6 @@
         "created_on": "2020-04-02T16:47:00.305Z",
         "updated_on": "2020-04-02T16:47:00.305Z",
         "role": "Guestuser"
-    }
-},
-{
-    "model": "authentication.status",
-    "pk": 1,
-    "fields": {
-        "created_on": "2020-04-02T17:20:33.184Z",
-        "updated_on": "2020-04-02T17:20:33.184Z",
-        "status": "Active"
-    }
-},
-{
-    "model": "authentication.status",
-    "pk": 4,
-    "fields": {
-        "created_on": "2020-04-03T06:15:50.883Z",
-        "updated_on": "2020-04-03T06:15:50.883Z",
-        "status": "Event Organizer"
-    }
-},
-{
-    "model": "authentication.userdetails",
-    "pk": 8,
-    "fields": {
-        "created_on": "2020-04-03T10:12:06.602Z",
-        "updated_on": "2020-04-03T10:12:06.603Z",
-        "user": 28,
-        "name": null,
-        "contact_number": "9896846744",
-        "organization": "hashedin",
-        "address": "Bangalore",
-        "status": 1,
-        "role": 3
     }
 },
 {

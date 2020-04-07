@@ -1,13 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from core.models import EventStatus, EventType, Event, Invitation, EventPreference, Subscription, UserProfile
-
-
-@admin.register(EventStatus)
-class EventStatusAdmin(admin.ModelAdmin):
-    list_display = ("id", "type")
-    search_fields = ("type",)
+from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile
 
 
 @admin.register(EventType)

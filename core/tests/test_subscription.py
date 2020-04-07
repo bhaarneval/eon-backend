@@ -86,6 +86,5 @@ class SubscriptionAPITest(APITestCase):
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
         )
-        print(response.data)
         self.assertEquals(response.status_code, 201)
 
