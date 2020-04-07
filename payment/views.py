@@ -5,9 +5,13 @@ from django.conf import settings
 from rest_framework import mixins, generics
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from eon_backend.settings import APP_CONSTANTS
 from payment.models import Payment
 from payment.serializers import PaymentSerializer
 from utils.common import api_error_response, api_success_response
+
+
+CONSTANTS = APP_CONSTANTS['transaction']['values']
 
 
 class PaymentViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
@@ -39,6 +43,8 @@ class PaymentViewSet(mixins.CreateModelMixin, generics.GenericAPIView):
             serializer = PaymentSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return api_success_response(message="Payment successfully Done.", status=200)
+            data = serializer.data
+            data.pop('status')
+            return api_success_response(message="Payment successfully Done.", data=data, status=200)
         else:
             return api_error_response(message="Payment Failed", status=400)
