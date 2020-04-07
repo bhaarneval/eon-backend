@@ -14,7 +14,6 @@ class PaymentAPITest(APITestCase):
         cls.ENDPOINT = "/payment/"
 
     def test_payment_api_with_wrong_method(self):
-        token = self.user.data['data']['access']
         response = self.client.get(
             self.ENDPOINT, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
         )
