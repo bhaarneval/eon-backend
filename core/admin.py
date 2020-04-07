@@ -19,8 +19,8 @@ class EventTypeAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "status")
-    search_fields = ("name", "type", "status")
+        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "is_cancelled")
+    search_fields = ("name", "type", "event_created_by")
 
 
 @admin.register(Invitation)

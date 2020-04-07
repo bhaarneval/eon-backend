@@ -34,14 +34,15 @@ class Event(ModelBase):
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
     sold_tickets = models.PositiveIntegerField(default=0)
-    status = models.ForeignKey(EventStatus, on_delete=models.DO_NOTHING,)
+    is_cancelled = models.BooleanField(default=False)
     external_links = models.CharField(max_length=1024)
+    event_created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     class Meta:
         unique_together = ("name", "type", "date", "time")
 
     def __str__(self):
-        return "{}-{}-{}".format(self.name, self.type, self.status)
+        return "{}-{}".format(self.name, self.type)
 
 
 class Invitation(ModelBase):
