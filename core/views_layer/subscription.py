@@ -127,10 +127,3 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
-
-    def destroy(self, request, pk=None):
-        event_id = pk
-        token = get_authorization_header(request).split()[1]
-        payload = jwt.decode(token, SECRET_KEY)
-        print(payload)
-        return api_success_response(message="got it")
