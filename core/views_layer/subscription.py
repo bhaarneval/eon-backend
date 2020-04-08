@@ -57,7 +57,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
         if not event_id or not no_of_tickets or not user_id:
             return api_error_response(message="Request Parameters are invalid")
         if no_of_tickets < 0:
-            instance = Subscription.objects.filter(user=user_id, event=event_id)
+            instance = self.queryset.filter(user=user_id, event=event_id)
             tickets_data = instance.values('event').annotate(total_tickets=Sum('no_of_tickets')).first()
             remianing_tickets = no_of_tickets + tickets_data['total_tickets']
             if remianing_tickets < 0:
@@ -90,10 +90,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
             serializer.save()
 
             if serializer.instance.payment:
-                queryset = Subscription.objects.filter(user=user_id, event=event_id, payment__isnull=False,
-                                                       payment__status=0)
-                queryset1 = Subscription.objects.filter(user=user_id, event=event_id, payment__isnull=False,
-                                                        payment__status=3)
+                queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
+                                                payment__status=0)
+                queryset1 = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
+                                                 payment__status=3)
 
                 queryset = queryset.select_related('payment')
                 queryset = queryset.select_related('event')
@@ -124,4 +124,3 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
-
