@@ -1,4 +1,5 @@
 import json
+from random import randint
 
 from django.db import transaction
 from rest_framework.views import APIView
@@ -8,8 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from utils.common import api_error_response, api_success_response, default_password, produce_object_for_user
-from .models import User, Role
+from .models import User, Role, VerificationCode
 from core.models import UserProfile
+from utils.helper import send_email_sms_and_notification
 
 
 class Login(APIView):
@@ -34,7 +36,10 @@ class Login(APIView):
             message = "Given Credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
-        token['user'] = produce_object_for_user(user)
+        user_obj = produce_object_for_user(user)
+        if user_obj is None:
+            return api_error_response(message='Some error is coming in returning response', status=400)
+        token['user'] = user_obj
         return api_success_response(data=token)
 
 
@@ -55,81 +60,35 @@ class Register(APIView):
         password = data.get('password')
         organization = data.get('organization')
         role_name = data.get('role')
-        guest_login = False
 
-        if email is None:
-            return api_error_response(message='Complete details are not provided', status=400)
+        if email is None or password is None or role_name is None:
+            return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
+                                      status=400)
 
-        # check for guest login: everything should be null except email
-        if password is None:
-            if role_name is None and name is None and contact_number is None and address is None and \
-                    organization is None:
-                # guest login
-                guest_login = True
-            else:
-                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
-                                          status=400)
-        else:
-            # for every other case except Guest login, role_name is mandatory field
-            if role_name is None:
-                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
-                                          status=400)
+        try:
+            # Checking if role is correct or not
+            role_name = role_name.lower()
+            role_obj = Role.objects.get(role=role_name)
+        except Role.DoesNotExist:
+            return api_error_response(message='Role assigned is not matching with any role type', status=400)
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             # if user is None then new_user will be created
             user = None
-        if guest_login:
-            # checking if a user already exist or not
-            # guest registration
-            guest_login = False
-            try:
-                if user is not None:
-                    return api_error_response(message='A user already exist with the given email id: {}'.format(email),
-                                              status=400)
-                else:
-                    user = User.objects.create_user(email=email, password=default_password)
-                    user_details_obj = UserProfile.objects.create(user=user)
-                    user_details_obj.save()
 
-                    token = get_token_for_user(user)
-                    token['user_id'] = user.id
-                    return api_success_response(data=token, message='Guest User created successfully', status=201)
-
-            except Exception as err:
-                return api_error_response(message=str(err), status=400)
-
+        if user is not None:
+            return api_error_response(message='A user already exist with the given email id: {}'.
+                                      format(email), status=400)
         else:
             try:
-                try:
-                    # Checking if role is correct or not
-                    role_name = role_name.lower()
-                    role_obj = Role.objects.get(role=role_name)
-                except Role.DoesNotExist:
-                    return api_error_response(message='Role assigned is not matching with any role type', status=400)
-                if user is not None:
-                    # check if a guest user exist with same email, if exist then update the details and return
-                    user_details_object = UserProfile.objects.get(user=user)
-                    user_is_guest = user_details_object.role.role == 'guest'
-                    if user_is_guest:
-                        # set new details to the already existed user object
-                        user.set_password(password)
-                        user.save()
-                        UserProfile.objects.filter(user=user).update(name=name, contact_number=contact_number,
-                                                                    organization=organization, address=address,
-                                                                    role=role_obj)
-                    else:
-                        return api_error_response(message='A user already exist with the given email id: {}'.
-                                                  format(email), status=400)
+                user = User.objects.create_user(email=email, password=password)
 
-                else:
-                    user = User.objects.create_user(email=email, password=password)
-
-                    user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
-                                                                 organization=organization, address=address,
-                                                                 role=role_obj)
-                    user_profile_obj.save()
+                user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
+                                                              organization=organization, address=address,
+                                                              role=role_obj)
+                user_profile_obj.save()
 
                 token = get_token_for_user(user)
                 token['user'] = produce_object_for_user(user)
@@ -200,12 +159,45 @@ def reset_password(request):
     data = json.loads(request.body)
     email = data.get('email')
     password = data.get('password')
+    code = data.get('code')
     try:
-        if email is None or password is None:
-            return api_error_response(message='Email_id and password must be provided')
-        user = User.objects.get(email=email)
-        user.set_password(password)
-        user.save()
-        return api_success_response(message='Password updated successfully')
+        code_obj = VerificationCode.objects.filter(email=email, is_active=True)
+        if code_obj and code_obj[0].code == code:
+            user = User.objects.get(email=email)
+            user.set_password(password)
+            user.save()
+            code_obj[0].is_active = False
+            code_obj[0].save()
+            return api_success_response(message='Password updated successfully')
+        else:
+            return api_error_response(message="Invalid Code", status=400)
     except Exception as err:
-        return api_error_response(message=str(err))
+        return api_error_response(message=str(err), status=500)
+
+
+@api_view(['POST'])
+def send_forget_password_mail(request):
+    """
+        API for sending verification code on the giving mail
+        :param request: email
+        :return: Success if mail send
+    """
+    data = json.loads(request.body)
+    email = data.get('email')
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return api_error_response(message="Please provide the registered email id.", status=400)
+    verification_code = randint(1000, 9999)
+    message = f"The verification code for changing password is {verification_code}."
+    try:
+        send_email_sms_and_notification(
+            action_name="forget_password",
+            message=message,
+            email_ids=[email]
+        )
+    except Exception:
+        return api_error_response(message="Something went wrong", status=500)
+    code = VerificationCode(email=email, code=verification_code)
+    code.save()
+    return api_success_response(message="Verification code send successfully")

@@ -19,7 +19,7 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ("id", "event", "user", "discount_percentage")
+    list_display = ("id", "event", "user", "discount_percentage", "email")
     search_fields = ("event", "user")
 
 
