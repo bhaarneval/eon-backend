@@ -11,7 +11,6 @@ from core.views_layer.invitation import InvitationViewSet
 
 urlpatterns = [
     url('^', include(router.urls)),
-    url('subscription', SubscriptionViewSet.as_view(), name="subscription"),
     url('presigned-url', PresignedUrl.as_view(), name="image_upload"),
 
     url('invite', InvitationViewSet.as_view(), name="invite"),

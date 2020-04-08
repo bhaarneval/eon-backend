@@ -57,7 +57,7 @@ class SubscriptionAPITest(APITestCase):
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
         )
-        self.assertEquals(response.data['message'], "Required Fields are not present")
+        self.assertEquals(response.data['message'], "Request Parameters are invalid")
         self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_free_event(self):
@@ -66,7 +66,8 @@ class SubscriptionAPITest(APITestCase):
         data = {
             "event_id": 12,
             "user_id": 28,
-            "no_of_tickets": 4
+            "no_of_tickets": 4,
+            "amount": 0
         }
         response = self.client.post(
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -80,7 +81,11 @@ class SubscriptionAPITest(APITestCase):
             "event_id": 3,
             "user_id": 28,
             "no_of_tickets": 4,
-            "payment_id": 27
+            "card_number": 5039303342356004,
+            "expiry_year": 2022,
+            "expiry_month": 7,
+            "amount": 400,
+            "discount_amount": 300
         }
         response = self.client.post(
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -107,7 +112,85 @@ class SubscriptionAPITest(APITestCase):
             "event_id": 3,
             "user_id": 28,
             "no_of_tickets": 1000,
+            "card_number": 5039303342356004,
+            "expiry_year": 2022,
+            "expiry_month": 7,
+            "amount": 400,
+            "discount_amount": 300
         }
+        response = self.client.post(
+            self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        self.assertEquals(response.data['message'], "Number of tickets are invalid")
+        self.assertEquals(response.status_code, 400)
+
+    def test_payment_api_with_wrong_length_of_card_number(self):
+        """Required fields are
+                    1. card_number (length=16)
+                    2. expiry_year
+                    3. expiry_month
+                    4. amount
+                    5. discount_amount
+        """
+        data = {
+                "event_id": 3,
+                "user_id": 28,
+                "no_of_tickets": 1,
+                "card_number": 50393033423,
+                "expiry_year": 2022,
+                "expiry_month": 7,
+                "amount": 4000,
+                "discount_amount": 300
+            }
+        response = self.client.post(
+            self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        self.assertEquals(response.status_code, 400)
+
+    def test_payment_api_with_passing_string_as_card_number(self):
+        """Required fields are
+                    1. card_number (length=16)
+                    2. expiry_year
+                    3. expiry_month
+                    4. amount
+                    5. discount_amount
+        """
+        data = {
+                "event_id": 3,
+                "user_id": 28,
+                "no_of_tickets": 10,
+                "card_number": "INVALID CARD",
+                "expiry_year": 2022,
+                "expiry_month": 7,
+                "amount": 4000,
+                "discount_amount": 300
+                }
+        response = self.client.post(
+            self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        self.assertEquals(response.status_code, 400)
+
+    def test_payment_api_with_wrong_exiry_date(self):
+        """Required fields are
+                    1. card_number (length=16)
+                    2. expiry_year (greater or equal current year)
+                    3. expiry_month (if year is same as current year then month should be greater than current month)
+                    4. amount
+                    5. discount_amount
+        """
+        data = {
+                "event_id": 3,
+                "user_id": 28,
+                "no_of_tickets": 10,
+                "card_number": 5039303342356004,
+                "expiry_year": 2020,
+                "expiry_month": 1,
+                "amount": 4000,
+                "discount_amount": 300
+                }
         response = self.client.post(
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
