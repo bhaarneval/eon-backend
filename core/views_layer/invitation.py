@@ -39,7 +39,7 @@ class InvitationViewSet(generics.GenericAPIView):
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return api_error_response(message={"No event exist with id={}"}.format(event_id))
+            return api_error_response(message="No event exist with id={}".format(event_id))
         for invitee in invitee_list:
             try:
                 inv_object = Invitation.objects.get(email=invitee, event=event_id)
