@@ -22,7 +22,6 @@ class EventViewSet(ModelViewSet):
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_cancelled=True)
         self.queryset = self.queryset.filter(date__gte=str(today))
-        self.queryset = self.queryset
         if location:
             self.queryset = self.queryset.filter(location__iexact=location)
         if user_id:

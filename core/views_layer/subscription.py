@@ -1,12 +1,15 @@
 import json
 
+import jwt
 from django.db import transaction
 from django.db.models import F, Value, IntegerField, Sum
 from rest_framework import viewsets
+from rest_framework.authentication import get_authorization_header
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
 from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
+from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
 
@@ -124,3 +127,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
+
+    def destroy(self, request, pk=None):
+        event_id = pk
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        print(payload)
+        return api_success_response(message="got it")
