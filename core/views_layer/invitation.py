@@ -67,7 +67,7 @@ class InvitationViewSet(generics.GenericAPIView):
                     user = User.objects.get(email=invitee)
                     Invitation.objects.create(event=event, discount_percentage=discount_percentage, user=user,
                                               email=user.email).save()
-                    response.append(Invitation.objects.get(email=invitee))
+                    response.append(Invitation.objects.get(email=invitee, event=event_id))
                 except User.DoesNotExist:
                     Invitation.objects.create(event=event, discount_percentage=discount_percentage, email=invitee).save()
                     response.append(Invitation.objects.get(email=invitee,event=event_id))
