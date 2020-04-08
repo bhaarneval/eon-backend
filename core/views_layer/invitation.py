@@ -39,7 +39,7 @@ class InvitationViewSet(generics.GenericAPIView):
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return api_error_response(message={"No event exist with id={}"}.format(event_id))
+            return api_error_response(message="No event exist with id={}".format(event_id))
         for invitee in invitee_list:
             try:
                 inv_object = Invitation.objects.get(email=invitee, event=event_id)
@@ -112,14 +112,15 @@ class InvitationViewSet(generics.GenericAPIView):
         :param request: may contain event_id or user_id to filter the invite list
         :return: Invitation list
         """
-        data = None
-        try:
-            data = json.loads(request.body)
-            event_id = data.get('event_id', None)
-            user_id = data.get('user_id')
-        except Exception as err:
-            pass
-        if data is not None:
+        event_id = request.GET.get('event_id')
+        user_id = request.GET.get('user_id')
+
+        if event_id:
+            event_id = int(event_id)
+        if user_id:
+            user_id = int(user_id)
+
+        if event_id or user_id:
             queryset = Invitation.objects.filter(event=event_id, user=user_id)
         else:
             queryset = Invitation.objects.all()
