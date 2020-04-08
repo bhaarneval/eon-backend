@@ -56,6 +56,9 @@ class WishList(ActiveModel):
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
+    class Meta:
+        unique_together = ("event", "user")
+
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.is_active)
 
