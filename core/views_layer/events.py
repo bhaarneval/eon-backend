@@ -18,11 +18,14 @@ class EventViewSet(ModelViewSet):
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
         end_date = request.GET.get("end_date", None)
+        user_id = request.GET.get('event_created_by', None)
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_cancelled=True)
         self.queryset = self.queryset.filter(date__gte=str(today))
         if location:
             self.queryset = self.queryset.filter(location__iexact=location)
+        if user_id:
+            self.queryset = self.queryset.filter(event_created_by=user_id)
         if event_type:
             self.queryset = self.queryset.filter(type=event_type)
         if start_date and end_date:
