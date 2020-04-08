@@ -77,30 +77,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'eon_backend.wsgi.application'
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
+    "DEFAULT_AUTHENTICATION_CLASSES": 'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+}
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
-
-ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 60)
-REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 1)
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(ACCESS_TOKEN_LIFETIME)),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(REFRESH_TOKEN_LIFETIME)),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-
-}
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -157,10 +141,6 @@ STATICFILES_DIR = [
 ]
 
 AUTH_USER_MODEL = 'authentication.User'
-
-REST_FRAMEWORK = {
-    "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
-}
 
 # constant
 APP_CONSTANTS = APPLICATION_CONSTANTS
