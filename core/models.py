@@ -52,6 +52,14 @@ class EventPreference(ModelBase):
         return "{}-{}-{}".format(self.user, self.event_type)
 
 
+class WishList(ActiveModel):
+    event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.user, self.event, self.is_active)
+
+
 class Subscription(ActiveModel):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
