@@ -2,6 +2,7 @@ import json
 
 import jwt
 from django.db import transaction
+from django.db.models import F
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
@@ -25,14 +26,30 @@ class WishListViewSet(viewsets.ViewSet):
         user_id = data.get('user_id', None)
 
         if user_id and event_id:
-            data = dict(user=user_id, event=event_id)
-            try:
-                serializer = WishListSerializer(data=data)
-            except:
-                return api_error_response(message="Invalid Event", status=400)
-            serializer.is_valid(raise_exception=True)
+            data = [dict(user=user_id, event=event_id)]
+            serializer = WishListSerializer(data=data, many=True)
+            serializer.is_valid()
+            if 'non_field_errors' in serializer.errors[0]:
+                queryset = WishList.objects.filter(user=user_id, event=event_id)
+                queryset = queryset.select_related('user', 'event').annotate(event_name=F('event__name'), user_name=F('user__userprofile__name'))
+                queryset = queryset.first()
+                data = dict(id=queryset.id, user=queryset.user_name, event=queryset.event_name)
+                if queryset.is_active:
+                    message = "Event already wishlisted"
+                else:
+                    queryset.is_active = True
+                    queryset.save()
+                    message = "WishListed Successfully"
+                return api_success_response(message=message, data=data,  status=200)
+            elif serializer.errors:
+                return api_error_response(message="Event Invalid", status=400)
             serializer.save()
-        return api_success_response(data=serializer.data, message="WishListed Successfully", status=200)
+            queryset = WishList.objects.filter(user=user_id, event=event_id)
+            queryset = queryset.select_related('user', 'event').annotate(event_name=F('event__name'),
+                                                                         user_name=F('user__userprofile__name'))
+            queryset = queryset.first()
+            data = dict(id=queryset.id, user=queryset.user_name, event=queryset.event_name)
+        return api_success_response(data=data, message="WishListed Successfully", status=200)
 
     def destroy(self, request, pk=None):
         event_id = pk
