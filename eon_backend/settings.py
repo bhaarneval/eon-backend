@@ -79,7 +79,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eon_backend.wsgi.application'
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
-    "DEFAULT_AUTHENTICATION_CLASSES":[ 'rest_framework_simplejwt.authentication.JWTAuthentication',]
+    "DEFAULT_AUTHENTICATION_CLASSES": ['rest_framework_simplejwt.authentication.JWTAuthentication',]
 
 }
 
