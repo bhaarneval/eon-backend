@@ -17,7 +17,8 @@ class ListUpdateEventSerializer(serializers.ModelSerializer):
                   'no_of_tickets',
                   'subscription_fee',
                   'images',
-                  'external_links')
+                  'external_links',
+                  'event_created_by')
 
 
 class EventSerializer(serializers.ModelSerializer):
