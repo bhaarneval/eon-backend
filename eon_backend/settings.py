@@ -14,7 +14,7 @@ import os
 from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from utils.constants import APPLICATION_CONSTANTS
+from utils.constants import APPLICATION_CONSTANTS, SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com', 'localhost', '127.0.0.1', '[::1]' ]
 
 # Application definition
 
@@ -171,3 +171,14 @@ APP_CONSTANTS = APPLICATION_CONSTANTS
 # AWS constants
 BUCKET = os.environ.get('BUCKET_NAME')
 BUCKET_PATH = os.environ.get('AWS_BUCKET_PATH')
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION")
+EMAIL_ID = os.environ.get("EMAIL_ID")
+
+# config for sms and email and notification
+SMS_CONFIG = SMS_CONFIG
+
+EMAIL_CONFIG = EMAIL_CONFIG
+
+NOTIFICATION_CONFIG = NOTIFICATION_CONFIG

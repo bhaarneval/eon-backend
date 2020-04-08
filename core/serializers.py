@@ -1,6 +1,5 @@
 from rest_framework import serializers
-
-from core.models import Event, Subscription, UserProfile, Invitation
+from core.models import Event, Subscription, UserProfile, Invitation, EventType
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -56,6 +55,13 @@ class InvitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invitation
         fields = "__all__"
+
+
+class EventTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = EventType
+        exclude = ('created_on', 'updated_on')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

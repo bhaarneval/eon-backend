@@ -5,7 +5,6 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 class ModelBase(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Date Range Filter")
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         abstract = True
