@@ -51,7 +51,10 @@ def produce_object_for_user(user):
     :return: An Object with complete details
     """
     from core.models import UserProfile
-    user_profile = UserProfile.objects.get(user=user.id)
+    try:
+        user_profile = UserProfile.objects.get(user=user.id)
+    except UserProfile.DoesNotExist:
+        return None
     response = {'user_id': user.id, 'email': user.email, 'active_status': user.is_active, 'name': user_profile.name,
                 'created_on': user_profile.created_on, 'updated_on': user_profile.updated_on,
                 'contact_number': user_profile.contact_number, 'organization': user_profile.organization,
