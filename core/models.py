@@ -56,6 +56,7 @@ class Subscription(ModelBase):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.FloatField()
+    is_active = models.BooleanField(default=True)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def save(self, *args, **kwargs):
