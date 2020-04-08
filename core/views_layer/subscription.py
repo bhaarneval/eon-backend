@@ -6,6 +6,7 @@ from django.db.models import F, Value, IntegerField, Sum
 from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
@@ -17,6 +18,7 @@ from utils.common import api_success_response, api_error_response
 
 class SubscriptionViewSet(viewsets.ViewSet):
     authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated, )
     queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
