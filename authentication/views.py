@@ -34,7 +34,10 @@ class Login(APIView):
             message = "Given Credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
-        token['user'] = produce_object_for_user(user)
+        user_obj = produce_object_for_user(user)
+        if user_obj is None:
+            return api_error_response(message='Some error is coming in returning response', status=400)
+        token['user'] = user_obj
         return api_success_response(data=token)
 
 
@@ -55,81 +58,35 @@ class Register(APIView):
         password = data.get('password')
         organization = data.get('organization')
         role_name = data.get('role')
-        guest_login = False
 
-        if email is None:
-            return api_error_response(message='Complete details are not provided', status=400)
+        if email is None or password is None or role_name is None:
+            return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
+                                      status=400)
 
-        # check for guest login: everything should be null except email
-        if password is None:
-            if role_name is None and name is None and contact_number is None and address is None and \
-                    organization is None:
-                # guest login
-                guest_login = True
-            else:
-                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
-                                          status=400)
-        else:
-            # for every other case except Guest login, role_name is mandatory field
-            if role_name is None:
-                return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
-                                          status=400)
+        try:
+            # Checking if role is correct or not
+            role_name = role_name.lower()
+            role_obj = Role.objects.get(role=role_name)
+        except Role.DoesNotExist:
+            return api_error_response(message='Role assigned is not matching with any role type', status=400)
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             # if user is None then new_user will be created
             user = None
-        if guest_login:
-            # checking if a user already exist or not
-            # guest registration
-            guest_login = False
-            try:
-                if user is not None:
-                    return api_error_response(message='A user already exist with the given email id: {}'.format(email),
-                                              status=400)
-                else:
-                    user = User.objects.create_user(email=email, password=default_password)
-                    user_details_obj = UserProfile.objects.create(user=user)
-                    user_details_obj.save()
 
-                    token = get_token_for_user(user)
-                    token['user_id'] = user.id
-                    return api_success_response(data=token, message='Guest User created successfully', status=201)
-
-            except Exception as err:
-                return api_error_response(message=str(err), status=400)
-
+        if user is not None:
+            return api_error_response(message='A user already exist with the given email id: {}'.
+                                      format(email), status=400)
         else:
             try:
-                try:
-                    # Checking if role is correct or not
-                    role_name = role_name.lower()
-                    role_obj = Role.objects.get(role=role_name)
-                except Role.DoesNotExist:
-                    return api_error_response(message='Role assigned is not matching with any role type', status=400)
-                if user is not None:
-                    # check if a guest user exist with same email, if exist then update the details and return
-                    user_details_object = UserProfile.objects.get(user=user)
-                    user_is_guest = user_details_object.role.role == 'guest'
-                    if user_is_guest:
-                        # set new details to the already existed user object
-                        user.set_password(password)
-                        user.save()
-                        UserProfile.objects.filter(user=user).update(name=name, contact_number=contact_number,
-                                                                    organization=organization, address=address,
-                                                                    role=role_obj)
-                    else:
-                        return api_error_response(message='A user already exist with the given email id: {}'.
-                                                  format(email), status=400)
+                user = User.objects.create_user(email=email, password=password)
 
-                else:
-                    user = User.objects.create_user(email=email, password=password)
-
-                    user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
-                                                                 organization=organization, address=address,
-                                                                 role=role_obj)
-                    user_profile_obj.save()
+                user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
+                                                              organization=organization, address=address,
+                                                              role=role_obj)
+                user_profile_obj.save()
 
                 token = get_token_for_user(user)
                 token['user'] = produce_object_for_user(user)
