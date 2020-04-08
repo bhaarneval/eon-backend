@@ -93,36 +93,36 @@ class SubscriptionViewSet(viewsets.ViewSet):
             serializer.save()
 
             if serializer.instance.payment:
-                queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
+                success_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
                                                 payment__status=0)
-                queryset1 = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
+                refund_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
                                                  payment__status=3)
 
-                queryset = queryset.select_related('payment')
-                queryset = queryset.select_related('event')
-                queryset1 = queryset1.select_related('payment')
-                queryset1 = queryset1.select_related('event')
-                queryset = queryset.values('event').annotate(amount=F('payment__amount'),
+                success_queryset = success_queryset.select_related('payment')
+                success_queryset = success_queryset.select_related('event')
+                refund_queryset = refund_queryset.select_related('payment')
+                refund_queryset = refund_queryset.select_related('event')
+                success_queryset = success_queryset.values('event').annotate(amount=F('payment__amount'),
                                                              discount_amount=F('payment__discount_amount'),
                                                              total_amount=F('payment__total_amount'),
                                                              events=F('event'), event_name=F('event__name'),
                                                              event_date=F('event__date'), event_time=F('event__time'),
                                                              event_location=F('event__location'))
-                queryset1 = queryset1.values('event').annotate(amount=F('payment__amount'),
+                refund_queryset = refund_queryset.values('event').annotate(amount=F('payment__amount'),
                                                                discount_amount=F('payment__discount_amount'),
                                                                total_amount=F('payment__total_amount'))
-                data = queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
+                success_data = success_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
                                           Sum('no_of_tickets'))
-                data1 = queryset1.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
+                refund_data = refund_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
                                             Sum('no_of_tickets'))
-                queryset = queryset.first()
-                data = dict(no_of_tickets=data['no_of_tickets__sum'] + data1['no_of_tickets__sum'],
-                            amount=data['amount__sum'] - data1['amount__sum'],
-                            discount_amount=data['discount_amount__sum'] - data1['discount_amount__sum'],
-                            total_amount=data['total_amount__sum'] - data1['total_amount__sum'],
-                            event_name=queryset['event_name'],
-                            event_date=queryset['event_date'], event_time=queryset['event_time'],
-                            event_location=queryset['event_location'])
+                success_queryset = success_queryset.first()
+                data = dict(no_of_tickets=success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum'],
+                            amount=success_data['amount__sum'] - refund_data['amount__sum'],
+                            discount_amount=success_data['discount_amount__sum'] - refund_data['discount_amount__sum'],
+                            total_amount=success_data['total_amount__sum'] - refund_data['total_amount__sum'],
+                            event_name=success_queryset['event_name'],
+                            event_date=success_queryset['event_date'], event_time=success_queryset['event_time'],
+                            event_location=success_queryset['event_location'])
 
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
