@@ -3,8 +3,10 @@ import json
 import jwt
 from django.db import transaction
 from django.db.models import F, Value, IntegerField, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
@@ -16,7 +18,8 @@ from utils.common import api_success_response, api_error_response
 
 class SubscriptionViewSet(viewsets.ViewSet):
     authentication_classes = (JWTAuthentication,)
-    queryset = Subscription.objects.all()
+    permission_classes = (IsAuthenticated, )
+    queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
         event_id = request.GET.get("event_id", None)
@@ -93,30 +96,40 @@ class SubscriptionViewSet(viewsets.ViewSet):
             serializer.save()
 
             if serializer.instance.payment:
+                current_payment_queryset = self.queryset.filter(event=event_id, payment=payment_id)
+                current_payment_queryset = current_payment_queryset.select_related('payment')
+                current_payment_queryset = current_payment_queryset.annotate(ref_no=F('payment__ref_number'))
+                print(current_payment_queryset[0].ref_no)
                 success_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
-                                                payment__status=0)
+                                                        payment__status=0)
                 refund_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
-                                                 payment__status=3)
+                                                       payment__status=3)
 
                 success_queryset = success_queryset.select_related('payment')
                 success_queryset = success_queryset.select_related('event')
                 refund_queryset = refund_queryset.select_related('payment')
                 refund_queryset = refund_queryset.select_related('event')
                 success_queryset = success_queryset.values('event').annotate(amount=F('payment__amount'),
-                                                             discount_amount=F('payment__discount_amount'),
-                                                             total_amount=F('payment__total_amount'),
-                                                             events=F('event'), event_name=F('event__name'),
-                                                             event_date=F('event__date'), event_time=F('event__time'),
-                                                             event_location=F('event__location'))
+                                                                             discount_amount=F(
+                                                                                 'payment__discount_amount'),
+                                                                             total_amount=F('payment__total_amount'),
+                                                                             events=F('event'),
+                                                                             event_name=F('event__name'),
+                                                                             event_date=F('event__date'),
+                                                                             event_time=F('event__time'),
+                                                                             event_location=F('event__location'))
                 refund_queryset = refund_queryset.values('event').annotate(amount=F('payment__amount'),
-                                                               discount_amount=F('payment__discount_amount'),
-                                                               total_amount=F('payment__total_amount'))
+                                                                           discount_amount=F(
+                                                                               'payment__discount_amount'),
+                                                                           total_amount=F('payment__total_amount'))
                 success_data = success_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
-                                          Sum('no_of_tickets'))
-                refund_data = refund_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
-                                            Sum('no_of_tickets'))
+                                                          Sum('no_of_tickets'))
+                refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0), discount_amount__sum=Coalesce(Sum('discount_amount'), 0), total_amount__sum=Coalesce(Sum('total_amount'), 0),
+                                                        no_of_tickets__sum=Coalesce(Sum('no_of_tickets'),0))
                 success_queryset = success_queryset.first()
-                data = dict(no_of_tickets=success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum'],
+                data = dict(curent_payment_id=payment_id,
+                            current_payment_ref_number=current_payment_queryset[0].ref_no,
+                            no_of_tickets=success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum'],
                             amount=success_data['amount__sum'] - refund_data['amount__sum'],
                             discount_amount=success_data['discount_amount__sum'] - refund_data['discount_amount__sum'],
                             total_amount=success_data['total_amount__sum'] - refund_data['total_amount__sum'],
@@ -127,3 +140,16 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:
             return api_error_response(message="Number of tickets are invalid", status=400)
+
+    def destroy(self, request, pk=None):
+        event_id = pk
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+        event_to_be_added_to_inactive = self.queryset.filter(user_id=user_id, event_id=event_id)
+        total_tickets = event_to_be_added_to_inactive.aggregate(Sum('no_of_tickets'))
+        event = Event.objects.get(id=event_id)
+        event.sold_tickets -= total_tickets['no_of_tickets__sum']
+        event.save()
+        event_to_be_added_to_inactive.update(is_active=False)
+        return api_success_response(message="Successfully Unsubscribed")

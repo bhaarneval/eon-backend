@@ -19,15 +19,12 @@ def send_mail(receiver_list=None, message=None, subject=None):
         aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
         region_name=AWS_REGION
     )
-    try:
-        for receiver in receiver_list:
-            client.send_email(
-                Destination={"ToAddresses": [receiver]},
-                Message={
-                    "Body": {"Text": {"Charset": "UTF-8", "Data": message}},
-                    "Subject": {"Charset": "UTF-8", "Data": subject},
-                },
-                Source=EMAIL_ID,
-            )
-    except ClientError as e:
-        pass
+    for receiver in receiver_list:
+        client.send_email(
+            Destination={"ToAddresses": [receiver]},
+            Message={
+                "Body": {"Text": {"Charset": "UTF-8", "Data": message}},
+                "Subject": {"Charset": "UTF-8", "Data": subject},
+            },
+            Source=EMAIL_ID,
+        )

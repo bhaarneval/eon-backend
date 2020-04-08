@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authentication.models import ModelBase, User, Role
+from authentication.models import ModelBase, User, Role, ActiveModel
 from payment.models import Payment
 
 
@@ -36,8 +36,9 @@ class Event(ModelBase):
 
 class Invitation(ModelBase):
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
     discount_percentage = models.PositiveIntegerField()
+    email = models.EmailField()
 
     def __str__(self):
         return "{}-{}-{}".format(self.event, self.user, self.discount_percentage)
@@ -51,7 +52,7 @@ class EventPreference(ModelBase):
         return "{}-{}-{}".format(self.user, self.event_type)
 
 
-class Subscription(ModelBase):
+class Subscription(ActiveModel):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.FloatField()

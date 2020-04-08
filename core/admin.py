@@ -19,7 +19,7 @@ class EventAdmin(admin.ModelAdmin):
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ("id", "event", "user", "discount_percentage")
+    list_display = ("id", "event", "user", "discount_percentage", "email")
     search_fields = ("event", "user")
 
 
@@ -31,7 +31,7 @@ class EventPreferenceAdmin(admin.ModelAdmin):
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = ("id", "event", "user", "no_of_tickets", "payment")
+    list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
     search_fields = ("event", "user")
 
 
