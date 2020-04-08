@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authentication.models import ModelBase, User, Role
+from authentication.models import ModelBase, User, Role, ActiveModel
 from payment.models import Payment
 
 
@@ -52,11 +52,10 @@ class EventPreference(ModelBase):
         return "{}-{}-{}".format(self.user, self.event_type)
 
 
-class Subscription(ModelBase):
+class Subscription(ActiveModel):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.FloatField()
-    is_active = models.BooleanField(default=True)
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def save(self, *args, **kwargs):

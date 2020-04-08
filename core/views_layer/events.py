@@ -1,6 +1,7 @@
 from datetime import date
 
 from django.db.models import ExpressionWrapper, F, IntegerField
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -11,6 +12,7 @@ from utils.common import api_error_response, api_success_response
 
 class EventViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
     queryset = Event.objects.all().select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
 

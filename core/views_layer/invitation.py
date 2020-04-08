@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 
 class InvitationViewSet(generics.GenericAPIView):
     authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated, )
     serializer_class = InvitationSerializer
     queryset = Invitation.objects.all()
 
