@@ -3,6 +3,7 @@ import json
 import jwt
 from django.db import transaction
 from django.db.models import F, Value, IntegerField, Sum
+from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -121,8 +122,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
                                                                            total_amount=F('payment__total_amount'))
                 success_data = success_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
                                                           Sum('no_of_tickets'))
-                refund_data = refund_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
-                                                        Sum('no_of_tickets'))
+                refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0), discount_amount__sum=Coalesce(Sum('discount_amount'), 0), total_amount__sum=Coalesce(Sum('total_amount'), 0),
+                                                        no_of_tickets__sum=Coalesce(Sum('no_of_tickets'),0))
                 success_queryset = success_queryset.first()
                 data = dict(curent_payment_id=payment_id,
                             current_payment_ref_number=current_payment_queryset[0].ref_no,
@@ -143,5 +144,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        is_active =
-        return api_success_response(message="got it")
+        event_to_be_added_to_inactive = self.queryset.filter(user_id=user_id, event_id=event_id)
+        total_tickets = event_to_be_added_to_inactive.aggregate(Sum('no_of_tickets'))
+        event = Event.objects.get(id=event_id)
+        event.sold_tickets -= total_tickets['no_of_tickets__sum']
+        event.save()
+        event_to_be_added_to_inactive.update(is_active=False)
+        return api_success_response(message="Successfully Unsubscribed")
