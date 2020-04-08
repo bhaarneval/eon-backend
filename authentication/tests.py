@@ -1,6 +1,7 @@
 import json
 from django.test import TestCase
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
+
 from authentication.models import Role, User
 
 

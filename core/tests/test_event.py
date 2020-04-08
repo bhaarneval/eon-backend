@@ -1,21 +1,245 @@
 import json
 from rest_framework.test import APITestCase
 
-
-# Create your tests here.
+from authentication.models import Role
+from core.models import Event, EventType
 
 
 class EventAPITest(APITestCase):
-    fixtures = ["default.json"]
 
-    def setUp(cls):
-        data = dict(email="user2@gmail.com", password="Password")
-        cls.user = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
-        cls.token = cls.user.data['data']['access']
-        cls.ENDPOINT = "/core/event/"
+    def test_event_post(self):
+        """
+        unit test for Event post Api
+        :return:
+        """
+        # Setup
 
-    def test_event_api_with_wrong_method(self):
-        response = self.client.post(
-            self.ENDPOINT, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
-        )
-        self.assertEquals(response.status_code, 405)
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        register = self.client.post(url1, json.dumps(content),
+                                    content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        user_id = login_response.data['data']['user']['user_id']
+        token = login_response.data['data']['access']
+
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        json_content = {
+            "name": "Diwali",
+            "type": event_type.id,
+            "date": "2020-04-09",
+            "description": "New Event",
+            "external_links": "google.com",
+            "time": "12:38:00",
+            "location": "mumbai",
+            "images": "https://www.google.com/images",
+            "subscription_fee": 499,
+            "no_of_tickets": 200,
+            "event_created_by": user_id
+        }
+
+        # Run
+
+        response = self.client.post("/core/event/", data=json.dumps(json_content),
+                                    content_type="application/json")
+
+        self.assertEqual(response.data['name'], json_content['name'])
+        self.assertEqual(response.data['description'], json_content['description'])
+        self.assertEqual(response.data['date'], json_content['date'])
+        self.assertEqual(response.data['location'], json_content['location'])
+        self.assertEqual(response.data['images'], json_content['images'])
+        self.assertEqual(response.data['subscription_fee'], json_content['subscription_fee'])
+        self.assertEqual(response.data['event_created_by'], user_id)
+
+    def test_event_post_with_empty_body(self):
+        """
+        unit test for Event post Api
+        :return:
+        """
+        # Setup
+
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        register = self.client.post(url1, json.dumps(content),
+                                    content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        user_id = login_response.data['data']['user']['user_id']
+        token = login_response.data['data']['access']
+
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        json_content = {
+
+        }
+
+        # Run
+
+        response = self.client.post("/core/event/", data=json.dumps(json_content),
+                                    content_type="application/json")
+
+        # Check
+
+        self.assertEqual(response.data['message'], "Request Parameters are invalid")
+        self.assertEqual(response.status_code, 400)
+
+    def test_event_post_with_invalid_data(self):
+        """
+        unit test for Event post Api without required information
+        :return:
+        """
+        # Setup
+
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        register = self.client.post(url1, json.dumps(content),
+                                    content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        user_id = login_response.data['data']['user']['user_id']
+        token = login_response.data['data']['access']
+
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        json_content = {
+            "name": "Diwali",
+            # "type": event_type.id,
+            "date": "2020-04-09",
+            "description": "New Event",
+            "external_links": "google.com",
+            "time": "12:38:00",
+            "location": "mumbai",
+            "images": "https://www.google.com/images",
+            "subscription_fee": 499,
+            "no_of_tickets": 200,
+            "user_created_by": user_id
+        }
+
+        # Run
+
+        response = self.client.post("/core/event/", data=json.dumps(json_content),
+                                    content_type="application/json")
+
+        self.assertEqual(response.data['message'], "Request Parameters are invalid")
+
+    def test_event_get_without_parameter(self):
+        # Setup
+
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        register = self.client.post(url1, json.dumps(content),
+                                    content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        user_id = login_response.data['data']['user']['user_id']
+        token = login_response.data['data']['access']
+
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
+                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
+                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+                      event_created_by_id=user_id)
+        event.save()
+        event_id = event.id
+
+        # Run
+
+        response = self.client.get("/core/event/", content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_get_with_parameter_event_id(self):
+        # Setup
+
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        register = self.client.post(url1, json.dumps(content),
+                                    content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        user_id = login_response.data['data']['user']['user_id']
+        token = login_response.data['data']['access']
+
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
+                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
+                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+                      event_created_by_id=user_id)
+        event.save()
+        event_id = event.id
+
+        # Run
+
+        response = self.client.get("/core/event/", {"event_id": event_id}, content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
