@@ -85,7 +85,7 @@
     "pk": 1,
     "fields": {
         "password": "pbkdf2_sha256$180000$sotnwdOZV6lR$q1ZuGInOMiVwHM//mAlFnV/4qtN1BlsTcuSEH8NlhMY=",
-        "last_login": "2020-04-02T12:19:00.957Z",
+        "last_login": "2020-04-07T09:34:14.284Z",
         "is_superuser": true,
         "username": "admin",
         "first_name": "",
@@ -184,6 +184,20 @@
         "total_amount": 100,
         "ref_number": "3257d589-b776-4791-98e4-91c85a622947",
         "status": 0
+    }
+},
+{
+    "model": "core.userprofile",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-07T09:34:54.153Z",
+        "updated_on": "2020-04-07T09:34:54.153Z",
+        "user": 28,
+        "name": "mohit",
+        "contact_number": "9896846744",
+        "organization": "Hashedin",
+        "address": "#311-b, Ram Nagar, Tehsil Camp",
+        "role": 3
     }
 },
 {
@@ -511,6 +525,18 @@
     }
 },
 {
+    "model": "core.subscription",
+    "pk": 28,
+    "fields": {
+        "created_on": "2020-04-07T09:51:22.489Z",
+        "updated_on": "2020-04-07T09:51:22.489Z",
+        "user": 28,
+        "event": 12,
+        "no_of_tickets": 4,
+        "payment": null
+    }
+},
+{
     "model": "core.event",
     "pk": 3,
     "fields": {
@@ -526,7 +552,7 @@
         "subscription_fee": 499,
         "no_of_tickets": 200,
         "sold_tickets": 11,
-        "is_cancelled": false,
+        "is_cancelled": true,
         "external_links": "google.com",
         "event_created_by": 28
     }
@@ -547,7 +573,7 @@
         "subscription_fee": 499,
         "no_of_tickets": 250,
         "sold_tickets": 2,
-        "is_cancelled": false,
+        "is_cancelled": true,
         "external_links": "google.com",
         "event_created_by": 28
     }
@@ -557,8 +583,8 @@
     "pk": 5,
     "fields": {
         "created_on": "2020-04-03T11:41:22.877Z",
-        "updated_on": "2020-04-04T15:01:55.898Z",
-        "name": "Test3",
+        "updated_on": "2020-04-07T09:41:30.285Z",
+        "name": "Test5",
         "type": 3,
         "description": "New Event",
         "date": "2020-04-03",
@@ -568,7 +594,7 @@
         "subscription_fee": 499,
         "no_of_tickets": 270,
         "sold_tickets": 2,
-        "is_cancelled": false,
+        "is_cancelled": true,
         "external_links": "google.com",
         "event_created_by": 28
     }
@@ -589,7 +615,7 @@
         "subscription_fee": 499,
         "no_of_tickets": 290,
         "sold_tickets": 2,
-        "is_cancelled": false,
+        "is_cancelled": true,
         "external_links": "google.com",
         "event_created_by": 28
     }
@@ -610,7 +636,7 @@
         "subscription_fee": 499,
         "no_of_tickets": 300,
         "sold_tickets": 2,
-        "is_cancelled": false,
+        "is_cancelled": true,
         "external_links": "google.com",
         "event_created_by": 28
     }
@@ -704,7 +730,7 @@
     "pk": 12,
     "fields": {
         "created_on": "2020-04-05T11:22:51.854Z",
-        "updated_on": "2020-04-07T08:04:55.478Z",
+        "updated_on": "2020-04-07T09:51:22.485Z",
         "name": "DJ",
         "type": 5,
         "description": "New Event",
@@ -714,7 +740,49 @@
         "images": "events/test_0a649ff03c0d16cc26f8d5b6.png",
         "subscription_fee": 0,
         "no_of_tickets": 200,
-        "sold_tickets": 40,
+        "sold_tickets": 44,
+        "is_cancelled": false,
+        "external_links": "google.com",
+        "event_created_by": 28
+    }
+},
+{
+    "model": "core.event",
+    "pk": 13,
+    "fields": {
+        "created_on": "2020-04-07T09:39:34.627Z",
+        "updated_on": "2020-04-07T09:39:34.627Z",
+        "name": "Party Night",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-12",
+        "time": "13:40:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 150,
+        "no_of_tickets": 200,
+        "sold_tickets": 0,
+        "is_cancelled": false,
+        "external_links": "google.com",
+        "event_created_by": 28
+    }
+},
+{
+    "model": "core.event",
+    "pk": 14,
+    "fields": {
+        "created_on": "2020-04-07T09:40:21.763Z",
+        "updated_on": "2020-04-07T09:40:21.763Z",
+        "name": "Haq Se",
+        "type": 5,
+        "description": "New Event",
+        "date": "2020-04-12",
+        "time": "13:40:00",
+        "location": "Panipat",
+        "images": "https://www.google.com/images",
+        "subscription_fee": 150,
+        "no_of_tickets": 200,
+        "sold_tickets": 0,
         "is_cancelled": false,
         "external_links": "google.com",
         "event_created_by": 28
