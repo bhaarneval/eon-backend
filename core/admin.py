@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile
+from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, Notification
 
 
 @admin.register(EventType)
@@ -39,3 +39,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user", "contact_number", "organization", "role")
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "event", "message", "has_read")
+    search_fields = ("user", "event", "message", "has_read")

@@ -88,3 +88,13 @@ class UserProfile(ModelBase):
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.name, self.contact_number)
+
+
+class Notification(ModelBase):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
+    message = models.CharField(max_length=512)
+    has_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.user, self.event, self.message)
