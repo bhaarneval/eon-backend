@@ -24,12 +24,12 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bzr%nozw=25$vj)'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com', 'localhost', '127.0.0.1', '[::1]' ]
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -108,11 +108,11 @@ SIMPLE_JWT = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": 'bitseon',
-        "USER": 'postgres',
-        "PASSWORD": 'postgres',
-        "HOST": 'localhost',
-        "PORT": 5432,
+        "NAME": os.environ.get("DB_NAME"),
+        "USER": os.environ.get("DB_USERNAME"),
+        "PASSWORD": os.environ.get("DB_PASSWORD"),
+        "HOST": os.environ.get("DB_HOSTNAME"),
+        "PORT": os.environ.get("DB_PORT"),
     }
 }
 
