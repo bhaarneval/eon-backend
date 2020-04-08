@@ -10,6 +10,13 @@ class ModelBase(models.Model):
         abstract = True
 
 
+class ActiveModel(ModelBase):
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
         """
