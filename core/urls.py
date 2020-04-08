@@ -15,7 +15,9 @@ urlpatterns = [
 
     url('invite', InvitationViewSet.as_view(), name="invite"),
 
+    url('reminder', SubscriberReminder.as_view(), name="subscriber_reminder"),
+
+    url('invite', InvitationViewSet.as_view(), name="invite"),
     url("event-type", EventTypeView.as_view(), name="event_type"),
     url('reminder', SubscriberReminder.as_view(), name="subscriber_reminder")
-
 ]
