@@ -66,3 +66,17 @@ class Role(ModelBase):
         db_table = "role"
         verbose_name = "role"
         verbose_name_plural = "roles"
+
+
+class VerificationCode(ModelBase):
+    email = models.EmailField()
+    code = models.CharField(max_length=4)
+
+    def __str__(self):
+        return self.email
+
+    class Meta:
+        managed = True
+        db_table = "verification_code"
+        verbose_name = "verification_code"
+        verbose_name_plural = "verification_codes"

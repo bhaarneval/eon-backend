@@ -34,7 +34,10 @@ EMAIL_CONFIG = {
                    "subject": "INVITATION FOR AN EVENT"},
     "user_share": {"status": True,
                    "message": "Your friend is going for the event asking you to join along with him.",
-                   "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."}
+                   "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."},
+    "forget_password": {"status": True,
+                        "message": "Verification code for reset password.",
+                        "subject": "VERIFICATION CODE FOR RESET PASSWORD"}
 }
 
 NOTIFICATION_CONFIG = {

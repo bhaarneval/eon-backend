@@ -13,8 +13,6 @@ from core.serializers import SubscriptionSerializer, EventTypeSerializer, UserPr
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 
-# Create your views here.
-
 
 class UserViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
@@ -77,7 +75,7 @@ class SubscriberReminder(mixins.ListModelMixin, generics.GenericAPIView):
                 self.queryset = self.queryset.filter(event=event_id)
                 response = self.queryset.select_related('user').annotate(email=F('user__email')).values("email")
                 email_ids = [_["email"] for _ in response]
-                send_email_sms_and_notification(event_name="event_reminder",
+                send_email_sms_and_notification(action_name="event_reminder",
                                                 email_ids=email_ids,
                                                 message=f"A Gentle reminder for the {event_name}")
                 return api_success_response(message="Reminder sent successfully to all the subscribers.")
