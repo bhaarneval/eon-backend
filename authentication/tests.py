@@ -7,14 +7,7 @@ from authentication.models import Role, VerificationCode
 
 class AuthenticationTestCase(TestCase):
 
-    def test_register_user_with_complete_details(self):
-        """
-         Test: unit test for register a user with complete information
-               mocked the user detail and call the register api.
-
-        """
-
-        # Setup
+    def setUp(cls):
         Role.objects.create(role='organizer')
         content = {
             "email": "user@mail.com",
@@ -24,18 +17,18 @@ class AuthenticationTestCase(TestCase):
             "role": "organizer",
             "organization": "Eventhigh"
         }
+        cls.register = cls.client.post('/authentication/registration', json.dumps(content),
+                                       content_type='application/json')
 
-        # Run
+    def test_register_user_with_complete_details(self):
+        """
+         Test: unit test for register a user with complete information
+               mocked the user detail and call the register api.
 
-        register = self.client.post('/authentication/registration', json.dumps(content),
-                                    content_type='application/json')
+        """
+        self.assertEqual(self.register.status_code, 201)
 
-        # Check
-
-        self.assertEqual(register.status_code, 201)
-        self.assertEqual(register.data['message'], 'User created successfully')
-
-    def test_register_user_with_incomplete_details(self):
+    def test_register_user_without_password(self):
         """
          Test: unit test for register a user with incomplete information
                mocked the user detail and call the register api.
@@ -43,7 +36,7 @@ class AuthenticationTestCase(TestCase):
         """
 
         # Setup
-        Role.objects.create(role='organizer')
+        # Role.objects.create(role='organizer')
         content = {
             "email": "user@mail.com",
             # "password": "user123",
@@ -68,22 +61,8 @@ class AuthenticationTestCase(TestCase):
               Getting the response status = 200 and user_id
         """
 
-        # Setup
-        Role.objects.create(role='organizer')
-        content = {
-            "email": "user@mail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
-
-        register = self.client.post('/authentication/registration', json.dumps(content),
-                                    content_type='application/json')
-
         data = dict(email='user@mail.com', password="user123")
-        register_user_id = register.data['data']['user']['user_id']
+        register_user_id = self.register.data['data']['user']['user_id']
 
         # Run
 
@@ -103,7 +82,7 @@ class AuthenticationTestCase(TestCase):
 
         # Setup
 
-        data = dict(email='user@mail.com', password="user123")
+        data = dict(email='user@mail.com', password="user1234")
 
         # Run
 
@@ -111,29 +90,16 @@ class AuthenticationTestCase(TestCase):
 
         # Check
         self.assertEqual(login_response.status_code, 400)
-        self.assertEqual(login_response.data['message'], "Given Credentials does not matches with any registered user")
 
     def test_for_change_user_password_with_valid_credentials(self):
         """
         Unit Test for change password for existing user
 
         """
-        # Setup
-        Role.objects.create(role='organizer')
-        content = {
-            "email": "user@mail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
 
         pay_load = {'email': 'user@mail.com', 'old_password': 'user123', 'new_password': 'user1234'}
         data = dict(email='user@mail.com', password="user123")
 
-        register = self.client.post('/authentication/registration', json.dumps(content),
-                                    content_type='application/json')
         login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
         token = login_response.data['data']['access']
         # Run
@@ -143,43 +109,29 @@ class AuthenticationTestCase(TestCase):
                                     content_type='application/json')
 
         # check
-        self.assertEqual(response.data['message'], 'Password updated successfully')
         self.assertEqual(response.status_code, 200)
 
-    def test_for_change_user_password_with_invalid_credentials(self):
+    def test_for_change_user_password_with_wrong_password(self):
         """
         Unit Test for change password for existing user
 
         """
         # Setup
-        Role.objects.create(role='organizer')
-        content = {
-            "email": "user@mail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
-
         pay_load = {'email': 'user@mail.com', 'old_password': 'user1', 'new_password': 'user1234'}
         data = dict(email='user@mail.com', password="user123")
 
-        register = self.client.post('/authentication/registration', json.dumps(content),
-                                    content_type='application/json')
         login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
         token = login_response.data['data']['access']
-        # Run
 
+        # Run
         response = self.client.post('/authentication/change-password', json.dumps(pay_load),
                                     HTTP_AUTHORIZATION="Bearer {}".format(token),
                                     content_type='application/json')
 
         # check
-        self.assertEqual(response.data['message'], 'Given Credentials does not matches with any registered user')
         self.assertEqual(response.status_code, 400)
 
-    def test_reset_password_with_invalid_data(self):
+    def test_reset_password_with_wrong_password(self):
         """
         Unit test to check reset_password API
         :return:
@@ -192,42 +144,3 @@ class AuthenticationTestCase(TestCase):
         # Check
 
         self.assertEqual(reset_response.status_code, 500)
-
-    # def test_reset_password_with_invalid_data(self):
-    #     """
-    #     Unit test to check reset_password API
-    #     :return:
-    #     """
-    #     Role.objects.create(role='organizer')
-    #     content = {
-    #         "email": "user@mail.com",
-    #         "password": "user123",
-    #         "contact": "9999911111",
-    #         "address": "Bangalore",
-    #         "role": "organizer",
-    #         "organization": "Eventhigh"
-    #     }
-    #
-    #     # Run
-    #
-    #     register = self.client.post('/authentication/registration', json.dumps(content),
-    #                                 content_type='application/json')
-    #
-    #     verification = VerificationCode(email="user@mail.com", code="1234", is_active=True)
-    #     verification.save()
-    #
-    #     v = VerificationCode.objects.filter(email="user@mail.com", is_active=True)
-    #     print(v[0].code)
-    #     data = dict(email='user@mail.com', password="user123", code="1234")
-    #     json_data = {
-    #         "email": "user@mail.com",
-    #         "code": "1234",
-    #         "password": "user123"
-    #     }
-    #
-    #     # Run
-    #     reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
-    #                                       content_type='application/json')
-    #     # Check
-    #     print(reset_response)
-    #     # self.assertEqual(reset_response.status_code, 500)

@@ -161,9 +161,8 @@ class EventAPITest(APITestCase):
 
         # Run
 
-        response = self.client.get("/core/event/", {"event_id": event_id},
+        response = self.client.get("/core/event/?event_id={id}".format(id=event_id),
                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token), content_type="application/json")
 
         # Check
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['message'], 'list of events')
