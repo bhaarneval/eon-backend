@@ -84,12 +84,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'eon_backend.wsgi.application'
 REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
-    "DEFAULT_AUTHENTICATION_CLASSES": ['rest_framework_simplejwt.authentication.JWTAuthentication',]
 
 }
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
+
+ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 1)
+REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 2)
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=int(ACCESS_TOKEN_LIFETIME)),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(REFRESH_TOKEN_LIFETIME)),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -164,7 +183,6 @@ SMS_CONFIG = SMS_CONFIG
 EMAIL_CONFIG = EMAIL_CONFIG
 
 NOTIFICATION_CONFIG = NOTIFICATION_CONFIG
-
 
 # logger
 OUT_DIR = os.path.join(BASE_DIR, "logs/core")
