@@ -1,6 +1,3 @@
-import traceback
-
-from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import exception_handler
@@ -15,10 +12,6 @@ def api_exception_handler(exception, context):
     :param context:
     :return:
     """
-    logger_service = settings.LOGGER_SERVICE
-    view = context["view"]
-    request = context["request"]
-    status_code = None
     if isinstance(exception, CoreAppException):
         response = Response(
             message=exception.default_detail,
