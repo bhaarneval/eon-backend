@@ -15,7 +15,6 @@ from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from utils.constants import APPLICATION_CONSTANTS, SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
-from utils.logger import Logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
