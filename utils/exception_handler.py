@@ -48,40 +48,4 @@ def api_exception_handler(exception, context):
         )
     else:
         response = exception_handler(exception, context)
-        if status_code:
-            status_code_category = str(exception.status_code)[0]
-            if status_code_category == "4":
-                logger_service.log_warning(
-                    request.path
-                    + " "
-                    + request.method
-                    + "\n"
-                    + str(traceback.format_exc())
-                    + "\n"
-                    + str(response)
-                )
-            if status_code_category == "5":
-                logger_service.log_error(
-                    request.path
-                    + " "
-                    + request.method
-                    + "\n"
-                    + str(traceback.format_exc())
-                    + "\n"
-                    + str(response)
-                )
-            else:
-                logger_service.log_error(
-                    request.path
-                    + " "
-                    + request.method
-                    + "\n"
-                    + str(traceback.format_exc())
-                    + "\n"
-                    + str(response)
-                )
-        else:
-            logger_service.log_info(
-                request.path + " " + request.method + "\n" + str(traceback.format_exc())
-            )
     return response
