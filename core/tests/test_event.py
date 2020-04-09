@@ -56,7 +56,6 @@ class EventAPITest(APITestCase):
         }
 
         # Run
-
         response = self.client.post("/core/event/", data=json.dumps(json_content),
                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                     content_type="application/json")
@@ -126,7 +125,6 @@ class EventAPITest(APITestCase):
 
     def test_event_get_without_parameter(self):
         # Setup
-
         event_type = EventType(type="Annual function")
         event_type.save()
 
@@ -138,7 +136,6 @@ class EventAPITest(APITestCase):
         event_id = event.id
 
         # Run
-
         response = self.client.get("/core/event/",
                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                    content_type="application/json")
@@ -148,7 +145,6 @@ class EventAPITest(APITestCase):
 
     def test_event_get_with_parameter_event_id(self):
         # Setup
-
         event_type = EventType(type="Annual function")
         event_type.save()
 
@@ -160,7 +156,6 @@ class EventAPITest(APITestCase):
         event_id = event.id
 
         # Run
-
         response = self.client.get("/core/event/?event_id={id}".format(id=event_id),
                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token), content_type="application/json")
 

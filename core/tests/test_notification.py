@@ -6,7 +6,6 @@ from core.models import Event, EventType, Notification
 
 # Create your tests here.
 
-
 class NotificationTestCase(TestCase):
     def setUp(cls):
         cls.user = User.objects.create_user(email="usertest@mail.com", password="password")
@@ -24,13 +23,10 @@ class NotificationTestCase(TestCase):
     def test_notification_api_patch_for_valid_data(self):
         """
           Test for updated notification status has_read false to true
-
         """
 
         # Setup
-
         json_content = {"notification_id": [1]}
-
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
         notification.save()
 
@@ -47,7 +43,6 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-
         json_content = {"notification_id": []}
 
         # Run
@@ -63,12 +58,12 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-
         json_content = {
             "user_id": 1
         }
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=True)
         notification.save()
+
         # Run
         response = self.client.get("/core/notification/", json_content, content_type="application/json")
 
@@ -83,10 +78,8 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
         notification.save()
-
         json_content = {
             "user_id": self.user_id
         }
