@@ -207,7 +207,7 @@ LOGGING = {
         }
     },
     "loggers": {
-        "default": {"handlers": ["debug"], "level": "DEBUG", "propagate": True},
+        "debug_logger": {"handlers": ["debug"], "level": "DEBUG", "propagate": True},
         "info_logger": {"handlers": ["info"], "level": "INFO", "propagate": True},
         "error_logger": {"handlers": ["error"], "level": "ERROR", "propagate": True},
         "warning_logger": {"handlers": ["warning"], "level": "WARNING", "propagate": True}
