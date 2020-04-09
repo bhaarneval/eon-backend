@@ -1,9 +1,5 @@
-# import the logging library
 import logging
 import inspect
-
-
-# Get an instance of a logger
 
 
 class Logging:
