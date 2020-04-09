@@ -15,6 +15,7 @@ from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 from utils.constants import APPLICATION_CONSTANTS, SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
+from utils.logger import Logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
@@ -163,3 +164,53 @@ SMS_CONFIG = SMS_CONFIG
 EMAIL_CONFIG = EMAIL_CONFIG
 
 NOTIFICATION_CONFIG = NOTIFICATION_CONFIG
+
+
+OUT_DIR = os.path.join(BASE_DIR, "logs/core")
+
+# loggers
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        'console': {
+            'format': '[%(levelname)s : %(asctime)s]  %(funcName)s  %(lineno)d  %(message)s'
+        },
+        'file': {
+            'format': '[%(levelname)s : %(asctime)s]  %(funcName)s  %(lineno)d  %(message)s'
+        }
+    },
+    "handlers": {
+        "debug": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(OUT_DIR, "debug.log"),
+            "formatter": 'file',
+        },
+        "info": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(OUT_DIR, "info.log"),
+            "formatter": 'file',
+        },
+        "error": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(OUT_DIR, "error.log"),
+            "formatter": 'file',
+        },
+        "warning": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(OUT_DIR, "warning.log"),
+            "formatter": 'file',
+        }
+    },
+    "loggers": {
+        "default": {"handlers": ["debug"], "level": "DEBUG", "propagate": True},
+        "info_logger": {"handlers": ["info"], "level": "INFO", "propagate": True},
+        "error_logger": {"handlers": ["error"], "level": "ERROR", "propagate": True},
+        "warning_logger": {"handlers": ["warning"], "level": "WARNING", "propagate": True}
+    },
+}
+LOGGER_SERVICE = Logging()

@@ -1,3 +1,6 @@
+import traceback
+
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import exception_handler
@@ -12,6 +15,10 @@ def api_exception_handler(exception, context):
     :param context:
     :return:
     """
+    logger_service = settings.LOGGER_SERVICE
+    view = context["view"]
+    request = context["request"]
+    status_code = None
     if isinstance(exception, CoreAppException):
         response = Response(
             message=exception.default_detail,
@@ -41,4 +48,40 @@ def api_exception_handler(exception, context):
         )
     else:
         response = exception_handler(exception, context)
+        if status_code:
+            status_code_category = str(exception.status_code)[0]
+            if status_code_category == "4":
+                logger_service.log_warning(
+                    request.path
+                    + " "
+                    + request.method
+                    + "\n"
+                    + str(traceback.format_exc())
+                    + "\n"
+                    + str(response)
+                )
+            if status_code_category == "5":
+                logger_service.log_error(
+                    request.path
+                    + " "
+                    + request.method
+                    + "\n"
+                    + str(traceback.format_exc())
+                    + "\n"
+                    + str(response)
+                )
+            else:
+                logger_service.log_error(
+                    request.path
+                    + " "
+                    + request.method
+                    + "\n"
+                    + str(traceback.format_exc())
+                    + "\n"
+                    + str(response)
+                )
+        else:
+            logger_service.log_info(
+                request.path + " " + request.method + "\n" + str(traceback.format_exc())
+            )
     return response
