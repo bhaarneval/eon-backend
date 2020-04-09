@@ -49,7 +49,7 @@ class EventViewSet(ModelViewSet):
             invitee_list = curr_event.invitation_set.all()
             invitee_data = []
             for invited in invitee_list:
-                response_obj = {'email': invited.email}
+                response_obj = {'invitation_id': invited.id, 'email': invited.email}
                 if invited.user is not None:
                     try:
                         user_profile = UserProfile.objects.get(user=invited.user.id)
