@@ -63,6 +63,6 @@ class WishListViewSet(viewsets.ViewSet):
                 return api_error_response(message='Not WishListed', status=400)
             instance.is_active = False
             instance.save()
-            return api_success_response(message='Successfully Unsubscribed', status=200)
+            return api_success_response(message='Successfully removed from Wishlist', status=200)
         else:
             return api_error_response(message='Invalid event', status=400)
