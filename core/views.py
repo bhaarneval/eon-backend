@@ -90,11 +90,15 @@ class NotificationView(APIView):
 
         list_of_ids = request.data.get('notification_id')
 
-        if len(list_of_ids) is not None:
+        if len(list_of_ids) > 0:
             for notification_id in list_of_ids:
-                notification = Notification.objects.get(id=notification_id)
-                notification.has_read = True
-                notification.save()
+                try:
+                    notification = Notification.objects.get(id=notification_id)
+                    notification.has_read = True
+                    notification.save()
+                except:
+                    api_error_response("Notification Id ={id} does not exist".format(id=notification_id), 400)
+
         else:
             return api_error_response(message="Notification Id list can not be Null", status=400)
 
@@ -102,7 +106,7 @@ class NotificationView(APIView):
 
     def get(self, request):
 
-        user_id = request.data.get('user_id', None)
+        user_id = request.GET.get('user_id', None)
 
         if user_id is not None:
             try:
