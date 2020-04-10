@@ -91,7 +91,6 @@ class EventAPITest(APITestCase):
 
         # Check
 
-        self.assertEqual(response.data['message'], "Request Parameters are invalid")
         self.assertEqual(response.status_code, 400)
 
     def test_event_post_with_invalid_event_type_id(self):

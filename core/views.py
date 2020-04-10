@@ -120,4 +120,4 @@ class NotificationView(APIView):
             }
             json_list.append(notification_obj)
 
-        return api_success_response(None, json_list, None)
+        return api_success_response(data=json_list)
