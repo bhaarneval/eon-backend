@@ -19,3 +19,5 @@ def send_email_sms_and_notification(action_name, **kwargs):
         )
     if NOTIFICATION_CONFIG.get(action_name, {}).get("status"):
         event_dict = NOTIFICATION_CONFIG.get(action_name)
+        user_ids = kwargs["user_ids"]
+        message = kwargs.get("message") or event_dict["message"]

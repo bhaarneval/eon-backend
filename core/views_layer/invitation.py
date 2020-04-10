@@ -3,12 +3,12 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.db import transaction
 
-from rest_framework import mixins, generics
+from rest_framework import generics
 from authentication.models import User
 from core.models import UserProfile, Invitation, Event
 from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from utils.helper import send_email_sms_and_notification
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -16,8 +16,7 @@ class InvitationViewSet(generics.GenericAPIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, )
     serializer_class = InvitationSerializer
-    queryset = Invitation.objects.all()
-
+    queryset = Invitation.objects.filter(is_active=True)
 
     @transaction.atomic()
     def post(self, request):
@@ -36,6 +35,7 @@ class InvitationViewSet(generics.GenericAPIView):
         invitee_list = data.get('invitee_list', [])
 
         response = []
+        contact_nos = []
 
         try:
             event = Event.objects.get(id=event_id)
@@ -43,22 +43,27 @@ class InvitationViewSet(generics.GenericAPIView):
             return api_error_response(message="No event exist with id={}".format(event_id))
         for invitee in invitee_list:
             try:
-                inv_object = Invitation.objects.get(email=invitee, event=event_id)
+                inv_object = self.queryset.get(email=invitee, event=event_id)
 
                 try:
                     user = User.objects.get(email=invitee)
                     try:
-                        Invitation.objects.filter(email=invitee,event=event_id).update(event=event,
-                                                                        discount_percentage=discount_percentage,
-                                                                        user=user, email=user.email)
+                        self.queryset.filter(email=invitee, event=event_id).update(
+                            event=event,
+                            discount_percentage=discount_percentage,
+                            user=user, email=user.email
+                        )
                         response.append(inv_object)
+                        # TODO: get the contact no for the registered user.
                     except Exception as err:
                         return api_error_response(message="Some error occurred due to incorrect details", status=400)
                 except User.DoesNotExist:
                     try:
-                        Invitation.objects.filter(email=invitee,event=event_id).update(event=event,
-                                                                        discount_percentage=discount_percentage,
-                                                                        email=invitee)
+                        self.queryset.filter(email=invitee, event=event_id).update(
+                            event=event,
+                            discount_percentage=discount_percentage,
+                            email=invitee
+                        )
                         response.append(inv_object)
                     except Exception as err:
                         return api_error_response(message="Some error occurred due to incorrect details", status=400)
@@ -66,33 +71,38 @@ class InvitationViewSet(generics.GenericAPIView):
             except Invitation.DoesNotExist:
                 try:
                     user = User.objects.get(email=invitee)
-                    Invitation.objects.create(event=event, discount_percentage=discount_percentage, user=user,
-                                              email=user.email).save()
-                    response.append(Invitation.objects.get(email=invitee, event=event_id))
+                    inv_object = Invitation.objects.create(event=event,
+                                                           discount_percentage=discount_percentage,
+                                                           user=user,
+                                                           email=user.email).save()
+                    response.append(inv_object)
                 except User.DoesNotExist:
-                    Invitation.objects.create(event=event, discount_percentage=discount_percentage, email=invitee).save()
-                    response.append(Invitation.objects.get(email=invitee,event=event_id))
+                    inv_object = Invitation.objects.create(event=event,
+                                                           discount_percentage=discount_percentage,
+                                                           email=invitee).save()
+                    response.append(inv_object)
 
         data = []
         for invited in response:
-            response_obj = {'invitation_id': invited.id, 'email': invited.email}
+            response_obj = {'invitation_id': invited.id,
+                            'email': invited.email,
+                            'discount_percentage': discount_percentage}
             if invited.user is not None:
                 try:
                     user_profile = UserProfile.objects.get(user=invited.user.id)
                     response_obj['user'] = {'user_id': invited.user.id, 'name': user_profile.name,
-                                            'contact_number': user_profile.contact_number,
-                                            'address': user_profile.address,
-                                            'organization': user_profile.organization}
+                                            'contact_number': user_profile.contact_number}
                 except Exception:
                     pass
-            response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name,
-                                     'event_type': invited.event.type.type}
-            response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
+        message = f"We are inviting you to register for {event.name} with {discount_percentage}% discount"
+        send_email_sms_and_notification(action_name="invitation_send",
+                                        email_ids=invitee_list,
+                                        message=message)
         data_object = {'invitee_list': data}
         return api_success_response(message="Successful invited", data=data_object)
 
-    def delete(self,request):
+    def delete(self, request):
         """
         Function to delete invitation list
         :param request: list of Id's in body with {'invitation_ids'=[list_of_ids]}
@@ -101,13 +111,16 @@ class InvitationViewSet(generics.GenericAPIView):
         data = json.loads(request.body)
         list_of_ids = data.get('invitation_ids')
         try:
-            Invitation.objects.filter(id__in=list_of_ids).update(is_active=False)
+            inv_obj = self.queryset.filter(id__in=list_of_ids).update(is_active=False)
+            # TODO: To take contact no for sending messages.
+            email_ids = inv_obj.values("email")
+            send_email_sms_and_notification(action_name="invitation_delete", email_ids=email_ids)
             return api_success_response(message="Successfully deleted all Invitees", status=204)
         except Exception as err:
             return api_error_response(message='Could not delete due to some invalid reasons. Please Try Again',
                                       status=500)
 
-    def get(self,request):
+    def get(self, request):
         """
         Function to fetch invitation list
         :param request: may contain event_id or user_id to filter the invite list

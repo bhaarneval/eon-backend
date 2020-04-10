@@ -9,8 +9,10 @@ APPLICATION_CONSTANTS = dict(transaction=PAYMENT_CONSTANTS)
 DEFAULT_PASSWORD = dict(password='default')
 
 SMS_CONFIG = {
-    "invitation": {"status": True,
-                   "message": "You are invited for the event. Please registered to avail the discount for the event."}
+    "invitation_send": {"status": True,
+                        "message": "You are invited for the event. Please registered to avail the discount."},
+    "invitation_delete": {"status": True,
+                          "message": "You have been removed from the invitation list for the event."}
 }
 
 EMAIL_CONFIG = {
@@ -29,15 +31,21 @@ EMAIL_CONFIG = {
     "event_reminder": {"status": True,
                        "message": "Reminder for the registered event.",
                        "subject": "REGISTERED EVENT REMINDER"},
-    "invitation": {"status": True,
-                   "message": "You are invited for the event. Please registered to avail the discount for the event.",
-                   "subject": "INVITATION FOR AN EVENT"},
+    "invitation_send": {"status": True,
+                        "message": "You are invited for the event. Please registered to avail the discount.",
+                        "subject": "INVITATION FOR AN EVENT"},
+    "invitation_delete": {"status": True,
+                          "message": "You have been removed from the invitation list for the event.",
+                          "subject": "INVITATION CANCELLED FOR EVENT"},
     "user_share": {"status": True,
                    "message": "Your friend is going for the event asking you to join along with him.",
                    "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."},
     "forget_password": {"status": True,
                         "message": "Verification code for reset password.",
-                        "subject": "VERIFICATION CODE FOR RESET PASSWORD"}
+                        "subject": "VERIFICATION CODE FOR RESET PASSWORD"},
+    "send_updates": {"status": True,
+                     "message": "There is an updates from the organiser.",
+                     "subject": "REGISTERED EVENT UPDATES"},
 }
 
 NOTIFICATION_CONFIG = {
@@ -46,5 +54,7 @@ NOTIFICATION_CONFIG = {
     "event_deleted": {"status": True,
                       "message": "Your registered event is deleted by the organiser."},
     "event_reminder": {"status": True,
-                       "message": "Reminder for the registered event."}
+                       "message": "Reminder for the registered event."},
+    "send_update": {"status": True,
+                    "message": "There is an updates from the organiser."}
 }
