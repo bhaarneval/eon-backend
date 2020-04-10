@@ -23,7 +23,9 @@ class WishListViewSet(viewsets.ViewSet):
     def create(self, request):
         data = json.loads(request.body)
         event_id = data.get('event_id', None)
-        user_id = data.get('user_id', None)
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
 
         if user_id and event_id:
             data = [dict(user=user_id, event=event_id)]
