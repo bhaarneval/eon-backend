@@ -30,35 +30,29 @@ class WishListViewSet(viewsets.ViewSet):
         if user_id and event_id:
             data = [dict(user=user_id, event=event_id)]
             try:
-                event = Event.objects.filter(id=event_id)
+                event = Event.objects.get(id=event_id)
             except:
                 return api_error_response(message="Event Invalid", status=400)
 
             if event and event.event_created_by == user_id:
-                return api_success_response(message="You are the Organizer of the event", status=200)
+                return api_error_response(message="You are the Organizer of the event", status=400)
 
-            serializer = WishListSerializer(data=data, many=True)
+            serializer = WishListSerializer(data=data)
             serializer.is_valid()
-            if 'non_field_errors' in serializer.errors[0]:
-                queryset = WishList.objects.filter(user=user_id, event=event_id)
-                queryset = queryset.select_related('user', 'event').annotate(event_name=F('event__name'), user_name=F('user__userprofile__name'))
-                queryset = queryset.first()
-                data = dict(id=queryset.id, user=queryset.user_name, event=queryset.event_name)
+
+            if 'non_field_errors' in serializer.errors or 'non_field_errors' in serializer.errors[0]:
+                queryset = WishList.objects.get(user=user_id, event=event_id)
                 if queryset.is_active:
                     message = "Event already wishlisted"
                 else:
                     queryset.is_active = True
                     queryset.save()
                     message = "WishListed Successfully"
-                return api_success_response(message=message, data=data,  status=200)
+                serializer = WishListSerializer(queryset)
+                return api_success_response(message=message, data=serializer.data,  status=200)
             elif serializer.errors:
                 return api_error_response(message="Event Invalid", status=400)
             serializer.save()
-            queryset = WishList.objects.filter(user=user_id, event=event_id)
-            queryset = queryset.select_related('user', 'event').annotate(event_name=F('event__name'),
-                                                                         user_name=F('user__userprofile__name'))
-            queryset = queryset.first()
-            data = dict(id=queryset.id, user=queryset.user_name, event=queryset.event_name)
         return api_success_response(data=data, message="WishListed Successfully", status=200)
 
     def destroy(self, request, pk=None):
