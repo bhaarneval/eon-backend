@@ -5,14 +5,14 @@ from authentication.models import ModelBase, User, Role, ActiveModel
 from payment.models import Payment
 
 
-class EventType(ModelBase):
+class EventType(ActiveModel):
     type = models.CharField(unique=True, max_length=256)
 
     def __str__(self):
         return self.type
 
 
-class Event(ModelBase):
+class Event(ActiveModel):
     name = models.CharField(max_length=256)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     description = models.CharField(max_length=512)
@@ -34,7 +34,7 @@ class Event(ModelBase):
         return "{}-{}".format(self.name, self.type)
 
 
-class Invitation(ModelBase):
+class Invitation(ActiveModel):
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
     discount_percentage = models.PositiveIntegerField()
@@ -44,7 +44,7 @@ class Invitation(ModelBase):
         return "{}-{}-{}".format(self.event, self.user, self.discount_percentage)
 
 
-class EventPreference(ModelBase):
+class EventPreference(ActiveModel):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
 
