@@ -29,7 +29,7 @@ class EventViewSet(ModelViewSet):
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
         end_date = request.GET.get("end_date", None)
-        event_created_by = request.GET.get("event_created_by", None)
+        event_created_by = request.GET.get("event_created_by", False)
         is_wishlisted = request.GET.get('is_wishlisted', False)
 
         token = get_authorization_header(request).split()[1]
@@ -48,8 +48,8 @@ class EventViewSet(ModelViewSet):
 
         if location:
             self.queryset = self.queryset.filter(location__iexact=location)
-        if event_created_by:
-            self.queryset = self.queryset.filter(event_created_by=event_created_by)
+        if event_created_by == 'True':
+            self.queryset = self.queryset.filter(event_created_by=user_id)
         if event_type:
             self.queryset = self.queryset.filter(type=event_type)
         if start_date and end_date:
@@ -160,8 +160,6 @@ class EventViewSet(ModelViewSet):
                     "date": curr_event.date, "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
                     "description": curr_event.description,
-                    "no_of_tickets": curr_event.no_of_tickets,
-                    "sold_tickets": curr_event.sold_tickets,
                     "subscription_fee": curr_event.subscription_fee,
                     "images": curr_event.images,
                     "external_links": curr_event.external_links,
