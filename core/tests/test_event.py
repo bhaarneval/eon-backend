@@ -94,7 +94,7 @@ class EventAPITest(APITestCase):
         self.assertEqual(response.data['message'], "Request Parameters are invalid")
         self.assertEqual(response.status_code, 400)
 
-    def test_event_post_with_invalid_data(self):
+    def test_event_post_with_invalid_event_type_id(self):
         """
         unit test for Event post Api without required information
         :return:
@@ -121,7 +121,7 @@ class EventAPITest(APITestCase):
                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                     content_type="application/json")
 
-        self.assertEqual(response.data['message'], "Request Parameters are invalid")
+        self.assertEqual(response.data.status_code, 400)
 
     def test_event_get_without_parameter(self):
         # Setup

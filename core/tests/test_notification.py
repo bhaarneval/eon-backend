@@ -1,15 +1,36 @@
+import json
+
 from django.test import TestCase
 
-from authentication.models import User
+from authentication.models import User, Role
 from core.models import Event, EventType, Notification
 
 
 # Create your tests here.
 
 class NotificationTestCase(TestCase):
+
     def setUp(cls):
-        cls.user = User.objects.create_user(email="usertest@mail.com", password="password")
-        cls.user_id = User.objects.only('id').get(email='usertest@mail.com').id
+        role = Role(role="organizer")
+        role.save()
+        content = {
+            "email": "usertest@mail.com",
+            "name": "usertest@mail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        register = cls.client.post('/authentication/registration', json.dumps(content),
+                                   content_type='application/json')
+
+        data = dict(email="usertest@mail.com", password="user123")
+        login_response = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        cls.user_id = login_response.data['data']['user']['user_id']
+        cls.token = login_response.data['data']['access']
+        cls.user = User.objects.get(id=cls.user_id)
 
         event_type = EventType(type="test")
         event_type.save()
@@ -51,7 +72,7 @@ class NotificationTestCase(TestCase):
         # Assert
         self.assertEqual(response.status_code, 200)
 
-    def test_for_Notification_get(self):
+    def test_for_Notification_get_when_no_unread_notification_for_that_user(self):
         """
           Test for notification when there is no unread notification for a user
 
@@ -71,7 +92,7 @@ class NotificationTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['data'], [])
 
-    def test_for_Notification_get(self):
+    def test_for_Notification_get_data_when_unread_notification(self):
         """
           Test for notification when there is unread notification for a user
 

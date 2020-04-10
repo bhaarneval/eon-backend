@@ -36,7 +36,6 @@ class AuthenticationTestCase(TestCase):
         """
 
         # Setup
-        # Role.objects.create(role='organizer')
         content = {
             "email": "user@mail.com",
             # "password": "user123",
@@ -130,17 +129,3 @@ class AuthenticationTestCase(TestCase):
 
         # check
         self.assertEqual(response.status_code, 400)
-
-    def test_reset_password_with_wrong_password(self):
-        """
-        Unit test to check reset_password API
-        :return:
-        """
-        data = dict(email='user@mail.com', password="user1234", code="code", is_active=True)
-
-        # Run
-        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
-                                          content_type='application/json')
-        # Check
-
-        self.assertEqual(reset_response.status_code, 500)
