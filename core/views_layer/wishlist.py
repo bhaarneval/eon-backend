@@ -2,7 +2,6 @@ import json
 
 import jwt
 from django.db import transaction
-from django.db.models import F
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
@@ -28,32 +27,36 @@ class WishListViewSet(viewsets.ViewSet):
         user_id = payload['user_id']
 
         if user_id and event_id:
-            data = [dict(user=user_id, event=event_id)]
+            data = dict(user=user_id, event=event_id)
+            wishlist = None
             try:
                 event = Event.objects.get(id=event_id)
             except:
-                return api_error_response(message="Event Invalid", status=400)
+                return api_error_response(message="Invalid Event", status=400)
 
             if event and event.event_created_by == user_id:
                 return api_error_response(message="You are the Organizer of the event", status=400)
 
-            serializer = WishListSerializer(data=data)
-            serializer.is_valid()
-
-            if 'non_field_errors' in serializer.errors or 'non_field_errors' in serializer.errors[0]:
-                queryset = WishList.objects.get(user=user_id, event=event_id)
-                if queryset.is_active:
-                    message = "Event already wishlisted"
-                else:
-                    queryset.is_active = True
-                    queryset.save()
+            try:
+                wishlist = WishList.objects.get(user=user_id, event=event_id)
+            except:
+                pass
+            if wishlist:
+                if not wishlist.is_active:
+                    wishlist.is_active = True
+                    wishlist.save()
                     message = "WishListed Successfully"
-                serializer = WishListSerializer(queryset)
-                return api_success_response(message=message, data=serializer.data,  status=200)
-            elif serializer.errors:
-                return api_error_response(message="Event Invalid", status=400)
-            serializer.save()
-        return api_success_response(data=data, message="WishListed Successfully", status=200)
+                else:
+                    message = "Event already wishlisted"
+                serializer = WishListSerializer(wishlist)
+                return api_success_response(message=message, data=serializer.data, status=200)
+            else:
+                serializer = WishListSerializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+            return api_success_response(data=serializer.data, message="WishListed Successfully", status=200)
+        else:
+            return api_error_response(message="Request Parameters are invalid", status=400)
 
     def destroy(self, request, pk=None):
         event_id = pk
