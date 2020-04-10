@@ -35,8 +35,7 @@ class EventViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        import pdb
-        pdb.set_trace()
+
         if is_wishlisted == 'True':
             try:
                 event_ids = WishList.objects.filter(user=user_id).values_list('event__id', flat=True)
@@ -171,7 +170,10 @@ class EventViewSet(ModelViewSet):
                         "id": subscription_obj.id,
                         "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
                         "amount_paid": subscription_obj.payment.total_amount,
-                        "discount_given": subscription_obj.payment.discount_amount
+                        "discount_given": subscription_obj.payment.discount_amount,
+                        "discount_percentage": (subscription_obj.payment.discount_amount /
+                                                subscription_obj.payment.amount) * 100
                     }
                     }
-            return api_success_response(message="Event {} details for {} user".format(curr_event.name, user_logged_in), data=data, status=200)
+            return api_success_response(message="Event {} details for {} user".format(curr_event.name, user_logged_in),
+                                        data=data, status=200)
