@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Event, Subscription, UserProfile, Invitation, EventType
+from core.models import Event, Subscription, UserProfile, Invitation, EventType, WishList
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -70,3 +70,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = "__all__"
+
+
+class WishListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WishList
+        exclude = ('created_on', 'updated_on', 'is_active')
