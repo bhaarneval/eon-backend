@@ -19,12 +19,12 @@ class Event(ActiveModel):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
-    images = models.CharField(max_length=512)
+    images = models.CharField(max_length=512, null=True, blank=True)
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
     sold_tickets = models.PositiveIntegerField(default=0)
     is_cancelled = models.BooleanField(default=False)
-    external_links = models.CharField(max_length=1024)
+    external_links = models.CharField(max_length=1024, null=True, blank=True)
     event_created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     class Meta:
