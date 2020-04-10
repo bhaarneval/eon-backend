@@ -8,7 +8,7 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import WishList
+from core.models import WishList, Event
 from core.serializers import WishListSerializer
 from eon_backend.settings import SECRET_KEY
 from utils.common import api_error_response, api_success_response
@@ -29,6 +29,14 @@ class WishListViewSet(viewsets.ViewSet):
 
         if user_id and event_id:
             data = [dict(user=user_id, event=event_id)]
+            try:
+                event = Event.objects.filter(id=event_id)
+            except:
+                return api_error_response(message="Event Invalid", status=400)
+
+            if event and event.event_created_by == user_id:
+                return api_success_response(message="You are the Organizer of the event", status=200)
+
             serializer = WishListSerializer(data=data, many=True)
             serializer.is_valid()
             if 'non_field_errors' in serializer.errors[0]:
