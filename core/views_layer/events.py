@@ -5,9 +5,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Event, UserProfile, Subscription
+from core.models import Event, UserProfile, Subscription, WishList
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
+from rest_framework.authentication import get_authorization_header
+from eon_backend.settings import SECRET_KEY
 import jwt
 
 
@@ -27,14 +29,28 @@ class EventViewSet(ModelViewSet):
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
         end_date = request.GET.get("end_date", None)
-        user_id = request.GET.get('event_created_by', None)
+        event_created_by = request.GET.get("event_created_by", None)
+        is_wishlisted = request.GET.get('is_wishlisted', False)
+
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+        import pdb
+        pdb.set_trace()
+        if is_wishlisted == 'True':
+            try:
+                event_ids = WishList.objects.filter(user=user_id).values_list('event__id', flat=True)
+                self.queryset = self.queryset.filter(id__in=event_ids)
+            except Exception as err:
+                return api_error_response(message="Some internal error coming in fetching the wishlist", status=400)
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_cancelled=True)
         self.queryset = self.queryset.filter(date__gte=str(today))
+
         if location:
             self.queryset = self.queryset.filter(location__iexact=location)
-        if user_id:
-            self.queryset = self.queryset.filter(event_created_by=user_id)
+        if event_created_by:
+            self.queryset = self.queryset.filter(event_created_by=event_created_by)
         if event_type:
             self.queryset = self.queryset.filter(type=event_type)
         if start_date and end_date:
@@ -44,14 +60,8 @@ class EventViewSet(ModelViewSet):
                 F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
 
-        req_token = request.META.get('HTTP_AUTHORIZATION', None)
-        if req_token:
-            req_token = req_token.split(' ')[1]
-        secret_key = request.META.get('SECRET_KEY', None)
-        request = jwt.decode(req_token, secret_key, algorithm=['HS256'])
-
         try:
-            user_logged_in = request.get('user_id')
+            user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
             return api_error_response(message="can't access to login user id to fetch data", status=400)
@@ -80,6 +90,11 @@ class EventViewSet(ModelViewSet):
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
 
+                try:
+                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                    response_obj['is_wishlisted'] = True
+                except WishList.DoesNotExist:
+                    response_obj['is_wishlisted'] = False
             data.append(response_obj)
 
         return api_success_response(message="list of events", data=data)
@@ -89,14 +104,12 @@ class EventViewSet(ModelViewSet):
         return super(EventViewSet, self).create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        req_token = request.META.get('HTTP_AUTHORIZATION', None)
-        if req_token:
-            req_token = req_token.split(' ')[1]
-        secret_key = request.META.get('SECRET_KEY', None)
-        request = jwt.decode(req_token, secret_key, algorithm=['HS256'])
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
 
         try:
-            user_logged_in = request.get('user_id')
+            user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
             return api_error_response(message="can't access to login user id to fetch data", status=400)
