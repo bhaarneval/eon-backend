@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Event, UserProfile, Subscription, WishList
+from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from rest_framework.authentication import get_authorization_header
@@ -125,7 +125,7 @@ class EventViewSet(ModelViewSet):
 
         if not is_subscriber:
             data = []
-            invitee_list = curr_event.invitation_set.all()
+            invitee_list = Invitation.objects.filter(event=curr_event.id, user=user_id)
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
