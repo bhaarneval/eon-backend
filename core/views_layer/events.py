@@ -125,7 +125,7 @@ class EventViewSet(ModelViewSet):
 
         if not is_subscriber:
             data = []
-            invitee_list = Invitation.objects.filter(event=curr_event.id, user=user_id)
+            invitee_list = Invitation.objects.filter(event__event_created_by=user_id)
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
