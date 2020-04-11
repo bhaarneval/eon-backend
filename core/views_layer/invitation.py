@@ -101,7 +101,7 @@ class InvitationViewSet(generics.GenericAPIView):
         data = json.loads(request.body)
         list_of_ids = data.get('invitation_ids')
         try:
-            Invitation.objects.filter(id__in=list_of_ids).delete()
+            Invitation.objects.filter(id__in=list_of_ids).update(is_active=False)
             return api_success_response(message="Successfully deleted all Invitees", status=204)
         except Exception as err:
             return api_error_response(message='Could not delete due to some invalid reasons. Please Try Again',
