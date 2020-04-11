@@ -85,8 +85,8 @@ class InvitationViewSet(generics.GenericAPIView):
                                             'organization': user_profile.organization}
                 except Exception:
                     pass
-            response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name,
-                                     'event_type': invited.event.type.type}
+            response_obj['event'] = {'id': invited.event.id, 'name': invited.event.name,
+                                     'type': invited.event.type.type}
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
@@ -137,8 +137,8 @@ class InvitationViewSet(generics.GenericAPIView):
                                             'organization': user_profile.organization}
                 except Exception:
                     pass
-            response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name,
-                                     'event_type': invited.event.type.type}
+            response_obj['event'] = {'id': invited.event.id, 'name': invited.event.name,
+                                     'type': invited.event.type.type}
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
