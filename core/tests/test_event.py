@@ -120,7 +120,7 @@ class EventAPITest(APITestCase):
                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                     content_type="application/json")
 
-        self.assertEqual(response.data.status_code, 400)
+        self.assertEqual(response.status_code, 400)
 
     def test_event_get_without_parameter(self):
         # Setup
