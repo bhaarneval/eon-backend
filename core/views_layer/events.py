@@ -155,7 +155,6 @@ class EventViewSet(ModelViewSet):
 
             return api_success_response(message="event details", data=data, status=200)
         else:
-            subscription_obj = Subscription.objects.get(user_id=user_logged_in, event_id=curr_event.id)
             data = {"event_id": curr_event.id, "event_name": curr_event.name,
                     "date": curr_event.date, "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
@@ -163,15 +162,25 @@ class EventViewSet(ModelViewSet):
                     "subscription_fee": curr_event.subscription_fee,
                     "images": curr_event.images,
                     "external_links": curr_event.external_links,
-                    "subscription_details": {
-                        "is_subscribed": is_subscriber,
-                        "id": subscription_obj.id,
-                        "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
-                        "amount_paid": subscription_obj.payment.total_amount,
-                        "discount_given": subscription_obj.payment.discount_amount,
-                        "discount_percentage": (subscription_obj.payment.discount_amount /
-                                                subscription_obj.payment.amount) * 100
                     }
-                    }
+            try:
+                subscription_obj = Subscription.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                data["subscription_details"] = {
+                    "is_subscribed": is_subscriber,
+                    "id": subscription_obj.id,
+                    "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
+                    "amount_paid": subscription_obj.payment.total_amount,
+                    "discount_given": subscription_obj.payment.discount_amount,
+                    "discount_percentage": (subscription_obj.payment.discount_amount /
+                                            subscription_obj.payment.amount) * 100
+                }
+            except Subscription.DoesNotExist:
+                data["no_of_tickets"] = curr_event.no_of_tickets
+                data["sold_tickets"] = curr_event.sold_tickets
+                try:
+                    discount_alloted = Invitation.objects.get(user=user_id, event=curr_event.id).discount_percentage
+                except Invitation.DoesNotExist:
+                    discount_alloted = 0
+                data['discount_percentage'] = discount_alloted
             return api_success_response(message="Event {} details for {} user".format(curr_event.name, user_logged_in),
                                         data=data, status=200)
