@@ -42,12 +42,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'django_nose',
 
     # Installed Apps
     'core',
     'authentication',
     'rest_framework',
     'payment',
+]
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=authentication,core,payment',
 ]
 
 MIDDLEWARE = [

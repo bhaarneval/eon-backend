@@ -1,12 +1,22 @@
 import json
 from rest_framework.test import APITestCase
+from authentication.models import Role
 
 
 class InvitationTestCase(APITestCase):
     fixtures = ['default.json']
+
     def setUp(cls):
-        data = dict(email="user18@gmail.com", password="user123")
-        cls.user = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        Role.objects.create(role='subscriber')
+        data = {
+            "email": "user@mail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "subscriber",
+            "organization": "Eventhigh"
+        }
+        cls.user = cls.client.post('/authentication/registration', json.dumps(data), content_type='application/json')
         cls.token = cls.user.data['data']['access']
         cls.ENDPOINT = "/core/event/invite"
 

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Event, UserProfile, Subscription, WishList
+from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from rest_framework.authentication import get_authorization_header
@@ -18,7 +18,7 @@ import jwt
 class EventViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
+    queryset = Event.objects.all(is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
 
     def list(self, request, *args, **kwargs):
@@ -98,14 +98,10 @@ class EventViewSet(ModelViewSet):
                     response_obj['is_wishlisted'] = False
             data.append(response_obj)
 
-        return api_success_response(message="List of events", data=data)
+        return api_success_response(message="list of events", data=data)
 
     def create(self, request, *args, **kwargs):
         self.serializer_class = EventSerializer
-        data = json.dumps(request.data)
-        print(data)
-        # TODO: After creating one event, that person deleted the event. After that if he tries to create same event
-        # then it is given error. As we are just changing the is_active field. Handle this scenario.
         return super(EventViewSet, self).create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -117,7 +113,7 @@ class EventViewSet(ModelViewSet):
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
-            return api_error_response(message="Something went wrong", status=500)
+            return api_error_response(message="can't access to login user id to fetch data", status=400)
         if user_role == 'subscriber':
             is_subscriber = True
         else:
@@ -127,13 +123,11 @@ class EventViewSet(ModelViewSet):
         try:
             curr_event = self.queryset.get(id=event_id)
         except Event.DoesNotExist:
-            return api_error_response(message="Given event_id {} does not exist".format(event_id))
+            return api_error_response(message="Given event {} does not exist".format(event_id))
 
         if not is_subscriber:
-            # TODO: Invitation list should not be visible to the organiser who doesn't create that event.
-            # Currently it is visible for other organisers
             data = []
-            invitee_list = curr_event.invitation_set.filter(is_active=True)
+            invitee_list = Invitation.objects.filter(event=curr_event.id, user=user_id)
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
@@ -161,45 +155,42 @@ class EventViewSet(ModelViewSet):
                          "invitee_list": invitee_data
                          })
 
-            return api_success_response(message="event detail", data=data, status=200)
+            return api_success_response(message="event details", data=data, status=200)
         else:
+            data = {"event_id": curr_event.id, "event_name": curr_event.name,
+                    "date": curr_event.date, "time": curr_event.time,
+                    "location": curr_event.location, "event_type": curr_event.type.id,
+                    "description": curr_event.description,
+                    "subscription_fee": curr_event.subscription_fee,
+                    "images": curr_event.images,
+                    "external_links": curr_event.external_links,
+                    }
             try:
                 subscription_obj = Subscription.objects.get(user_id=user_logged_in, event_id=curr_event.id)
-                data = {"event_id": curr_event.id, "event_name": curr_event.name,
-                        "date": curr_event.date, "time": curr_event.time,
-                        "location": curr_event.location, "event_type": curr_event.type.id,
-                        "description": curr_event.description,
-                        "subscription_fee": curr_event.subscription_fee,
-                        "images": curr_event.images,
-                        "external_links": curr_event.external_links,
-                        "subscription_details": {
-                            "is_subscribed": is_subscriber,
-                            "id": subscription_obj.id,
-                            "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
-                            "amount_paid": subscription_obj.payment.total_amount,
-                            "discount_given": subscription_obj.payment.discount_amount,
-                            "discount_percentage": (subscription_obj.payment.discount_amount /
-                                                    subscription_obj.payment.amount) * 100
-                        }
-                        }
-                # TODO: One person can have multiple subscription for one event. So you should send the by summing all
-                # the subscription (Buying new tickets/Cancelling some tickets)
+                data["subscription_details"] = {
+                    "is_subscribed": is_subscriber,
+                    "id": subscription_obj.id,
+                    "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
+                    "amount_paid": subscription_obj.payment.total_amount,
+                    "discount_given": subscription_obj.payment.discount_amount,
+                    "discount_percentage": (subscription_obj.payment.discount_amount /
+                                            subscription_obj.payment.amount) * 100
+                }
             except Subscription.DoesNotExist:
-                data = {"event_id": curr_event.id, "event_name": curr_event.name,
-                        "date": curr_event.date, "time": curr_event.time,
-                        "location": curr_event.location, "event_type": curr_event.type.id,
-                        "description": curr_event.description,
-                        "subscription_fee": curr_event.subscription_fee,
-                        "images": curr_event.images,
-                        "external_links": curr_event.external_links,
-                        "subscription_details": []}
+                data["no_of_tickets"] = curr_event.no_of_tickets
+                data["sold_tickets"] = curr_event.sold_tickets
+                try:
+                    discount_allotted = Invitation.objects.get(user=user_id, event=curr_event.id).discount_percentage
+                except Invitation.DoesNotExist:
+                    discount_allotted = 0
+                data['discount_percentage'] = discount_allotted
             return api_success_response(message="Event {} details for {} user".format(curr_event.name, user_logged_in),
                                         data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
         event_id = int(kwargs.get('pk'))
-        # How to take message from the payload?
-        message = ""
+        data = json.dumps(request.data)
+        message = data.get("message", "")
         try:
             self.queryset.get(id=event_id)
         except Event.DoesNotExist:
@@ -218,5 +209,3 @@ class EventViewSet(ModelViewSet):
                                         message=message,
                                         user_ids=user_ids)
         return api_success_response(message="Event successfully deleted", status=200)
-
-# TODO: There is no event update API.
