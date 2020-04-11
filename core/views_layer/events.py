@@ -76,7 +76,7 @@ class EventViewSet(ModelViewSet):
         for curr_event in self.queryset:
             response_obj = {"id": curr_event.id, "name": curr_event.name,
                             "date": curr_event.date, "time": curr_event.time,
-                            "location": curr_event.location, "event_type": curr_event.type.id,
+                            "location": curr_event.location, "type": curr_event.type.id,
                             "description": curr_event.description,
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
@@ -140,12 +140,12 @@ class EventViewSet(ModelViewSet):
                                                 'organization': user_profile.organization}
                     except Exception:
                         pass
-                response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name}
+                response_obj['event'] = {'id': invited.event.id, 'name': invited.event.name}
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
             data.append({"id": curr_event.id, "name": curr_event.name,
                          "date": curr_event.date, "time": curr_event.time,
-                         "location": curr_event.location, "event_type": curr_event.type.id,
+                         "location": curr_event.location, "type": curr_event.type.id,
                          "description": curr_event.description,
                          "no_of_tickets": curr_event.no_of_tickets,
                          "sold_tickets": curr_event.sold_tickets,
@@ -157,9 +157,9 @@ class EventViewSet(ModelViewSet):
 
             return api_success_response(message="event details", data=data, status=200)
         else:
-            data = {"event_id": curr_event.id, "event_name": curr_event.name,
+            data = {"id": curr_event.id, "name": curr_event.name,
                     "date": curr_event.date, "time": curr_event.time,
-                    "location": curr_event.location, "event_type": curr_event.type.id,
+                    "location": curr_event.location, "type": curr_event.type.id,
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "images": curr_event.images,
