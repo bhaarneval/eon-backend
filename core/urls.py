@@ -10,7 +10,7 @@ from core.views_layer.invitation import InvitationViewSet
 urlpatterns = [
     url('^', include(router.urls)),
     url('presigned-url', PresignedUrl.as_view(), name="image_upload"),
-    url('invite', InvitationViewSet.as_view(), name="invite"),
+    url('^invite/(?P<event_id>.+)/$', InvitationViewSet.as_view(), name="invite"),
     url('notify-subscriber', SubscriberNotify.as_view(), name="subscriber_notify"),
     url("event-type", get_event_types, name="event_type"),
     url("share-with-friend", send_mail_to_a_friend, name="share_with_friend"),

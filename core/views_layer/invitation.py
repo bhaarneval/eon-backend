@@ -2,6 +2,7 @@ import json
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from django.db import transaction
+from django.db.models import F
 
 from rest_framework import generics
 from authentication.models import User
@@ -9,17 +10,15 @@ from core.models import UserProfile, Invitation, Event
 from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
-from rest_framework.permissions import IsAuthenticated
 
 
 class InvitationViewSet(generics.GenericAPIView):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, )
     serializer_class = InvitationSerializer
     queryset = Invitation.objects.filter(is_active=True)
 
     @transaction.atomic()
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         """
         Function to add new invitations
         :param request: data containing information of an invite in format {
@@ -31,7 +30,7 @@ class InvitationViewSet(generics.GenericAPIView):
         """
         data = json.loads(request.body)
         event_id = data.get('event', None)
-        discount_percentage = data.get('discount_percentage',0)
+        discount_percentage = data.get('discount_percentage', 0)
         invitee_list = data.get('invitee_list', [])
 
         response = []
@@ -54,15 +53,16 @@ class InvitationViewSet(generics.GenericAPIView):
                             user=user, email=user.email
                         )
                         response.append(inv_object)
-                        # TODO: get the contact no for the registered user.
+                        number = UserProfile.objects.get(user=user)
+                        contact_nos.append("".join(["+91", number.contact_number]))
                     except Exception as err:
-                        return api_error_response(message="Some error occurred due to incorrect details", status=400)
+                        return api_error_response(message="Something went wrong", status=500)
                 except User.DoesNotExist:
                     try:
                         self.queryset.filter(email=invitee, event=event_id).update(
                             event=event,
                             discount_percentage=discount_percentage,
-                            email=invitee
+                            email=invitee,
                         )
                         response.append(inv_object)
                     except Exception as err:
@@ -74,12 +74,14 @@ class InvitationViewSet(generics.GenericAPIView):
                     inv_object = Invitation.objects.create(event=event,
                                                            discount_percentage=discount_percentage,
                                                            user=user,
-                                                           email=user.email).save()
+                                                           email=user.email)
                     response.append(inv_object)
+                    number = UserProfile.objects.get(user=user)
+                    contact_nos.append("".join(["+91", number.contact_number]))
                 except User.DoesNotExist:
                     inv_object = Invitation.objects.create(event=event,
                                                            discount_percentage=discount_percentage,
-                                                           email=invitee).save()
+                                                           email=invitee)
                     response.append(inv_object)
 
         data = []
@@ -96,38 +98,52 @@ class InvitationViewSet(generics.GenericAPIView):
                     pass
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
-        message = f"We are inviting you to register for {event.name} with {discount_percentage}% discount"
+        message = f"You are invited to register for '{event.name}' event with {discount_percentage}% discount"
         send_email_sms_and_notification(action_name="invitation_send",
                                         email_ids=invitee_list,
-                                        message=message)
+                                        message=message,
+                                        numbers_list=contact_nos)
         data_object = {'invitee_list': data}
         return api_success_response(message="Successful invited", data=data_object)
 
-    def delete(self, request):
+    def delete(self, request, *args, **kwargs):
         """
         Function to delete invitation list
-        :param request: list of Id's in body with {'invitation_ids'=[list_of_ids]}
+        :param request: list of Id's in body with {'invitation_ids'=[list_of_ids], 'event_id'=<int>}
         :return:
         """
-        data = json.loads(request.body)
+        data = request.data
         list_of_ids = data.get('invitation_ids')
-        try:
-            inv_obj = self.queryset.filter(id__in=list_of_ids).update(is_active=False)
-            # TODO: To take contact no for sending messages.
-            email_ids = inv_obj.values("email")
-            send_email_sms_and_notification(action_name="invitation_delete", email_ids=email_ids)
-            return api_success_response(message="Successfully deleted all Invitees", status=204)
-        except Exception as err:
-            return api_error_response(message='Could not delete due to some invalid reasons. Please Try Again',
-                                      status=500)
+        event_id = kwargs.get("event_id")
+        event = Event.objects.get(id=event_id)
+        if not event:
+            return api_error_response(message="Invalid event id", status=400)
 
-    def get(self, request):
+        try:
+            user_ids = self.queryset.filter(id__in=list_of_ids).select_related(
+                "user").annotate(users_id=F("user__id")).values_list("users_id")
+            contact_no = UserProfile.objects.filter(id__in=user_ids).values_list("contact_number")
+            contact_no = ["".join(["+91", _[0]]) for _ in contact_no]
+            email_ids = self.queryset.filter(id__in=list_of_ids).values_list("email")
+            email_ids = [_[0] for _ in email_ids]
+
+            self.queryset.filter(id__in=list_of_ids).update(is_active=False)
+            message = f"You have been removed from invitation list of '{event.name}' event."
+            send_email_sms_and_notification(action_name="invitation_delete",
+                                            message=message,
+                                            email_ids=email_ids,
+                                            numbers_list=contact_no)
+            return api_success_response(message="Invitation successfully deleted", status=200)
+        except Exception as err:
+            return api_error_response(message='Something went wrong', status=500)
+
+    def get(self, request, *args, **kwargs):
         """
         Function to fetch invitation list
         :param request: may contain event_id or user_id to filter the invite list
         :return: Invitation list
         """
-        event_id = request.GET.get('event_id')
+        event_id = kwargs.get('event_id')
         user_id = request.GET.get('user_id')
 
         if event_id:
@@ -156,5 +172,5 @@ class InvitationViewSet(generics.GenericAPIView):
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
-        return api_success_response(message="All Invitations", data=data_object)
+        return api_success_response(message="Invitations details", data=data_object)
 
