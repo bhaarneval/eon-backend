@@ -1,5 +1,6 @@
 from utils.sms_service import send_sms
 from utils.mail_service import send_mail
+from core.models import Notification, User, Event
 from eon_backend.settings import SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
 
 
@@ -19,3 +20,10 @@ def send_email_sms_and_notification(action_name, **kwargs):
         )
     if NOTIFICATION_CONFIG.get(action_name, {}).get("status"):
         event_dict = NOTIFICATION_CONFIG.get(action_name)
+        user_ids = kwargs["user_ids"]
+        event_id = kwargs["event_id"]
+        message = kwargs.get("message") or event_dict["message"]
+        users = User.objects.filter(id__in=user_ids)
+        event = Event.objects.get(id=event_id)
+        for _id in users:
+            Notification.objects.create(user=_id, event=event, message=message)

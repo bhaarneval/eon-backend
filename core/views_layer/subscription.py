@@ -62,11 +62,17 @@ class SubscriptionViewSet(viewsets.ViewSet):
 
         if not event_id or not no_of_tickets or not user_id:
             return api_error_response(message="Request Parameters are invalid")
+
+        try:
+            self.event = Event.objects.get(id=event_id, is_active=True)
+        except Event.DoesNotExist:
+            return api_error_response("Invalid event_id")
+
         if no_of_tickets < 0:
             instance = self.queryset.filter(user=user_id, event=event_id)
             tickets_data = instance.values('event').annotate(total_tickets=Sum('no_of_tickets')).first()
-            remianing_tickets = no_of_tickets + tickets_data['total_tickets']
-            if remianing_tickets < 0:
+            remaining_tickets = no_of_tickets + tickets_data['total_tickets']
+            if remaining_tickets < 0:
                 return api_error_response(message="Number of tickets are invalid", status=400)
 
         if amount:
@@ -81,11 +87,6 @@ class SubscriptionViewSet(viewsets.ViewSet):
             payment_id = payment_object['id']
 
         data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment=payment_id)
-
-        try:
-            self.event = Event.objects.get(id=event_id)
-        except:
-            return api_error_response("Invalid event_id")
 
         if not payment_id and self.event.subscription_fee > 0:
             return api_error_response(message="Required Fields are not present")
@@ -124,8 +125,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
                                                                            total_amount=F('payment__total_amount'))
                 success_data = success_queryset.aggregate(Sum('amount'), Sum('discount_amount'), Sum('total_amount'),
                                                           Sum('no_of_tickets'))
-                refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0), discount_amount__sum=Coalesce(Sum('discount_amount'), 0), total_amount__sum=Coalesce(Sum('total_amount'), 0),
-                                                        no_of_tickets__sum=Coalesce(Sum('no_of_tickets'),0))
+                refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0),
+                                                        discount_amount__sum=Coalesce(Sum('discount_amount'), 0),
+                                                        total_amount__sum=Coalesce(Sum('total_amount'), 0),
+                                                        no_of_tickets__sum=Coalesce(Sum('no_of_tickets'), 0))
                 success_queryset = success_queryset.first()
                 data = dict(curent_payment_id=payment_id,
                             current_payment_ref_number=current_payment_queryset[0].ref_no,
