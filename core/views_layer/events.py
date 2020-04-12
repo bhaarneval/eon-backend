@@ -79,7 +79,7 @@ class EventViewSet(ModelViewSet):
         for curr_event in self.queryset:
             response_obj = {"id": curr_event.id, "name": curr_event.name,
                             "date": curr_event.date, "time": curr_event.time,
-                            "location": curr_event.location, "type": curr_event.type.id,
+                            "location": curr_event.location, "event_type": curr_event.type.id,
                             "description": curr_event.description,
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
@@ -151,7 +151,7 @@ class EventViewSet(ModelViewSet):
                 invitee_data.append(response_obj)
             data.append({"id": curr_event.id, "name": curr_event.name,
                          "date": curr_event.date, "time": curr_event.time,
-                         "location": curr_event.location, "type": curr_event.type.id,
+                         "location": curr_event.location, "event_type": curr_event.type.id,
                          "description": curr_event.description,
                          "no_of_tickets": curr_event.no_of_tickets,
                          "sold_tickets": curr_event.sold_tickets,
@@ -166,7 +166,7 @@ class EventViewSet(ModelViewSet):
         else:
             data = {"id": curr_event.id, "name": curr_event.name,
                     "date": curr_event.date, "time": curr_event.time,
-                    "location": curr_event.location, "type": curr_event.type.id,
+                    "location": curr_event.location, "event_type": curr_event.type.id,
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
@@ -219,6 +219,7 @@ class EventViewSet(ModelViewSet):
                 except Invitation.DoesNotExist:
                     discount_allotted = 0
                 data['discount_percentage'] = discount_allotted
+                data["subscription_details"] = dict()
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
