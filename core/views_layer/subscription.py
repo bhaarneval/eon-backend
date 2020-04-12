@@ -132,7 +132,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 success_queryset = success_queryset.first()
                 data = dict(curent_payment_id=payment_id,
                             current_payment_ref_number=current_payment_queryset[0].ref_no,
-                            no_of_tickets=success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum'],
+                            no_of_tickets=int(success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum']),
                             amount=success_data['amount__sum'] - refund_data['amount__sum'],
                             discount_amount=success_data['discount_amount__sum'] - refund_data['discount_amount__sum'],
                             total_amount=success_data['total_amount__sum'] - refund_data['total_amount__sum'],
