@@ -30,7 +30,7 @@ class WishListViewSet(viewsets.ViewSet):
             data = dict(user=user_id, event=event_id)
             wishlist = None
             try:
-                event = Event.objects.get(id=event_id)
+                event = Event.objects.get(id=event_id, is_active=True)
             except:
                 return api_error_response(message="Invalid Event", status=400)
 
