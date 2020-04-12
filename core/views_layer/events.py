@@ -312,7 +312,7 @@ class EventViewSet(ModelViewSet):
         contact_nos = list(UserProfile.objects.filter
                            (user__email__in=subscriber_email_list).values_list('contact_number', flat=True).distinct())
 
-        send_email_sms_and_notification(action_name="invitation_send",
+        send_email_sms_and_notification(action_name="event_updated",
                                         email_ids=subscriber_email_list,
                                         message=message,
                                         numbers_list=contact_nos)
