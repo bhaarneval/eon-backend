@@ -94,6 +94,7 @@ class InvitationViewSet(generics.GenericAPIView):
                                             'contact_number': user_profile.contact_number}
                 except Exception:
                     pass
+            response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         message = f"We are inviting you to register for {event.name} with {discount_percentage}% discount"
         send_email_sms_and_notification(action_name="invitation_send",
@@ -150,8 +151,8 @@ class InvitationViewSet(generics.GenericAPIView):
                                             'organization': user_profile.organization}
                 except Exception:
                     pass
-            response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name,
-                                     'event_type': invited.event.type.type}
+            response_obj['event'] = {'id': invited.event.id, 'name': invited.event.name,
+                                     'type': invited.event.type.type}
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
