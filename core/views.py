@@ -18,7 +18,7 @@ from utils.helper import send_email_sms_and_notification
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_event_types(request):
-    event_type = EventType.objects.all()
+    event_type = EventType.objects.filter(is_active=True)
     serializer = EventTypeSerializer(event_type, many=True)
     return api_success_response(data=serializer.data)
 

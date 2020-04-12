@@ -62,7 +62,7 @@ class EventTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EventType
-        exclude = ('created_on', 'updated_on')
+        exclude = ('created_on', 'updated_on', 'is_active')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
