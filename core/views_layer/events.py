@@ -96,7 +96,7 @@ class EventViewSet(ModelViewSet):
                     response_obj['is_subscribed'] = False
 
                 try:
-                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     response_obj['is_wishlisted'] = True
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
@@ -175,7 +175,7 @@ class EventViewSet(ModelViewSet):
                     "external_links": curr_event.external_links,
                     }
             try:
-                WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                 wishlisted = True
             except WishList.DoesNotExist:
                 wishlisted = False
