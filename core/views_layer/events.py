@@ -96,7 +96,7 @@ class EventViewSet(ModelViewSet):
                     response_obj['is_subscribed'] = False
 
                 try:
-                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     response_obj['is_wishlisted'] = True
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
@@ -175,6 +175,11 @@ class EventViewSet(ModelViewSet):
                     "external_links": curr_event.external_links,
                     }
             try:
+                WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                wishlisted = True
+            except WishList.DoesNotExist:
+                wishlisted = False
+            try:
                 # TODO: Return cumulative data of the subscription.
                 # subscription_obj = Subscription.objects.filter(user_id=user_logged_in,
                 #                                                event_id=curr_event.id,
@@ -220,6 +225,7 @@ class EventViewSet(ModelViewSet):
                     discount_allotted = 0
                 data['discount_percentage'] = discount_allotted
                 data["subscription_details"] = dict()
+            data['is_wishlisted'] = wishlisted
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
@@ -245,3 +251,69 @@ class EventViewSet(ModelViewSet):
                                         user_ids=user_ids,
                                         event_id=event_id)
         return api_success_response(message="Event successfully deleted", status=200)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Function to update a particular event
+        :param request: body containing changes to be made
+        :param kwargs: contains event id from the url given
+        :return: changed response of an event
+        """
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+        pk = int(kwargs.get('pk'))
+        data = request.data
+        try:
+            user_logged_in = user_id
+            user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
+        except Exception as err:
+            return api_error_response(message="Not able to fetch the role of the logged in user", status=500)
+        if user_role == 'subscriber':
+            return api_error_response(message="A subscriber cannot change an event details", status=500)
+
+        if self.queryset.get(id=pk).event_created_by.id != user_logged_in:
+            return api_error_response(message="You are not the organiser of this event {}".format(pk), status=400)
+
+        try:
+            event_obj = Event.objects.get(id=pk)
+            prev_name = event_obj.name
+            prev_location = event_obj.location
+            prev_date = event_obj.date
+            prev_time = event_obj.time
+        except Event.DoesNotExist:
+            return api_error_response(message=f"Event with id {pk} does not exist", status=400)
+
+        try:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+        except Exception as err:
+            return api_error_response(message="Some internal error coming while updating the event", status=500)
+        message = ""
+        event_name = event_obj.name
+        location_update,date_update,time_update, name_update = "", "", "", ""
+        if 'name' in data:
+            name_update = f"Name of event {prev_name} has changed to {data.get('name')}."
+        if 'location' in data:
+            location_update = f"Location of the event {event_name} has changed from {prev_location} to " \
+                              f"{data.get('location')}."
+        if 'date' in data:
+            date_update = f"Date of the event {event_name} has changed from {prev_date} to {data.get('date')}."
+        if 'time' in data:
+            time_update = f"Time for the event {event_name} has changed from {prev_time} to {data.get('time')}."
+
+        message += name_update + location_update + date_update + time_update
+
+        subscriber_email_list = list(Subscription.objects.filter(event=pk).
+                                     values_list('user__email', flat=True).distinct())
+        user_ids = list(Subscription.objects.filter(event=pk).values_list('user_id', flat=True).distinct())
+
+        send_email_sms_and_notification(action_name="event_updated",
+                                        email_ids=subscriber_email_list,
+                                        message=message,
+                                        user_ids=user_ids,
+                                        event_id=pk)
+        return api_success_response(data=serializer.data, status=200)
