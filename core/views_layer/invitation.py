@@ -18,7 +18,7 @@ class InvitationViewSet(generics.GenericAPIView):
     queryset = Invitation.objects.filter(is_active=True)
 
     @transaction.atomic()
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """
         Function to add new invitations
         :param request: data containing information of an invite in format {
@@ -26,12 +26,14 @@ class InvitationViewSet(generics.GenericAPIView):
                                                 "discount_percentage": 10,
                                                 "invitee_list": ["demo1@gmail.com","demo2@gmail.com"] (list_of_emails)
                                                 }
+        :param event_id: Event id (not required)
         :return: Response with a list of all the generated invites
         """
         data = json.loads(request.body)
         event_id = data.get('event', None)
         discount_percentage = data.get('discount_percentage', 0)
         invitee_list = data.get('invitee_list', [])
+        testing = data.get("testing", False)
 
         response = []
         contact_nos = []
@@ -99,24 +101,29 @@ class InvitationViewSet(generics.GenericAPIView):
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         message = f"You are invited to register for '{event.name}' event with {discount_percentage}% discount"
-        send_email_sms_and_notification(action_name="invitation_send",
-                                        email_ids=invitee_list,
-                                        message=message,
-                                        numbers_list=contact_nos)
+        if not testing:
+            send_email_sms_and_notification(action_name="invitation_send",
+                                            email_ids=invitee_list,
+                                            message=message,
+                                            numbers_list=contact_nos)
         data_object = {'invitee_list': data}
         return api_success_response(message="Successful invited", data=data_object)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request):
         """
         Function to delete invitation list
-        :param request: list of Id's in body with {'invitation_ids'=[list_of_ids], 'event_id'=<int>}
+        :param request: List of Id's in body with {'invitation_ids'=[list_of_ids]}
         :return:
         """
         data = request.data
         list_of_ids = data.get('invitation_ids')
-        event_id = kwargs.get("event_id")
-        event = Event.objects.get(id=event_id)
-        if not event:
+        event_id = data.get('event_id')
+        testing = data.get("testing", False)  # for not running mail service for testing
+        if not event_id:
+            return api_error_response(message="Event Id missing", status=400)
+        try:
+            event = Event.objects.get(id=event_id)
+        except Event.DoesNotExist:
             return api_error_response(message="Invalid event id", status=400)
 
         try:
@@ -129,21 +136,22 @@ class InvitationViewSet(generics.GenericAPIView):
 
             self.queryset.filter(id__in=list_of_ids).update(is_active=False)
             message = f"You have been removed from invitation list of '{event.name}' event."
-            send_email_sms_and_notification(action_name="invitation_delete",
-                                            message=message,
-                                            email_ids=email_ids,
-                                            numbers_list=contact_no)
+            if not testing:
+                send_email_sms_and_notification(action_name="invitation_delete",
+                                                message=message,
+                                                email_ids=email_ids,
+                                                numbers_list=contact_no)
             return api_success_response(message="Invitation successfully deleted", status=200)
         except Exception as err:
             return api_error_response(message='Something went wrong', status=500)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         """
         Function to fetch invitation list
         :param request: may contain event_id or user_id to filter the invite list
         :return: Invitation list
         """
-        event_id = kwargs.get('event_id')
+        event_id = request.GET.get('event_id')
         user_id = request.GET.get('user_id')
 
         if event_id:
@@ -151,10 +159,14 @@ class InvitationViewSet(generics.GenericAPIView):
         if user_id:
             user_id = int(user_id)
 
-        if event_id or user_id:
-            queryset = Invitation.objects.filter(event=event_id, user=user_id)
+        if event_id and user_id:
+            queryset = Invitation.objects.filter(event=event_id, user=user_id, is_active=True)
+        elif event_id:
+            queryset = Invitation.objects.filter(event=event_id, is_active=True)
+        elif user_id:
+            queryset = Invitation.objects.filter(user=user_id, is_active=True)
         else:
-            queryset = Invitation.objects.all()
+            queryset = Invitation.objects.filter(is_active=True)
         data = []
         for invited in queryset:
             response_obj = {'invitation_id': invited.id, 'email': invited.email}
