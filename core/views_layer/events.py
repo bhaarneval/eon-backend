@@ -307,13 +307,13 @@ class EventViewSet(ModelViewSet):
 
         message += name_update + location_update + date_update + time_update
 
-        subscriber_email_list = list(Subscription.objects.filter(event=9).
+        subscriber_email_list = list(Subscription.objects.filter(event=pk).
                                      values_list('user__email', flat=True).distinct())
-        contact_nos = list(UserProfile.objects.filter
-                           (user__email__in=subscriber_email_list).values_list('contact_number', flat=True).distinct())
+        user_ids = list(Subscription.objects.filter(event=pk).values_list('user_id', flat=True).distinct())
 
         send_email_sms_and_notification(action_name="event_updated",
                                         email_ids=subscriber_email_list,
                                         message=message,
-                                        numbers_list=contact_nos)
+                                        user_ids=user_ids,
+                                        event_id=pk)
         return api_success_response(data=serializer.data, status=200)
