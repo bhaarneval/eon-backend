@@ -1,7 +1,7 @@
 from datetime import date
 from functools import reduce
 
-from django.db.models import ExpressionWrapper, F, IntegerField
+from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -29,7 +29,7 @@ class EventViewSet(ModelViewSet):
         :param request: contain the query type and it's value
         :return: Response contains complete list of events after the query
         """
-        location = request.GET.get("location", None)
+        search_text = request.GET.get("search", None)
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
         end_date = request.GET.get("end_date", None)
@@ -56,8 +56,8 @@ class EventViewSet(ModelViewSet):
         self.queryset.filter(date__lt=str(today)).update(is_active=False)
         self.queryset = self.queryset.filter(date__gte=str(today))
 
-        if location:
-            self.queryset = self.queryset.filter(location__iexact=location)
+        if search_text:
+            self.queryset = self.queryset.filter(Q(location__icontains=search_text) | Q(name__icontains=search_text))
         if event_created_by == 'True':
             self.queryset = self.queryset.filter(event_created_by=user_id)
         if event_type:
