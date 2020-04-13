@@ -3,7 +3,7 @@ from functools import reduce
 
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation
@@ -17,7 +17,7 @@ from eon_backend.settings import SECRET_KEY, BUCKET
 import jwt
 
 
-class EventViewSet(ViewSet):
+class EventViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
     queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
