@@ -29,14 +29,16 @@ class UserViewSet(ModelViewSet):
             instance = self.get_object()
             if 'interest' in data:
                 interests = data.pop('interest')
+            else:
+                interests = []
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             try:
-                prev_interest = list(UserInterest.objects.filter(user=user_id).
-                                     values_list('event_type', flat=True))
-                interest_to_be_deleted = list(set(prev_interest).difference(interests))
-                UserInterest.objects.filter(event_type_id__in=interest_to_be_deleted).update(is_active=False)
+                prev_interest = list(UserInterest.objects.filter(user=user_id,is_active=True).values_list('event_type', flat=True))
+                if interests:
+                    interest_to_be_deleted = list(set(prev_interest).difference(interests))
+                    UserInterest.objects.filter(event_type_id__in=interest_to_be_deleted).update(is_active=False)
             except:
                 prev_interest = []
                 return api_error_response(message="Something went wrong", status=500)
@@ -49,7 +51,10 @@ class UserViewSet(ModelViewSet):
                 interest_list.append(current)
 
             response = serializer.data
-            response['interest'] = interest_list
+            if interest_list:
+                response['interest'] = interest_list
+            else:
+                response['interest'] = prev_interest
         except Exception as err:
             return api_error_response(message="Something went wrong", status=500)
         return api_success_response(data=response, status=200)
