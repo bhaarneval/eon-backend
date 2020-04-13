@@ -85,6 +85,9 @@ class NotificationView(APIView):
     serializer_class = NotificationSerializer
 
     def patch(self, request):
+        """
+        patch api method for notification
+        """
 
         list_of_ids = request.data.get('notification_id')
 
@@ -94,12 +97,16 @@ class NotificationView(APIView):
                 notification.has_read = True
                 notification.save()
             except:
-                api_error_response("Notification Id ={id} does not exist".format(id=notification_id),
+                api_error_response("Notification Id ={id} does not exist".
+                                   format(id=notification_id),
                                    400)
 
         return api_success_response(message="Unread notification updated successfully", status=200)
 
     def get(self, request):
+        """
+        get api for method notification
+        """
 
         user_id = request.GET.get('user_id', None)
 

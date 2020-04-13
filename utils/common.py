@@ -37,8 +37,8 @@ def api_success_response(message=None, data=None, status=None):
     if data is not None and isinstance(data, list) or isinstance(data, dict):
         if message:
             return Response({"data": data, "message": message}, status=status)
-        else:
-            return Response({"data": data}, status=status)
+
+        return Response({"data": data}, status=status)
     if message:
         return Response({"message": message}, status=status)
     return Response(status=status)
