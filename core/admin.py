@@ -1,9 +1,7 @@
-import os
-
 from django.contrib import admin
 
 # Register your models here.
-from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList
+from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
 
 
 @admin.register(EventType)
@@ -19,8 +17,6 @@ class EventAdmin(admin.ModelAdmin):
         "is_cancelled")
     search_fields = ("name", "type", "event_created_by")
     readonly_fields = ("images", "external_links", "event_created_by", "sold_tickets")
-    # actions = ['delete_model']
-    #
 
 
 @admin.register(Invitation)
@@ -52,3 +48,9 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user", "contact_number", "organization", "role")
     readonly_fields = ('user',)
+
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ("id", "user", "event", "message", "has_read")
+    search_fields = ("user", "event", "message", "has_read")

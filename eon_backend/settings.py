@@ -43,12 +43,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'django_nose',
 
     # Installed Apps
     'core',
     'authentication',
     'rest_framework',
     'payment',
+]
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=authentication,core,payment',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +97,7 @@ REST_FRAMEWORK = {
 
 }
 
-GRAPPELLI_ADMIN_TITLE = "BITS Eon"
+GRAPPELLI_ADMIN_TITLE = "BITS EOn"
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
@@ -179,6 +188,7 @@ AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("AWS_REGION")
 EMAIL_ID = os.environ.get("EMAIL_ID")
+TOPIC_NAME = os.environ.get("TOPIC_NAME")
 
 # configs for sms and email and notification
 SMS_CONFIG = SMS_CONFIG

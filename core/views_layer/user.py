@@ -9,15 +9,4 @@ class UserViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
-
-    def put(self, request):
-        """
-        Function to update the user_details
-        :param request: will contain user_id and details that need to be updated as
-        {
-            'user': <int:id>
-            fields to be updated in same json format
-        }
-        :return: Updated UserProfile object as response or error_message if failed
-        """
-        return self.update(request)
+    lookup_field = "user_id"

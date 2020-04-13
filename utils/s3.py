@@ -12,6 +12,8 @@ class AwsS3:
                                       config=Config(s3={"addressing_style": "path"}, signature_version="s3v4"))
 
     def get_presigned_url(self, bucket_name, object_name, expiry=3600):
+        if not bucket_name:
+            return object_name
         response = self.s3_client.generate_presigned_url(
             "get_object",
             Params={"Bucket": bucket_name, "Key": object_name},
