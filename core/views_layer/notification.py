@@ -42,12 +42,6 @@ class NotificationView(APIView):
 
         except Notification.DoesNotExist:
             notifications = []
-        json_list = []
-        for notification in notifications:
-            notification_obj = {
-                "message": notification.message,
-                "notification_id": notification.id,
-            }
-            json_list.append(notification_obj)
 
-        return api_success_response(data=json_list)
+        serializer = self.serializer_class(notifications, many=True)
+        return api_success_response(data=serializer.data)
