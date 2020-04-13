@@ -105,7 +105,7 @@ class EventViewSet(ModelViewSet):
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
-        request.data['type'] = request.data.pop('event_type')
+        request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
         response.data['event_type'] = response.data.pop('type')

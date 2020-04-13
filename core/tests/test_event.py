@@ -43,7 +43,7 @@ class EventAPITest(APITestCase):
 
         json_content = {
             "name": "Diwali",
-            "type": event_type.id,
+            "event_type": event_type.id,
             "date": "2020-04-09",
             "description": "New Event",
             "external_links": "google.com",
@@ -102,7 +102,7 @@ class EventAPITest(APITestCase):
 
         json_content = {
             "name": "Diwali",
-            # "type": event_type.id,
+            "event_type": 1000,
             "date": "2020-04-09",
             "description": "New Event",
             "external_links": "google.com",
