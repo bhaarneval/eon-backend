@@ -65,8 +65,8 @@ class WishListViewSet(viewsets.ViewSet):
                 serializer.save()
             return api_success_response(data=serializer.data, message="WishListed Successfully",
                                         status=200)
-        else:
-            return api_error_response(message="Request Parameters are invalid", status=400)
+
+        return api_error_response(message="Request Parameters are invalid", status=400)
 
     def destroy(self, request, pk=None):
         """

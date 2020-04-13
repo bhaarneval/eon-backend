@@ -27,11 +27,12 @@ class InvitationViewSet(generics.GenericAPIView):
     def post(self, request):
         """
         Function to add new invitations
-        :param request: data containing information of an invite in format {
-                                                "event": 11, (event_id)
-                                                "discount_percentage": 10,
-                                                "invitee_list": ["demo1@gmail.com","demo2@gmail.com"] (list_of_emails)
-                                                }
+        :param request: data containing information of an invite in format
+            {
+                "event": 11, (event_id)
+                "discount_percentage": 10,
+                "invitee_list": ["demo1@gmail.com","demo2@gmail.com"] (list_of_emails)
+            }
         :param event_id: Event id (not required)
         :return: Response with a list of all the generated invites
         """
