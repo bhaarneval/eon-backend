@@ -85,7 +85,7 @@ class UserViewSet(ModelViewSet):
         user_id = int(kwargs.get('user_id'))
 
         if user_logged_in != user_id:
-            api_error_response(message="You can only view your own profile", status=400)
+            return api_error_response(message="You can only view your own profile", status=400)
 
         profile = self.queryset.get(user_id=user_id)
         curr_profile= {'id': profile.user.id, 'name': profile.name, 'contact_number': profile.contact_number,
