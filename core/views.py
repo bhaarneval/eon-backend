@@ -9,7 +9,6 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from core.models import Event, Subscription, EventType, Notification
 from core.serializers import EventTypeSerializer, NotificationSerializer
 
-
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 
@@ -33,6 +32,7 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
         event_id = data.get("event_id", None)
         message = data.get("message", "")
         _type = data.get("type", "reminder").lower()
+
         if event_id:
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
@@ -63,6 +63,7 @@ def send_mail_to_a_friend(request):
 
     data = json.loads(request.body)
     email = data.get("email_id")
+
     if isinstance(email, str):
         email = [email]
     message = data.get("message")

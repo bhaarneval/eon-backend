@@ -109,6 +109,7 @@ class EventViewSet(ModelViewSet):
         return super(EventViewSet, self).create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
+
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
@@ -229,6 +230,7 @@ class EventViewSet(ModelViewSet):
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
+
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
@@ -264,6 +266,7 @@ class EventViewSet(ModelViewSet):
         user_id = payload['user_id']
         pk = int(kwargs.get('pk'))
         data = request.data
+
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
@@ -294,7 +297,7 @@ class EventViewSet(ModelViewSet):
             return api_error_response(message="Some internal error coming while updating the event", status=500)
         message = ""
         event_name = event_obj.name
-        location_update,date_update,time_update, name_update = "", "", "", ""
+        location_update, date_update, time_update, name_update = "", "", "", ""
         if 'name' in data:
             name_update = f"Name of event {prev_name} has changed to {data.get('name')}."
         if 'location' in data:

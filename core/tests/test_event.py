@@ -1,3 +1,6 @@
+"""
+Event Api related all method test cases added here
+"""
 import json
 
 from django.urls import reverse
@@ -8,8 +11,15 @@ from core.models import Event, EventType
 
 
 class EventAPITest(APITestCase):
+    """
+    Test cases for event module created in this class
+    """
 
     def setUp(cls):
+        """
+        Data setup for methods
+        :return:
+        """
         role = Role(role="organizer")
         role.save()
         content = {
@@ -23,11 +33,12 @@ class EventAPITest(APITestCase):
         }
 
         url1 = reverse('registration')
-        register = cls.client.post(url1, json.dumps(content),
-                                   content_type='application/json')
+        cls.client.post(url1, json.dumps(content),
+                        content_type='application/json')
 
         data = dict(email="user12@gmail.com", password="user123")
-        login_response = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = cls.client.post('/authentication/login', json.dumps(data),
+                                         content_type='application/json')
         cls.user_id = login_response.data['data']['user']['user_id']
         cls.token = login_response.data['data']['access']
 
@@ -123,16 +134,10 @@ class EventAPITest(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_event_get_without_parameter(self):
-        # Setup
-        event_type = EventType(type="Annual function")
-        event_type.save()
-
-        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
-                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
-                      event_created_by_id=self.user_id)
-        event.save()
-        event_id = event.id
+        """
+        Get api test case without parameter
+        :return:
+        """
 
         # Run
         response = self.client.get("/core/event/",
@@ -143,20 +148,173 @@ class EventAPITest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_event_get_with_parameter_event_id(self):
+        """
+        Get api test case with valid event id as a parameter
+        :return:
+        """
         # Setup
         event_type = EventType(type="Annual function")
         event_type.save()
 
-        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
                       time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
                       event_created_by_id=self.user_id)
         event.save()
         event_id = event.id
 
         # Run
         response = self.client.get("/core/event/?event_id={id}".format(id=event_id),
-                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token), content_type="application/json")
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
 
         # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_type_get_api_with_valid_data(self):
+        """
+        Get Api for event test cases with valid data
+        :return:
+        """
+        # Setup
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        # Run
+        response = self.client.get("/core/event-type",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_delete_api_with_valid_data(self):
+        """
+        Delete Api for event with valid data event id
+        """
+        # Setup
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
+                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
+                      event_created_by_id=self.user_id)
+        event.save()
+        event_id = event.id
+
+        # Run
+        response = self.client.delete("/core/event/{event_id}/".format(event_id=event_id),
+                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                      content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_delete_api_with_invalid_even_id(self):
+        """
+        Test case for delete api event with wrong event id
+        :return:
+        """
+        # Setup
+        event_id = 5
+
+        # Run
+        response = self.client.delete("/core/event/{event_id}/".format(event_id=event_id),
+                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                      content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 400)
+
+    def test_event_patch_api_with_valid_event_id(self):
+        """
+        Test for patch api of event with  valid event id
+        :return:
+        """
+        # Setup
+        event_type = EventType(type="Annual function")
+        event_type.save()
+
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
+                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
+                      event_created_by_id=self.user_id)
+        event.save()
+        event_id = event.id
+
+        # Run
+        response = self.client.patch("/core/event/{event_id}/".format(event_id=event_id),
+                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                     content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_retrieve_api_with_invalid_user_id(self):
+        """
+        Test for retrieve api of event with invalid user id
+        :return:
+        """
+
+        # Run
+        response = self.client.get("/core/event/{user_id}/".format(user_id=self.user_id),
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_pre_signed_url_get_api_with_invalid_data(self):
+        """
+        Test for pre signed url get api without event id
+        :return:
+        """
+        # Run
+        response = self.client.get("/core/presigned-url/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_pre_signed_url_get_api_with_invalid_event_id(self):
+        """
+               Test for pre signed url get api with invalid event id
+               :return:
+               """
+        # Run
+        response = self.client.get("/core/presigned-url/1/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_pre_signed_url_get_api_with_valid_event_id(self):
+        """
+                     Test for pre signed url get api with valid event id
+                     :return:
+        """
+        # setup
+        event_type = EventType(type="test")
+        event_type.save()
+
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
+                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
+                      event_created_by_id=self.user_id)
+        event.save()
+        event_id = event.id
+        # Run
+        response = self.client.get("/core/presigned-url/", {'event_id': event_id},
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
         self.assertEqual(response.status_code, 200)
