@@ -1,6 +1,8 @@
+from daterangefilter.filters import PastDateRangeFilter
 from django.contrib import admin
 
 # Register your models here.
+
 from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
 
 
@@ -16,7 +18,22 @@ class EventAdmin(admin.ModelAdmin):
         "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets",
         "is_cancelled")
     search_fields = ("name", "type", "event_created_by")
-    readonly_fields = ("images", "external_links", "event_created_by", "sold_tickets")
+    list_filter = ("type","event_created_by", ("date", PastDateRangeFilter))
+    fieldsets = (
+        (
+            "", {
+                'fields': (
+                    "name", "type", "description", "date", "time", "location", "images", "subscription_fee",
+                    "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_active", "is_cancelled")
+            }
+        ),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ["images", "sold_tickets", "event_created_by"]
+        else:
+            return ["sold_tickets", "images", "is_active", "is_cancelled"]
 
 
 @admin.register(Invitation)
@@ -35,6 +52,13 @@ class EventPreferenceAdmin(admin.ModelAdmin):
 class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
     search_fields = ("event", "user")
+    readonly_fields = ("event", "user", "no_of_tickets", "payment")
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(WishList)
@@ -49,8 +73,20 @@ class UserProfileAdmin(admin.ModelAdmin):
     search_fields = ("user", "contact_number", "organization", "role")
     readonly_fields = ('user',)
 
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "event", "message", "has_read")
     search_fields = ("user", "event", "message", "has_read")
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False

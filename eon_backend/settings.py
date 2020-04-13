@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     # Installed Apps
     'core',
+    'daterangefilter',
     'authentication',
     'rest_framework',
     'payment',

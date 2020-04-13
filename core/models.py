@@ -16,7 +16,7 @@ class Event(ActiveModel):
     name = models.CharField(max_length=256)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     description = models.CharField(max_length=512)
-    date = models.DateField()
+    date = models.DateField(verbose_name="Date Range Filter")
     time = models.TimeField()
     location = models.CharField(max_length=512)
     images = models.CharField(max_length=512, null=True, blank=True)
