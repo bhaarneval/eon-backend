@@ -78,6 +78,11 @@ class Subscription(ActiveModel):
         return "{}-{}-{}".format(self.user, self.event, self.no_of_tickets)
 
 
+class UserInterest(ActiveModel):
+    event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
 class UserProfile(ModelBase):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=250, null=True, blank=True)
