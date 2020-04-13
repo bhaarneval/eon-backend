@@ -1,3 +1,5 @@
+import os
+
 from django.contrib import admin
 
 # Register your models here.
@@ -13,8 +15,12 @@ class EventTypeAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets", "is_cancelled")
+        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets",
+        "is_cancelled")
     search_fields = ("name", "type", "event_created_by")
+    readonly_fields = ("images", "external_links", "event_created_by", "sold_tickets")
+    # actions = ['delete_model']
+    #
 
 
 @admin.register(Invitation)
@@ -45,3 +51,4 @@ class WishListAdmin(admin.ModelAdmin):
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user", "contact_number", "organization", "role")
+    readonly_fields = ('user',)
