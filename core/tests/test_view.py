@@ -3,6 +3,7 @@ Test for core module api added here
 """
 import json
 
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
@@ -52,26 +53,6 @@ class RestAPITest(APITestCase):
                           external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
-
-    # def test_send_mail_to_a_friend_post_api_with_valid_data(self):
-    #     """
-    #     Unit test for send email to friends  post Api
-    #     :return:
-    #     """
-    #     # Setup
-    #
-    #     json_data = {
-    #         "email_id": "",
-    #         "message": "test message"
-    #     }
-    #
-    #     # Run
-    #     response = self.client.post("/core/share-with-friend/", json.dumps(json_data),
-    #                                 HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-    #                                 content_type="application/json")
-    #
-    #     #  Check
-    #     self.assertEqual(response.status_code, 200)
 
     def test_subscriber_notify_post_api_with_invalid_data(self):
         """
