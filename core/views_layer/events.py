@@ -105,8 +105,11 @@ class EventViewSet(ModelViewSet):
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
+        request.data['type'] = request.data.pop('event_type')
         self.serializer_class = EventSerializer
-        return super(EventViewSet, self).create(request, *args, **kwargs)
+        response = super(EventViewSet, self).create(request, *args, **kwargs)
+        response.data['event_type'] = response.data.pop('type')
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         token = get_authorization_header(request).split()[1]
