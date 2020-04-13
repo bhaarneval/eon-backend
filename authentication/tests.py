@@ -6,7 +6,7 @@ import json
 
 from django.test import TestCase
 
-from authentication.models import Role, VerificationCode
+from authentication.models import Role
 
 
 class AuthenticationTestCase(TestCase):
