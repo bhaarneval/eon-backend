@@ -1,11 +1,20 @@
+"""
+all core module serializer classes are here
+"""
 from rest_framework import serializers
 from core.models import Event, Subscription, UserProfile, Invitation, EventType
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
+    """
+    serializer class for  event list
+    """
     event_type = serializers.CharField()
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         model = Event
         fields = ('id',
                   'name',
@@ -22,15 +31,27 @@ class ListUpdateEventSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    """
+    serializer class for model Event
+    """
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         model = Event
         exclude = ('created_on', 'updated_on')
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
+    """
+    serializer class for model subscription
+    """
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         model = Subscription
         fields = ('user',
                   'event',
@@ -39,11 +60,17 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionListSerializer(serializers.ModelSerializer):
+    """
+    serializer class for  subscription list
+    """
     name = serializers.CharField()
     email = serializers.EmailField()
     paid_amount = serializers.IntegerField()
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         model = Subscription
         fields = ('name',
                   'email',
@@ -52,21 +79,42 @@ class SubscriptionListSerializer(serializers.ModelSerializer):
 
 
 class InvitationSerializer(serializers.ModelSerializer):
+    """
+    invitation serializer class
+    """
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         model = Invitation
         fields = "__all__"
 
 
 class EventTypeSerializer(serializers.ModelSerializer):
+    """
+    serializer class for model event type
+    """
 
     class Meta:
+        """
+        class Meta:To override the database table name,
+         use the db_table parameter in class Meta.
+        """
         model = EventType
         exclude = ('created_on', 'updated_on')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    serializer class for model user profile
+    """
 
     class Meta:
+        """
+        class Meta:To override the database table name,
+        use the db_table parameter in class Meta.
+
+        """
         model = UserProfile
         fields = "__all__"

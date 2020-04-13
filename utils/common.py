@@ -1,3 +1,6 @@
+"""
+Common methods are here
+"""
 from rest_framework import status as http_status
 from rest_framework.response import Response
 
@@ -55,11 +58,11 @@ def produce_object_for_user(user):
         user_profile = UserProfile.objects.get(user=user.id)
     except UserProfile.DoesNotExist:
         return None
-    response = {'user_id': user.id, 'email': user.email, 'active_status': user.is_active, 'name': user_profile.name,
-                'created_on': user_profile.created_on, 'updated_on': user_profile.updated_on,
-                'contact_number': user_profile.contact_number, 'organization': user_profile.organization,
-                'address': user_profile.address, 'role': {'id': user_profile.role.id, 'role': user_profile.role.role}}
+    response = {'user_id': user.id, 'email': user.email, 'active_status': user.is_active,
+                'name': user_profile.name, 'created_on': user_profile.created_on,
+                'updated_on': user_profile.updated_on,
+                'contact_number': user_profile.contact_number,
+                'organization': user_profile.organization,
+                'address': user_profile.address,
+                'role': {'id': user_profile.role.id, 'role': user_profile.role.role}}
     return response
-
-
-

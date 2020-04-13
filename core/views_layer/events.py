@@ -1,3 +1,6 @@
+"""
+enents related functions are here
+"""
 from datetime import date
 
 from django.db.models import ExpressionWrapper, F, IntegerField
@@ -5,12 +8,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from core.models import Event
+from core.models import Event, UserProfile
 from core.serializers import ListUpdateEventSerializer, EventSerializer
-from utils.common import api_error_response, api_success_response
+from utils.common import api_success_response
 
 
 class EventViewSet(ModelViewSet):
+    """
+      Event api are created here
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Event.objects.all().select_related('type').annotate(event_type=F('type__type'))
@@ -53,13 +59,15 @@ class EventViewSet(ModelViewSet):
                 if invited.user is not None:
                     try:
                         user_profile = UserProfile.objects.get(user=invited.user.id)
-                        response_obj['user'] = {'user_id': invited.user.id, 'name': user_profile.name,
+                        response_obj['user'] = {'user_id': invited.user.id,
+                                                'name': user_profile.name,
                                                 'contact_number': user_profile.contact_number,
                                                 'address': user_profile.address,
                                                 'organization': user_profile.organization}
                     except Exception:
                         pass
-                response_obj['event'] = {'event_id': invited.event.id, 'event_name': invited.event.name}
+                response_obj['event'] = {'event_id': invited.event.id,
+                                         'event_name': invited.event.name}
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
             data.append({"id": curr_event.id, "name": curr_event.name,

@@ -1,4 +1,6 @@
-
+"""
+Added core related api view here
+"""
 import json
 
 from django.db.models import F
@@ -15,6 +17,9 @@ from utils.helper import send_email_sms_and_notification
 
 
 class UserViewSet(ModelViewSet):
+    """
+    user related api created here
+    """
     authentication_classes = (JWTAuthentication,)
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
@@ -36,7 +41,8 @@ class UserViewSet(ModelViewSet):
         user_id = data.get('user_id', None)
         # getting user_id from token
 
-        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment_id=payment_id)
+        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets,
+                    payment_id=payment_id)
         try:
             event = Event.objects.get(id=event_id)
         except:
@@ -56,29 +62,42 @@ class UserViewSet(ModelViewSet):
 
 
 class EventTypeView(APIView):
+    """
+    created vent type related api here
+    """
 
     def get(self, request):
+        """
+        get api method for event type
+        """
         event_type = EventType.objects.all()
         serializer = EventTypeSerializer(event_type, many=True)
         return api_success_response(data=serializer.data)
 
 
 class SubscriberReminder(mixins.ListModelMixin, generics.GenericAPIView):
+    """
+    created api method related to subscriber
+    """
     authentication_classes = (JWTAuthentication,)
     queryset = Subscription.objects.all()
 
     def get(self, request):
+        """
+        added get method for the api subcriber
+        """
         event_id = request.GET.get("event_id", None)
         if event_id:
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
                 self.queryset = self.queryset.filter(event=event_id)
-                response = self.queryset.select_related('user').annotate(email=F('user__email')).values("email")
+                response = self.queryset.select_related('user').annotate(
+                    email=F('user__email')).values("email")
                 email_ids = [_["email"] for _ in response]
                 send_email_sms_and_notification(action_name="event_reminder",
                                                 email_ids=email_ids,
                                                 message=f"A Gentle reminder for the {event_name}")
-                return api_success_response(message="Reminder sent successfully to all the subscribers.")
+                return api_success_response(
+                    message="Reminder sent successfully to all the subscribers.")
 
         return self.update(request)
-

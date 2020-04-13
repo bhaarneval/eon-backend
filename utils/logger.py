@@ -1,3 +1,6 @@
+"""
+Logs methods here
+"""
 import logging
 import inspect
 

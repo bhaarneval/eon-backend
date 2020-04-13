@@ -1,13 +1,20 @@
+"""
+Write test cases for authentication module here
+"""
+
 import json
 from django.test import TestCase
-from django.urls import reverse, reverse_lazy
-from authentication.models import Role, Status, User
+from django.urls import reverse
+from authentication.models import Role, User
 
 
 class AuthenticationTestCase(TestCase):
+    """
+    Authentication Test Case Started from Here
+    """
 
     def _submit_request(self, view_name, method='POST', raw_json=None,
-                        view_kwargs=None, getargs=None, header=None, reverse_url=False):
+                        view_kwargs=None):
         """Submits a request to the client running inside the test engine.
 
         :param view_name: the reverse-lookup name for the view to submit the
@@ -24,15 +31,6 @@ class AuthenticationTestCase(TestCase):
         if method == 'POST':
             response = self.client.post(url, raw_json,
                                         content_type="application/json")
-        elif method == 'PUT':
-            response = self.client.put(url, raw_json,
-                                       content_type="application/json")
-        elif method == 'GET':
-            if getargs is not None:
-                url += '?%s' % getargs
-            response = self.client.get(url, content_type="application/json")
-        else:
-            raise RuntimeError("unsupported method: %s" % method)
 
         result = json.loads(response.content)
 
@@ -47,7 +45,6 @@ class AuthenticationTestCase(TestCase):
 
         # Setup
         Role.objects.create(role='organizer')
-        Status.objects.create(status='active')
         content = {
             "email": "user@mail.com",
             "password": "user123",
@@ -72,7 +69,6 @@ class AuthenticationTestCase(TestCase):
 
         # Setup
         Role.objects.create(role='organizer')
-        Status.objects.create(status='active')
         content = {
             "password": "user123",
             "contact": "9999911111",
@@ -111,11 +107,14 @@ class AuthenticationTestCase(TestCase):
         """
         TEST: Unit test for user login with invalid credential,
               Mocked the user detail and call the login api with wrong_password
-             Getting the expected_response with status 400 and message "Given Credentials does not matches with any registered user"
+             Getting the expected_response with status 400 and message
+              "Given Credentials does not matches with any registered user"
         """
         # SetUp
         User.objects.create_user(email='email@mail.com', password='password')
-        expected_response = {"message": "Given Credentials does not matches with any registered user", "status": 400}
+        expected_response = {
+            "message": "Given Credentials does not matches with any registered user",
+            "status": 400}
 
         # Run
         response = self._submit_request('login', raw_json={"email": 'email@mail.com',
@@ -125,13 +124,13 @@ class AuthenticationTestCase(TestCase):
         self.assertEqual(response, expected_response)
 
     def test_for_change_user_password_with_valid_credentials(self):
-
         """
         Unit Test for change password for existing user
 
         """
         # Setup
-        pay_load = {'email': 'email@mail.com', 'old_password': 'old_password', 'new_password': 'new_password'}
+        pay_load = {'email': 'email@mail.com', 'old_password': 'old_password',
+                    'new_password': 'new_password'}
         User.objects.create_user(email='email@mail.com', password='old_password')
         expected_response = {'message': 'Password updated successfully', 'status': 200}
 
@@ -142,15 +141,17 @@ class AuthenticationTestCase(TestCase):
         self.assertEqual(response, expected_response)
 
     def test_for_change_user_password_with_invalid_credentials(self):
-
         """
         Unit Test for change password for existing user
 
         """
         # Setup
-        pay_load = {'email': 'email@mail.com', 'old_password': 'old_password', 'new_password': 'new_password'}
+        pay_load = {'email': 'email@mail.com', 'old_password': 'old_password',
+                    'new_password': 'new_password'}
         User.objects.create_user(email='email@mail.com', password='password')
-        expected_response = {'message': 'Given Credentials does not matches with any registered user', 'status': 400}
+        expected_response = {
+            'message': 'Given Credentials does not matches with any registered user',
+            'status': 400}
 
         # Run
         response = self._submit_request('change-password', raw_json=pay_load)
@@ -159,7 +160,6 @@ class AuthenticationTestCase(TestCase):
         self.assertEqual(response, expected_response)
 
     def test_for_change_user_password_without_complete_information(self):
-
         """
         Unit Test for change password for existing user
 
@@ -186,21 +186,21 @@ class AuthenticationTestCase(TestCase):
         User.objects.create_user(email='email@mail.com', password='password')
 
         # Run
-        reset_response = self._submit_request('reset-password', raw_json={"email": 'email@mail.com', "password": new_password})
+        reset_response = self._submit_request('reset-password', raw_json={"email": 'email@mail.com',
+                                                                          "password": new_password})
         self.assertEqual(reset_response['status'], 200)
 
         # login with changed password should be successful
         login_response_with_new_password = \
-            self._submit_request('login', raw_json={"email": 'email@mail.com',"password": new_password})
+            self._submit_request('login',
+                                 raw_json={"email": 'email@mail.com', "password": new_password})
 
         self.assertEqual(login_response_with_new_password['status'], 200)
 
         # login won't be successful with old password
         login_response_with_old_password = \
-            self._submit_request('login', raw_json={"email": 'email@mail.com',"password": old_password})
+            self._submit_request('login',
+                                 raw_json={"email": 'email@mail.com', "password": old_password})
         self.assertEqual(login_response_with_old_password['message'],
                          "Given Credentials does not matches with any registered user")
         self.assertEqual(login_response_with_old_password['status'], 400)
-
-
-

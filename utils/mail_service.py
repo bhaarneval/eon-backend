@@ -1,5 +1,7 @@
+"""
+configuration for mail
+"""
 import boto3
-from botocore.exceptions import ClientError
 
 from eon_backend.settings import (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
                                   AWS_REGION, EMAIL_ID)

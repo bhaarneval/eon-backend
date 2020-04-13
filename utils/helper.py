@@ -1,9 +1,15 @@
+"""
+place you all helper method here
+"""
 from utils.sms_service import send_sms
 from utils.mail_service import send_mail
 from eon_backend.settings import SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
 
 
 def send_email_sms_and_notification(action_name, **kwargs):
+    """
+    Helper method for sending Email and SMS
+    """
 
     if SMS_CONFIG.get(action_name, {}).get("status"):
         event_dict = SMS_CONFIG.get(action_name)
