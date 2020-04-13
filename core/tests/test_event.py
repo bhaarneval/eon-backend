@@ -1,3 +1,6 @@
+"""
+Event related test cases are added here
+"""
 import json
 
 from django.urls import reverse
@@ -8,6 +11,9 @@ from core.models import Event, EventType
 
 
 class EventAPITest(APITestCase):
+    """
+    Event methods test cases are added in this class
+    """
 
     def setUp(cls):
         role = Role(role="organizer")
@@ -23,11 +29,12 @@ class EventAPITest(APITestCase):
         }
 
         url1 = reverse('registration')
-        register = cls.client.post(url1, json.dumps(content),
-                                   content_type='application/json')
+        cls.client.post(url1, json.dumps(content),
+                        content_type='application/json')
 
         data = dict(email="user12@gmail.com", password="user123")
-        login_response = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = cls.client.post('/authentication/login', json.dumps(data),
+                                         content_type='application/json')
         cls.user_id = login_response.data['data']['user']['user_id']
         cls.token = login_response.data['data']['access']
 
@@ -127,9 +134,11 @@ class EventAPITest(APITestCase):
         event_type = EventType(type="Annual function")
         event_type.save()
 
-        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
                       time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
                       event_created_by_id=self.user_id)
         event.save()
         event_id = event.id
@@ -147,16 +156,19 @@ class EventAPITest(APITestCase):
         event_type = EventType(type="Annual function")
         event_type.save()
 
-        event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
+        event = Event(name="test_event", type=event_type, description="New Event",
+                      date="2020-04-02",
                       time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                      images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+                      images="https://www.google.com/images", sold_tickets=2,
+                      external_links="google.com",
                       event_created_by_id=self.user_id)
         event.save()
         event_id = event.id
 
         # Run
         response = self.client.get("/core/event/?event_id={id}".format(id=event_id),
-                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token), content_type="application/json")
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
 
         # Check
         self.assertEqual(response.status_code, 200)

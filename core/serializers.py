@@ -2,7 +2,8 @@
 all core module serializer classes are here
 """
 from rest_framework import serializers
-from core.models import Event, Subscription, UserProfile, Invitation, EventType, WishList, Notification
+from core.models import Event, Subscription, UserProfile,\
+    Invitation, EventType, WishList, Notification
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -121,12 +122,26 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class WishListSerializer(serializers.ModelSerializer):
+    """
+    Serializer class for model wish list
+    """
     class Meta:
+        """
+            class Meta:To override the database table name,
+            use the db_table parameter in class Meta.
+        """
         model = WishList
         exclude = ('created_on', 'updated_on', 'is_active')
 
 
 class NotificationSerializer(serializers.ModelSerializer):
+    """
+    serializer class for notification model
+    """
     class Meta:
+        """
+        class Meta:To override the database table name,
+        use the db_table parameter in class Meta.
+        """
         model = Notification
         fields = "__all__"

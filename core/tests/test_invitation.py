@@ -13,7 +13,8 @@ class InvitationTestCase(APITestCase):
 
     def setUp(cls):
         data = dict(email="user2@gmail.com", password="Password")
-        cls.user = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        cls.user = cls.client.post('/authentication/login',
+                                   json.dumps(data), content_type='application/json')
         cls.token = cls.user.data['data']['access']
         cls.ENDPOINT = "/core/invite/"
 
@@ -54,6 +55,9 @@ class InvitationTestCase(APITestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_invitation_get_api_with_particular_user(self):
+        """
+        test the get api invitation with specific user id
+        """
         response = self.client.get(
             self.ENDPOINT, {"user_id": 9}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
         )
@@ -64,7 +68,8 @@ class InvitationTestCase(APITestCase):
         test the get api invitation for invalid parameter
         """
         response = self.client.get(
-            self.ENDPOINT, {"event_id": 1, "user_id": 1}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            self.ENDPOINT, {"event_id": 1, "user_id": 1},
+            HTTP_AUTHORIZATION="Bearer {}".format(self.token),
         )
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.data['data']['invitee_list']), 0)

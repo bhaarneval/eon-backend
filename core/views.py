@@ -43,7 +43,8 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
                 self.queryset = self.queryset.filter(event=event_id)
-                response = self.queryset.select_related('user').annotate(email=F('user__email')).values("email", "id")
+                response = self.queryset.select_related('user').annotate(
+                    email=F('user__email')).values("email", "id")
                 email_ids = [_["email"] for _ in response]
                 user_ids = [_["id"] for _ in response]
                 if _type == "reminder":
@@ -93,7 +94,8 @@ class NotificationView(APIView):
                 notification.has_read = True
                 notification.save()
             except:
-                api_error_response("Notification Id ={id} does not exist".format(id=notification_id), 400)
+                api_error_response("Notification Id ={id} does not exist".format(id=notification_id),
+                                   400)
 
         return api_success_response(message="Unread notification updated successfully", status=200)
 
@@ -106,7 +108,8 @@ class NotificationView(APIView):
                 notifications = Notification.objects.filter(user=user_id, has_read=False)
 
             except:
-                return api_error_response(message="Notification for this user is not exist", status=400)
+                return api_error_response(message="Notification for this user is not exist",
+                                          status=400)
         else:
             return api_error_response(message="user ID can not be null", status=400)
         json_list = []

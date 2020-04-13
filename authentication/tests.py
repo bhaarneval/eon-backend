@@ -58,7 +58,8 @@ class AuthenticationTestCase(TestCase):
 
         # Check
         self.assertEqual(register.status_code, 400)
-        self.assertEqual(register.data['message'], 'Incomplete or Incorrect Credentials are provided for registration')
+        self.assertEqual(register.data['message'],
+                         'Incomplete or Incorrect Credentials are provided for registration')
 
     def test_user_login_with_valid_credentials(self):
         """
@@ -72,7 +73,8 @@ class AuthenticationTestCase(TestCase):
 
         # Run
 
-        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = self.client.post('/authentication/login', json.dumps(data),
+                                          content_type='application/json')
         login_user_id = login_response.data['data']['user']['user_id']
 
         # Check
@@ -92,7 +94,8 @@ class AuthenticationTestCase(TestCase):
 
         # Run
 
-        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = self.client.post('/authentication/login', json.dumps(data),
+                                          content_type='application/json')
 
         # Check
         self.assertEqual(login_response.status_code, 400)
@@ -106,7 +109,8 @@ class AuthenticationTestCase(TestCase):
         pay_load = {'email': 'user@mail.com', 'old_password': 'user123', 'new_password': 'user1234'}
         data = dict(email='user@mail.com', password="user123")
 
-        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = self.client.post('/authentication/login', json.dumps(data),
+                                          content_type='application/json')
         token = login_response.data['data']['access']
         # Run
 
@@ -126,7 +130,8 @@ class AuthenticationTestCase(TestCase):
         pay_load = {'email': 'user@mail.com', 'old_password': 'user1', 'new_password': 'user1234'}
         data = dict(email='user@mail.com', password="user123")
 
-        login_response = self.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = self.client.post('/authentication/login', json.dumps(data),
+                                          content_type='application/json')
         token = login_response.data['data']['access']
 
         # Run

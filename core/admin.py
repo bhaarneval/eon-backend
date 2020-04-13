@@ -4,7 +4,8 @@ register all the core related model here
 from django.contrib import admin
 
 # Register your models here.
-from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
+from core.models import EventType, Event, Invitation, EventPreference, \
+    Subscription, UserProfile, WishList, Notification
 
 
 @admin.register(EventType)
@@ -56,6 +57,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(WishList)
 class WishListAdmin(admin.ModelAdmin):
+    """
+    register the wish list model with admin
+    """
     list_display = ("id", "event", "user", "is_active")
     search_fields = ("event", "user")
 
@@ -71,5 +75,8 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
+    """
+    register the notification model with admin
+    """
     list_display = ("id", "user", "event", "message", "has_read")
     search_fields = ("user", "event", "message", "has_read")
