@@ -22,7 +22,6 @@ class UserViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        pk = int(kwargs.get('user_id'))
         data = request.data
         interest_list = []
         try:
@@ -59,6 +58,7 @@ class UserViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
+
 
         try:
             user_logged_in = user_id
