@@ -3,7 +3,7 @@ SMS service Configuration
 """
 import boto3
 
-from eon_backend.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+from eon_backend.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION, TOPIC_NAME
 
 
 def send_sms(numbers_list, message):
@@ -20,7 +20,7 @@ def send_sms(numbers_list, message):
     )
 
     # Create the topic if it doesn't exist (this is idempotent)
-    topic = client.create_topic(Name="message")
+    topic = client.create_topic(Name=TOPIC_NAME)
     topic_arn = topic['TopicArn']  # get its Amazon Resource Name
 
     sms_attrs = {

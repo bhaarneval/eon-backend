@@ -8,7 +8,7 @@ from authentication.models import ModelBase, User, Role, ActiveModel
 from payment.models import Payment
 
 
-class EventType(ModelBase):
+class EventType(ActiveModel):
     """Event type model add here """
     type = models.CharField(unique=True, max_length=256)
 
@@ -16,7 +16,7 @@ class EventType(ModelBase):
         return self.type
 
 
-class Event(ModelBase):
+class Event(ActiveModel):
     """
     Event model added here
     """
@@ -26,12 +26,12 @@ class Event(ModelBase):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
-    images = models.CharField(max_length=512)
+    images = models.CharField(max_length=512, null=True, blank=True)
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
     sold_tickets = models.PositiveIntegerField(default=0)
     is_cancelled = models.BooleanField(default=False)
-    external_links = models.CharField(max_length=1024)
+    external_links = models.CharField(max_length=1024, null=True, blank=True)
     event_created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING)
 
     class Meta:
@@ -44,7 +44,7 @@ class Event(ModelBase):
         return "{}-{}".format(self.name, self.type)
 
 
-class Invitation(ModelBase):
+class Invitation(ActiveModel):
     """
     invitation model created here
     """
@@ -57,7 +57,7 @@ class Invitation(ModelBase):
         return "{}-{}-{}".format(self.event, self.user, self.discount_percentage)
 
 
-class EventPreference(ModelBase):
+class EventPreference(ActiveModel):
     """
     created event preference model here
     """
@@ -116,3 +116,13 @@ class UserProfile(ModelBase):
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.name, self.contact_number)
+
+
+class Notification(ModelBase):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
+    message = models.CharField(max_length=512)
+    has_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return "{}-{}-{}".format(self.user, self.event, self.message)

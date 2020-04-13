@@ -2,7 +2,7 @@
 all core module serializer classes are here
 """
 from rest_framework import serializers
-from core.models import Event, Subscription, UserProfile, Invitation, EventType
+from core.models import Event, Subscription, UserProfile, Invitation, EventType, WishList, Notification
 
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
@@ -102,7 +102,7 @@ class EventTypeSerializer(serializers.ModelSerializer):
          use the db_table parameter in class Meta.
         """
         model = EventType
-        exclude = ('created_on', 'updated_on')
+        exclude = ('created_on', 'updated_on', 'is_active')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -117,4 +117,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         """
         model = UserProfile
+        fields = "__all__"
+
+
+class WishListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WishList
+        exclude = ('created_on', 'updated_on', 'is_active')
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
         fields = "__all__"

@@ -86,7 +86,7 @@ class Role(ModelBase):
     """
     Model for user role
     """
-    role = models.CharField(max_length=15, default='guest')
+    role = models.CharField(max_length=15)
 
     def __str__(self):
         return self.role
@@ -101,7 +101,7 @@ class Role(ModelBase):
         verbose_name_plural = "roles"
 
 
-class VerificationCode(ModelBase):
+class VerificationCode(ActiveModel):
     """
     Model for user verification code
     """
