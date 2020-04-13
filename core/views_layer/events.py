@@ -105,8 +105,11 @@ class EventViewSet(ModelViewSet):
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
+        request.data['type'] = request.data.pop('event_type')
         self.serializer_class = EventSerializer
-        return super(EventViewSet, self).create(request, *args, **kwargs)
+        response = super(EventViewSet, self).create(request, *args, **kwargs)
+        response.data['event_type'] = response.data.pop('type')
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         token = get_authorization_header(request).split()[1]
@@ -283,13 +286,14 @@ class EventViewSet(ModelViewSet):
             prev_time = event_obj.time
         except Event.DoesNotExist:
             return api_error_response(message=f"Event with id {pk} does not exist", status=400)
-
         try:
             partial = kwargs.pop('partial', False)
             instance = self.get_object()
             serializer = self.get_serializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
+            if 'event_type' in data:
+                self.queryset.filter(id=pk).update(type=data.get('event_type'))
         except Exception as err:
             return api_error_response(message="Some internal error coming while updating the event", status=500)
         message = ""
