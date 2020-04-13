@@ -35,7 +35,8 @@ class UserViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             try:
-                prev_interest = list(UserInterest.objects.filter(user=user_id,is_active=True).values_list('event_type', flat=True))
+                prev_interest = list(
+                    UserInterest.objects.filter(user=user_id, is_active=True).values_list('event_type', flat=True))
                 if interests:
                     interest_to_be_deleted = list(set(prev_interest).difference(interests))
                     UserInterest.objects.filter(event_type_id__in=interest_to_be_deleted).update(is_active=False)
@@ -63,7 +64,6 @@ class UserViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-
 
         try:
             user_logged_in = user_id
@@ -95,8 +95,8 @@ class UserViewSet(ModelViewSet):
             return api_error_response(message="You can only view your own profile", status=400)
 
         profile = self.queryset.get(user_id=user_id)
-        curr_profile= {'id': profile.user.id, 'name': profile.name, 'contact_number': profile.contact_number,
-                       'address': profile.address, 'role': profile.role.id, 'organization': profile.organization}
+        curr_profile = {'id': profile.user.id, 'name': profile.name, 'contact_number': profile.contact_number,
+                        'address': profile.address, 'role': profile.role.id, 'organization': profile.organization}
         try:
             list_of_interest = list(UserInterest.objects.filter(user=user_id, is_active=True).
                                     values_list('event_type', flat=True))
@@ -106,4 +106,3 @@ class UserViewSet(ModelViewSet):
         curr_profile['interest'] = list_of_interest
 
         return api_success_response(data=curr_profile, message="user details", status=200)
-

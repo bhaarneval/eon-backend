@@ -71,3 +71,15 @@ class RestAPITest(APITestCase):
                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
+
+    def test_for_get_user_api(self):
+        """
+        Get api of user
+        :return:
+        """
+        # Run
+        response = self.client.get("/core/user/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 200)
