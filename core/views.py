@@ -1,7 +1,6 @@
 import json
 
 from django.db.models import F
-from rest_framework import mixins, generics
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -23,13 +22,13 @@ def get_event_types(request):
     return api_success_response(data=serializer.data)
 
 
-class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
+class SubscriberNotify(APIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Subscription.objects.all()
+    queryset = Subscription.objects.filter(is_active=True)
 
     def post(self, request):
-        data = json.loads(request.data)
+        data = request.data
         event_id = data.get("event_id", None)
         message = data.get("message", "")
         _type = data.get("type", "reminder").lower()
@@ -37,9 +36,11 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
                 self.queryset = self.queryset.filter(event=event_id)
-                response = self.queryset.select_related('user').annotate(email=F('user__email')).values("email", "id")
+                response = self.queryset.select_related('user').annotate(email=F('user__email'),
+                                                                         users_id=F('user__id')).values("email",
+                                                                                                        "users_id")
                 email_ids = [_["email"] for _ in response]
-                user_ids = [_["id"] for _ in response]
+                user_ids = [_["users_id"] for _ in response]
                 if _type == "reminder":
                     action_name = "event_reminder"
                 else:
@@ -47,7 +48,8 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
                 send_email_sms_and_notification(action_name=action_name,
                                                 email_ids=email_ids,
                                                 message=message,
-                                                user_ids=user_ids)
+                                                user_ids=user_ids,
+                                                event_id=event_id)
                 return api_success_response(message="Subscribers notified successfully.")
 
 
