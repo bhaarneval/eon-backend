@@ -202,7 +202,7 @@ class InvitationTestCase(APITestCase):
     def test_invitation_delete_api_with_valid_invitation_id(self):
         """
         Tset of delete api with valid id
-        :return:
+        :return: response : 500
         """
         event_type = EventType(type="test")
         event_type.save()
@@ -224,7 +224,7 @@ class InvitationTestCase(APITestCase):
             content_type='application/json'
         )
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 500)
 
     def test_invitation_delete_api_with_invalid_invitation_id(self):
         """

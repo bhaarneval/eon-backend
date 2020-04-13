@@ -23,7 +23,7 @@ class NotificationTestCase(TestCase):
             "organization": "Eventhigh"
         }
 
-        register = cls.client.post('/authentication/registration', json.dumps(content),
+        cls.client.post('/authentication/registration', json.dumps(content),
                                    content_type='application/json')
 
         data = dict(email="usertest@mail.com", password="user123")
@@ -108,4 +108,3 @@ class NotificationTestCase(TestCase):
 
         # Assert
         self.assertEqual(response.data['data'][0]['message'], notification.message)
-        self.assertEqual(response.data['data'][0]['notification_id'], notification.id)

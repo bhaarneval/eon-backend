@@ -63,7 +63,6 @@ class WishListViewSet(viewsets.ViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        print(event_id, user_id)
 
         if user_id and event_id:
             try:
