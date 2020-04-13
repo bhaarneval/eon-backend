@@ -1,13 +1,15 @@
 import json
 
+import jwt
 from django.db.models import F
 from rest_framework.views import APIView
+from rest_framework.authentication import get_authorization_header
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
 from core.models import Event, Subscription, EventType, Notification
 from core.serializers import EventTypeSerializer, NotificationSerializer
-
+from eon_backend.settings import SECRET_KEY
 
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
@@ -78,31 +80,35 @@ class NotificationView(APIView):
     """API for Notification"""
 
     serializer_class = NotificationSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated, )
 
     def patch(self, request):
 
-        list_of_ids = request.data.get('notification_id')
+        list_of_ids = request.data.get('notification_ids')
 
         for notification_id in list_of_ids:
             try:
                 notification = Notification.objects.get(id=notification_id)
                 notification.has_read = True
                 notification.save()
-            except:
-                api_error_response("Notification Id ={id} does not exist".format(id=notification_id), 400)
+            except Notification.DoesNotExist:
+                api_error_response(message="Notification Id ={id} does not exist".format(id=notification_id), status=400)
 
         return api_success_response(message="Unread notification updated successfully", status=200)
 
     def get(self, request):
 
-        user_id = request.GET.get('user_id', None)
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
 
         if user_id is not None:
             try:
                 notifications = Notification.objects.filter(user=user_id, has_read=False)
 
-            except:
-                return api_error_response(message="Notification for this user is not exist", status=400)
+            except Notification.DoesNotExist:
+                notifications = []
         else:
             return api_error_response(message="user ID can not be null", status=400)
         json_list = []

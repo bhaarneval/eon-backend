@@ -11,7 +11,7 @@ from core.models import Event, EventType, Notification
 class NotificationTestCase(TestCase):
 
     def setUp(cls):
-        role = Role(role="organizer")
+        role = Role(role="subscriber")
         role.save()
         content = {
             "email": "usertest@mail.com",
@@ -19,7 +19,7 @@ class NotificationTestCase(TestCase):
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
-            "role": "organizer",
+            "role": "subscriber",
             "organization": "Eventhigh"
         }
 
@@ -47,12 +47,13 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        json_content = {"notification_id": [1]}
+        json_content = {"notification_ids": [1]}
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
         notification.save()
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json")
+        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
         self.assertEqual(response.status_code, 200)
@@ -64,35 +65,34 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        json_content = {"notification_id": []}
+        json_content = {"notification_ids": []}
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json")
+        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
         self.assertEqual(response.status_code, 200)
 
-    def test_for_Notification_get_when_no_unread_notification_for_that_user(self):
+    def test_for_notification_get_when_no_unread_notification_for_that_user(self):
         """
           Test for notification when there is no unread notification for a user
 
         """
 
         # Setup
-        json_content = {
-            "user_id": 1
-        }
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=True)
         notification.save()
 
         # Run
-        response = self.client.get("/core/notification/", json_content, content_type="application/json")
+        response = self.client.get("/core/notification/", content_type="application/json",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['data'], [])
 
-    def test_for_Notification_get_data_when_unread_notification(self):
+    def test_for_notification_get_data_when_unread_notification(self):
         """
           Test for notification when there is unread notification for a user
 
@@ -101,12 +101,10 @@ class NotificationTestCase(TestCase):
         # Setup
         notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
         notification.save()
-        json_content = {
-            "user_id": self.user_id
-        }
 
         # Run
-        response = self.client.get("/core/notification/", json_content, content_type="application/json")
+        response = self.client.get("/core/notification/", content_type="application/json",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
         self.assertEqual(response.data['data'][0]['message'], notification.message)
