@@ -175,6 +175,7 @@ class EventViewSet(ModelViewSet):
                     "no_of_tickets": curr_event.no_of_tickets,
                     "images": self.s3.get_presigned_url(bucket_name=BUCKET,
                                                         object_name=curr_event.images),
+                    "is_subscribed": is_subscriber,
                     "external_links": curr_event.external_links,
                     }
             try:
@@ -185,31 +186,36 @@ class EventViewSet(ModelViewSet):
             try:
                 subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
                                                                 is_active=True)
-                subscription_ids = list(subscription_list.values_list('id', flat=True))
-                no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
-                if curr_event.subscription_fee <= 0:
-                    # Free event
-                    total_amount_paid = 0
-                    total_discount_given = 0
-                    discount_percentage = 0
-                else:
-                    # paid event
-                    refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                               payment__isnull=False, payment__status=3)
-                    refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
-                    discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
-                    total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
-                    total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
-                    discount_percentage = (total_discount_given/(total_amount_paid+total_discount_given))*100
+                if subscription_list:
+                    subscription_ids = list(subscription_list.values_list('id', flat=True))
+                    no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
+                    if curr_event.subscription_fee <= 0:
+                        # Free event
+                        total_amount_paid = 0
+                        total_discount_given = 0
+                        discount_percentage = 0
+                    else:
+                        # paid event
+                        refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
+                                                                      payment__isnull=False, payment__status=3)
+                        refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
+                        discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
 
-                data["subscription_details"] = {
-                    "is_subscribed": is_subscriber,
-                    "id": subscription_ids,
-                    "no_of_tickets_bought": no_of_tickets_bought,
-                    "amount_paid": total_amount_paid,
-                    "discount_given": total_discount_given,
-                    "discount_percentage": discount_percentage
-                }
+                        total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                        total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
+                        try:
+                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id).\
+                                discount_percentage
+                        except:
+                            discount_percentage = 0
+
+                    data["subscription_details"] = {
+                        "id": subscription_ids,
+                        "no_of_tickets_bought": no_of_tickets_bought,
+                        "amount_paid": total_amount_paid,
+                        "discount_given": total_discount_given,
+                        "discount_percentage": discount_percentage
+                    }
             except Subscription.DoesNotExist:
                 try:
                     discount_allotted = Invitation.objects.get(user=user_id,
