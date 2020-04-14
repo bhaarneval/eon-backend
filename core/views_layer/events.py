@@ -24,7 +24,7 @@ class EventViewSet(ModelViewSet):
       Event api are created here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
+    permission_classes = (IsAuthenticated,)
     queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
@@ -293,7 +293,6 @@ class EventViewSet(ModelViewSet):
                                         user_ids=user_ids,
                                         event_id=event_id)
         return api_success_response(message="Event successfully deleted", status=200)
-
     def update(self, request, *args, **kwargs):
         """
         Function to update a particular event
@@ -319,7 +318,6 @@ class EventViewSet(ModelViewSet):
         if self.queryset.get(id=pk).event_created_by.id != user_logged_in:
             return api_error_response(
                 message="You are not the organiser of this event {}".format(pk), status=400)
-
         try:
             event_obj = Event.objects.get(id=pk)
             prev_name = event_obj.name
@@ -337,7 +335,7 @@ class EventViewSet(ModelViewSet):
             if 'event_type' in data:
                 self.queryset.filter(id=pk).update(type=data.get('event_type'))
         except Exception as err:
-            return api_error_response(message="Some internal error coming while updating the event",
+            return api_error_response(message="Some internal error coming while updating the event {}".format(err),
                                       status=500)
         message = ""
         event_name = event_obj.name
