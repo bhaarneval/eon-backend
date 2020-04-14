@@ -175,7 +175,6 @@ class EventViewSet(ModelViewSet):
                     "no_of_tickets": curr_event.no_of_tickets,
                     "images": self.s3.get_presigned_url(bucket_name=BUCKET,
                                                         object_name=curr_event.images),
-                    "is_subscribed": is_subscriber,
                     "external_links": curr_event.external_links,
                     }
             try:
@@ -187,7 +186,7 @@ class EventViewSet(ModelViewSet):
                 subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
                                                                 is_active=True)
                 if subscription_list:
-                    subscription_ids = list(subscription_list.values_list('id', flat=True))
+                    is_subscribed = True
                     no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
                     if curr_event.subscription_fee <= 0:
                         # Free event
@@ -206,17 +205,19 @@ class EventViewSet(ModelViewSet):
                         try:
                             discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id).\
                                 discount_percentage
-                        except:
+                        except Exception:
                             discount_percentage = 0
 
                     data["subscription_details"] = {
-                        "id": subscription_ids,
                         "no_of_tickets_bought": no_of_tickets_bought,
                         "amount_paid": total_amount_paid,
                         "discount_given": total_discount_given,
                         "discount_percentage": discount_percentage
                     }
+                else:
+                    is_subscribed = False
             except Subscription.DoesNotExist:
+                is_subscribed: False
                 try:
                     discount_allotted = Invitation.objects.get(user=user_id,
                                                                event=curr_event.id,
@@ -226,6 +227,7 @@ class EventViewSet(ModelViewSet):
                 data['discount_percentage'] = discount_allotted
                 data["subscription_details"] = dict()
             data['is_wishlisted'] = wishlisted
+            data["is_subscribed"] = is_subscribed
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
