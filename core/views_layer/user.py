@@ -8,12 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import get_authorization_header
 from utils.common import api_error_response, api_success_response
 from eon_backend.settings import SECRET_KEY
+from utils.permission import IsOwnerOrNotSubscriber
 import jwt
 
 
 class UserViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOwnerOrNotSubscriber)
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
     lookup_field = "user_id"
@@ -63,7 +64,6 @@ class UserViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-
 
         try:
             user_logged_in = user_id

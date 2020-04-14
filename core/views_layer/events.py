@@ -12,13 +12,14 @@ from utils.common import api_error_response, api_success_response
 from rest_framework.authentication import get_authorization_header
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
+from utils.permission import IsOrganiserOrReadOnlySubscriber
 from eon_backend.settings import SECRET_KEY, BUCKET
 import jwt
 
 
 class EventViewSet(ModelViewSet):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
     queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
@@ -215,6 +216,14 @@ class EventViewSet(ModelViewSet):
                         "discount_percentage": discount_percentage
                     }
                 else:
+                    data["subscription_details"] = {}
+                    try:
+                        discount_allotted = Invitation.objects.get(user=user_id,
+                                                                   event=curr_event.id,
+                                                                   is_active=True).discount_percentage
+                    except Invitation.DoesNotExist:
+                        discount_allotted = 0
+                    data['discount_percentage'] = discount_allotted
                     is_subscribed = False
             except Subscription.DoesNotExist:
                 is_subscribed: False
