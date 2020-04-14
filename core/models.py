@@ -19,7 +19,7 @@ class Event(ActiveModel):
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=512)
-    images = models.CharField(max_length=512, null=True, blank=True)
+    images = models.CharField(max_length=512, default='events/default.jpeg')
     subscription_fee = models.PositiveIntegerField()
     no_of_tickets = models.PositiveIntegerField()
     sold_tickets = models.PositiveIntegerField(default=0)
