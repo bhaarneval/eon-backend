@@ -194,10 +194,12 @@ class EventViewSet(ModelViewSet):
                     discount_percentage = 0
                 else:
                     # paid event
-                    total_amount_paid = int(sum(list(subscription_list.
-                                                     values_list('payment__total_amount', flat=True))))
-                    total_discount_given = int(sum(list(subscription_list.
-                                                        values_list('payment__discount_amount', flat=True))))
+                    refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
+                                                                               payment__isnull=False, payment__status=3)
+                    refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
+                    discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
+                    total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                    total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
                     discount_percentage = (total_discount_given/(total_amount_paid+total_discount_given))*100
 
                 data["subscription_details"] = {
