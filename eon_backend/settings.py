@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
 import os
 from datetime import timedelta
 
@@ -170,9 +169,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIR = [
-    STATIC_DIR
-]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 AUTH_USER_MODEL = 'authentication.User'
 

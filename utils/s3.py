@@ -3,6 +3,7 @@ AWS service Configurations are here
 """
 import boto3
 from botocore.config import Config
+from django.conf import settings
 
 
 class AwsS3:
@@ -11,9 +12,8 @@ class AwsS3:
     """
 
     def __init__(self):
-        self.s3_client = boto3.client("s3", region_name='us-east-1',
-                                      config=Config(s3={"addressing_style": "path"},
-                                                    signature_version="s3v4"))
+        self.s3_client = boto3.client("s3", region_name=settings.AWS_REGION,
+                                      config=Config(s3={"addressing_style": "path"}, signature_version="s3v4"))
 
     def get_presigned_url(self, bucket_name, object_name, expiry=3600):
         """
