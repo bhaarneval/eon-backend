@@ -2,7 +2,6 @@
 Events related functions are here
 """
 from datetime import date
-from functools import reduce
 
 import jwt
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
@@ -13,12 +12,10 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
+from eon_backend.settings import SECRET_KEY, BUCKET
 from utils.common import api_error_response, api_success_response
-from rest_framework.authentication import get_authorization_header
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
-from eon_backend.settings import SECRET_KEY, BUCKET
-import jwt
 
 
 class EventViewSet(ModelViewSet):
@@ -27,7 +24,7 @@ class EventViewSet(ModelViewSet):
     """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Event.objects.filter(is_active=True).\
+    queryset = Event.objects.filter(is_active=True). \
         select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
@@ -102,7 +99,8 @@ class EventViewSet(ModelViewSet):
                             }
             if is_subscriber:
                 try:
-                    Subscription.objects.filter(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                    Subscription.objects.filter(
+                        user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     response_obj['is_subscribed'] = True
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
@@ -125,7 +123,9 @@ class EventViewSet(ModelViewSet):
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
         response.data['event_type'] = response.data.pop('type')
-        response.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data['images']
+        response.data['images'] = \
+            "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
+            'images']
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -205,11 +205,13 @@ class EventViewSet(ModelViewSet):
             except WishList.DoesNotExist:
                 wishlisted = False
             try:
-                subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
-                                                                is_active=True)
+                subscription_list = Subscription.objects.filter(
+                    user_id=user_id, event_id=curr_event.id,
+                    is_active=True)
                 if subscription_list:
                     is_subscribed = True
-                    no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
+                    no_of_tickets_bought = int(sum(list(
+                        subscription_list.values_list('no_of_tickets', flat=True))))
                     if curr_event.subscription_fee <= 0:
                         # Free event
                         total_amount_paid = 0
@@ -219,13 +221,18 @@ class EventViewSet(ModelViewSet):
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
                                                                       payment__isnull=False, payment__status=3)
-                        refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
-                        discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
+                        refund_amount = int(sum(list(
+                            refund_queryset.values_list('payment__amount', flat=True))))
+                        discount_updated = int(sum(
+                            refund_queryset.values_list('payment__discount_amount', flat=True)))
 
-                        total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
-                        total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
+                        total_amount_paid = int(sum(list(
+                            subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                        total_discount_given = int(sum(list(
+                            subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
                         try:
-                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id,
+                            discount_percentage = Invitation.objects.get(user_id=user_id,
+                                                                         event_id=curr_event.id,
                                                                          is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
