@@ -101,7 +101,10 @@ class EventViewSet(ModelViewSet):
                 try:
                     Subscription.objects.filter(
                         user_id=user_logged_in, event_id=curr_event.id, is_active=True)
-                    response_obj['is_subscribed'] = True
+                    if subscription_list:
+                        response_obj['is_subscribed'] = True
+                    else:
+                        response_obj['is_subscribed'] = False
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
 
