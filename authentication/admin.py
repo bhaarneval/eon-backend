@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
+
 from .models import User, Role
 
 
@@ -12,5 +14,8 @@ class UserAdmin(admin.ModelAdmin):
 class RoleAdmin(admin.ModelAdmin):
     list_display = ("id", "role")
     search_fields = ("role", )
+
+
+admin.site.unregister(Group)
 
 
