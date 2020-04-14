@@ -203,9 +203,9 @@ class EventViewSet(ModelViewSet):
                         total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
                         try:
-                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id).\
-                                discount_percentage
-                        except Exception:
+                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id,
+                                                                         is_active=True).discount_percentage
+                        except Invitation.DoesNotExist:
                             discount_percentage = 0
 
                     data["subscription_details"] = {
