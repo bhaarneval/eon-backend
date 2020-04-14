@@ -2,9 +2,7 @@
 Configuration for mail
 """
 import boto3
-
-from eon_backend.settings import (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
-                                  AWS_REGION, EMAIL_ID)
+from django.conf import settings
 
 
 def send_mail(receiver_list=None, message=None, subject=None):
@@ -17,9 +15,9 @@ def send_mail(receiver_list=None, message=None, subject=None):
     """
     client = boto3.client(
         "ses",
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-        region_name=AWS_REGION
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION
     )
     for receiver in receiver_list:
         client.send_email(
@@ -28,5 +26,5 @@ def send_mail(receiver_list=None, message=None, subject=None):
                 "Body": {"Text": {"Charset": "UTF-8", "Data": message}},
                 "Subject": {"Charset": "UTF-8", "Data": subject},
             },
-            Source=EMAIL_ID,
+            Source=settings.EMAIL_ID,
         )
