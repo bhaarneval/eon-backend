@@ -328,12 +328,11 @@ class EventViewSet(ModelViewSet):
             return api_error_response(message=f"Event with id {pk} does not exist", status=400)
         try:
             partial = kwargs.pop('partial', False)
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            if 'event_type' in request.data:
+                request.data['type'] = request.data.pop('event_type')
+            serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
-            self.perform_update(serializer)
-            if 'event_type' in data:
-                self.queryset.filter(id=pk).update(type=data.get('event_type'))
+            serializer.save()
         except Exception as err:
             return api_error_response(message="Some internal error coming while updating the event {}".format(err),
                                       status=500)
