@@ -90,7 +90,7 @@ class EventViewSet(ModelViewSet):
                             }
             if is_subscriber:
                 try:
-                    Subscription.objects.filter(user_id=user_logged_in, event_id=curr_event.id)
+                    Subscription.objects.filter(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     response_obj['is_subscribed'] = True
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
@@ -194,12 +194,10 @@ class EventViewSet(ModelViewSet):
                     discount_percentage = 0
                 else:
                     # paid event
-                    total_amount_paid = int(
-                        sum(list(Subscription.objects.filter(user_id=user_id, event_id=curr_event.id).
-                                 values_list('payment__total_amount', flat=True))))
-                    total_discount_given = int(sum(list(
-                        Subscription.objects.filter(user_id=user_id, event_id=curr_event.id).values_list(
-                            'payment__discount_amount', flat=True))))
+                    total_amount_paid = int(sum(list(subscription_list.
+                                                     values_list('payment__total_amount', flat=True))))
+                    total_discount_given = int(sum(list(subscription_list.
+                                                        values_list('payment__discount_amount', flat=True))))
                     discount_percentage = (total_discount_given/(total_amount_paid+total_discount_given))*100
 
                 data["subscription_details"] = {
