@@ -128,7 +128,7 @@ class EventViewSet(ModelViewSet):
         response.data['event_type'] = response.data.pop('type')
         response.data['images'] = \
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
-            'images']
+                'images']
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -225,18 +225,22 @@ class EventViewSet(ModelViewSet):
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
                                                                       payment__isnull=False, payment__status=3)
                         refund_amount = int(sum(list(
-                            refund_queryset.values_list('payment__amount', flat=True))))
+                            refund_queryset.values_list('payment__total_amount', flat=True))))
                         discount_updated = int(sum(
                             refund_queryset.values_list('payment__discount_amount', flat=True)))
 
                         total_amount_paid = int(sum(list(
-                            subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                            Subscription.objects.filter(user=user_id, event=event_id,
+                                                        payment__isnull=False, payment__status=0).values_list
+                            ('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(
-                            subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
+                            Subscription.objects.filter(user=user_id, event=event_id,
+                                                        payment__isnull=False, payment__status=0).values_list
+                            ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
                             discount_percentage = Invitation.objects.get(user_id=user_id,
-                                                                         event_id=curr_event.id,
-                                                                         is_active=True).discount_percentage
+                                                                               event_id=curr_event.id,
+                                                                               is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
 
@@ -319,7 +323,6 @@ class EventViewSet(ModelViewSet):
         if self.queryset.get(id=pk).event_created_by.id != user_logged_in:
             return api_error_response(
                 message="You are not the organiser of this event {}".format(pk), status=400)
-
         try:
             event_obj = Event.objects.get(id=pk)
             prev_name = event_obj.name
