@@ -3,19 +3,20 @@ Events related functions are here
 """
 from datetime import date
 
-import jwt
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
-from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
-from eon_backend.settings import SECRET_KEY, BUCKET
 from utils.common import api_error_response, api_success_response
+from rest_framework.authentication import get_authorization_header
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
+from utils.permission import IsOrganiserOrReadOnlySubscriber
+from eon_backend.settings import SECRET_KEY, BUCKET
+import jwt
 
 
 class EventViewSet(ModelViewSet):
@@ -23,9 +24,8 @@ class EventViewSet(ModelViewSet):
       Event api are created here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
-    queryset = Event.objects.filter(is_active=True). \
-        select_related('type').annotate(event_type=F('type__type'))
+    permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
+    queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
 
@@ -268,9 +268,6 @@ class EventViewSet(ModelViewSet):
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
-        """
-        Destroy Api for Event
-        """
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")

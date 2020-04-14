@@ -20,8 +20,8 @@ class NotificationView(APIView):
 
     serializer_class = NotificationSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, )
-    queryset = Notification.objects.all()
+    permission_classes = (IsAuthenticated,)
+    queryset = Notification.objects.filter(has_read=False)
 
     def patch(self, request):
         """
@@ -47,7 +47,7 @@ class NotificationView(APIView):
         user_id = payload['user_id']
 
         try:
-            notifications = self.queryset.filter(user=user_id, has_read=False)
+            notifications = self.queryset.filter(user=user_id)
 
         except Notification.DoesNotExist:
             notifications = []

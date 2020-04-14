@@ -14,6 +14,7 @@ from core.models import WishList, Event
 from core.serializers import WishListSerializer
 from eon_backend.settings import SECRET_KEY
 from utils.common import api_error_response, api_success_response
+from utils.permission import IsSubscriberOrReadOnly
 
 
 class WishListViewSet(viewsets.ViewSet):
@@ -21,7 +22,7 @@ class WishListViewSet(viewsets.ViewSet):
     Wish list api created in this class
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = WishList.objects.filter(is_active=True)
 
     @transaction.atomic()

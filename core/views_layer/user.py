@@ -8,10 +8,14 @@ from rest_framework.viewsets import ModelViewSet
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from authentication.models import User
 from core.models import UserProfile, UserInterest
 from core.serializers import UserProfileSerializer
-from eon_backend.settings import SECRET_KEY
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import get_authorization_header
 from utils.common import api_error_response, api_success_response
+from eon_backend.settings import SECRET_KEY
+import jwt
 
 
 class UserViewSet(ModelViewSet):
@@ -104,9 +108,6 @@ class UserViewSet(ModelViewSet):
         return api_success_response(data=data, status=200)
 
     def retrieve(self, request, *args, **kwargs):
-        """
-        User retrieve api created here
-        """
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_logged_in = payload['user_id']

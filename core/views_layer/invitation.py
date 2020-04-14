@@ -3,6 +3,7 @@ Api related to invitation are here
 """
 import json
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from django.db import transaction
 from django.db.models import F
@@ -13,6 +14,7 @@ from core.models import UserProfile, Invitation, Event
 from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
+from utils.permission import IsOrganiser
 
 
 class InvitationViewSet(generics.GenericAPIView):
@@ -20,6 +22,7 @@ class InvitationViewSet(generics.GenericAPIView):
     Add Api from here
     """
     authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated, IsOrganiser)
     serializer_class = InvitationSerializer
     queryset = Invitation.objects.filter(is_active=True)
 

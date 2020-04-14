@@ -17,6 +17,7 @@ from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
+from utils.permission import IsSubscriberOrReadOnly
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
@@ -24,7 +25,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
     Api methods for subscriptions added here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
