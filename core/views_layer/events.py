@@ -90,7 +90,7 @@ class EventViewSet(ModelViewSet):
                             }
             if is_subscriber:
                 try:
-                    Subscription.objects.get(user_id=user_logged_in, event_id=curr_event.id)
+                    Subscription.objects.filter(user_id=user_logged_in, event_id=curr_event.id)
                     response_obj['is_subscribed'] = True
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
@@ -183,41 +183,32 @@ class EventViewSet(ModelViewSet):
             except WishList.DoesNotExist:
                 wishlisted = False
             try:
-                # TODO: Return cumulative data of the subscription.
-                # subscription_obj = Subscription.objects.filter(user_id=user_logged_in,
-                #                                                event_id=curr_event.id,
-                #                                                is_active=True)
-                # subscription_data = []
-                # amount_paid = reduce(
-                #     lambda pre_amount, next_amount:
-                #     {'amount': pre_amount['total_amount'] + next_amount['total_amount']}, subscription_obj
-                # )
-                # no_of_tickets_bought = reduce(
-                #     lambda pre_count, next_count:
-                #     {"count": pre_count["no_of_tickets"] + next_count["no_of_tickets"]}, subscription_obj
-                # )
-                # for subscription in subscription_obj:
-                #     subscription_data.append({
-                #         "is_subscribed": is_subscriber,
-                #         "id": subscription.id,
-                #         "no_of_tickets_bought": int(subscription.no_of_tickets),
-                #         "amount_paid": subscription.payment.total_amount,
-                #         "discount_given": subscription.payment.discount_amount,
-                #         "discount_percentage": (subscription.payment.discount_amount /
-                #                                 subscription.payment.amount) * 100
-                #     })
-                # data["subscription_details"] = subscription_data
-                subscription_obj = Subscription.objects.get(user_id=user_logged_in,
-                                                            event_id=curr_event.id,
-                                                            is_active=True)
+                subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
+                                                                is_active=True)
+                subscription_ids = list(subscription_list.values_list('id', flat=True))
+                no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
+                if curr_event.subscription_fee <= 0:
+                    # Free event
+                    total_amount_paid = 0
+                    total_discount_given = 0
+                    discount_percentage = 0
+                else:
+                    # paid event
+                    total_amount_paid = int(
+                        sum(list(Subscription.objects.filter(user_id=user_id, event_id=curr_event.id).
+                                 values_list('payment__total_amount', flat=True))))
+                    total_discount_given = int(sum(list(
+                        Subscription.objects.filter(user_id=user_id, event_id=curr_event.id).values_list(
+                            'payment__discount_amount', flat=True))))
+                    discount_percentage = (total_discount_given/(total_amount_paid+total_discount_given))*100
+
                 data["subscription_details"] = {
                     "is_subscribed": is_subscriber,
-                    "id": subscription_obj.id,
-                    "no_of_tickets_bought": int(subscription_obj.no_of_tickets),
-                    "amount_paid": subscription_obj.payment.total_amount,
-                    "discount_given": subscription_obj.payment.discount_amount,
-                    "discount_percentage": (subscription_obj.payment.discount_amount /
-                                            subscription_obj.payment.amount) * 100
+                    "id": subscription_ids,
+                    "no_of_tickets_bought": no_of_tickets_bought,
+                    "amount_paid": total_amount_paid,
+                    "discount_given": total_discount_given,
+                    "discount_percentage": discount_percentage
                 }
             except Subscription.DoesNotExist:
                 try:
@@ -298,7 +289,7 @@ class EventViewSet(ModelViewSet):
             return api_error_response(message="Some internal error coming while updating the event", status=500)
         message = ""
         event_name = event_obj.name
-        location_update,date_update,time_update, name_update = "", "", "", ""
+        location_update, date_update, time_update, name_update = "", "", "", ""
         if 'name' in data:
             name_update = f"Name of event {prev_name} has changed to {data.get('name')}."
         if 'location' in data:
