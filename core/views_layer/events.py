@@ -24,7 +24,7 @@ class EventViewSet(ModelViewSet):
       Event api are created here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
     queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
@@ -339,7 +339,7 @@ class EventViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
         except Exception as err:
-            return api_error_response(message="Some internal error coming while updating the event {}".format(err),
+            return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
         message = ""
         event_name = event_obj.name
