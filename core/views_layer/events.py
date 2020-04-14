@@ -84,8 +84,7 @@ class EventViewSet(ModelViewSet):
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
                             "subscription_fee": curr_event.subscription_fee,
-                            "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                                object_name=curr_event.images),
+                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                             "external_links": curr_event.external_links
                             }
             if is_subscriber:
@@ -109,6 +108,7 @@ class EventViewSet(ModelViewSet):
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
         response.data['event_type'] = response.data.pop('type')
+        response.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data['images']
         return response
 
     def retrieve(self, request, *args, **kwargs):
