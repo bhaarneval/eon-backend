@@ -1,3 +1,6 @@
+"""
+Payment related views are here
+"""
 import datetime
 
 from eon_backend.settings import APP_CONSTANTS
@@ -7,6 +10,9 @@ CONSTANTS = APP_CONSTANTS['transaction']['values']
 
 
 def event_payment(data=None):
+    """
+    Evnent payment method added here
+    """
     card_number = data.get('card_number', None)
     expiry_month = data.get('expiry_month', None)
     expiry_year = data.get('expiry_year', None)
@@ -27,9 +33,9 @@ def event_payment(data=None):
         else:
             total_amount = amount - discount_amount
 
-    Check = False
+    check = False
     if no_of_tickets < 0:
-        Check = True
+        check = True
         status = 3
     else:
         if not amount or not card_number or not expiry_year or not expiry_month:
@@ -37,14 +43,15 @@ def event_payment(data=None):
         status = 0
         if isinstance(card_number, int) and len(str(card_number)) == 16 and (
                 expiry_year > year or (expiry_year == year and expiry_month > month)):
-            Check = True
-    if Check:
-        data = dict(amount=amount, discount_amount=discount_amount, total_amount=total_amount, status=status)
+            check = True
+    if check:
+        data = dict(amount=amount, discount_amount=discount_amount, total_amount=total_amount,
+                    status=status)
         serializer = PaymentSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = serializer.data
         data.pop('status')
         return data
-    else:
-        return "Payment Failed"
+
+    return "Payment Failed"

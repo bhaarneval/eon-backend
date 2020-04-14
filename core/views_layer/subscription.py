@@ -1,3 +1,6 @@
+"""
+All subscription related api are here
+"""
 import json
 
 import jwt
@@ -18,11 +21,17 @@ from utils.permission import IsSubscriberOrReadOnly
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
+    """
+    Api methods for subscriptions added here
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
+        """
+        Subscription List api
+        """
         event_id = request.GET.get("event_id", None)
         if event_id:
             self.queryset = self.queryset.filter(event=event_id)
@@ -45,7 +54,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
     def create(self, request):
         """
             Function to set subscription of a user to a particular event
-            :param request: token, event_id, no_of_tickets, user_id, card_number, expiry_month, expiry_year,
+            :param request: token, event_id, no_of_tickets,
+            user_id, card_number, expiry_month, expiry_year,
                             amount, discount_amount, total_amount
             :return: json response subscribed successful or error message
         """
@@ -77,8 +87,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 return api_error_response(message="Number of tickets are invalid", status=400)
 
         if amount:
-            data = dict(card_number=card_number, expiry_month=expiry_month, expiry_year=expiry_year, amount=amount,
-                        discount_amount=discount_amount, total_amount=total_amount, no_of_tickets=no_of_tickets)
+            data = dict(card_number=card_number, expiry_month=expiry_month,
+                        expiry_year=expiry_year, amount=amount,
+                        discount_amount=discount_amount, total_amount=total_amount,
+                        no_of_tickets=no_of_tickets)
 
             payment_object = event_payment(data)
 
@@ -103,7 +115,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 current_payment_queryset = current_payment_queryset.annotate(ref_no=F('payment__ref_number'))
                 success_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
                                                         payment__status=0)
-                refund_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
+                refund_queryset = self.queryset.filter(user=user_id, event=event_id,
+                                                       payment__isnull=False,
                                                        payment__status=3)
 
                 success_queryset = success_queryset.select_related('payment')
@@ -161,6 +174,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_error_response(message="Number of tickets are invalid", status=400)
 
     def destroy(self, request, pk=None):
+        """
+        Function to unsubscribe subscription of a user to a particular event
+            :return: json response Successfully Unsubscribed
+        """
         event_id = pk
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)

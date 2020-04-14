@@ -1,17 +1,24 @@
+"""
+Authentications view reference are here
+"""
 import json
 from random import randint
 
 from django.db import transaction
-from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from utils.common import api_error_response, api_success_response, default_password, produce_object_for_user
-from .models import User, Role, VerificationCode
-from core.models import UserProfile
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from utils.common import api_error_response, api_success_response, \
+    produce_object_for_user
 from utils.helper import send_email_sms_and_notification
+from core.models import UserProfile
+from .models import User, Role, VerificationCode
 
 
 class Login(APIView):
@@ -38,12 +45,16 @@ class Login(APIView):
         token = get_token_for_user(user)
         user_obj = produce_object_for_user(user)
         if user_obj is None:
-            return api_error_response(message='Some error is coming in returning response', status=400)
+            return api_error_response(
+                message='Some error is coming in returning response', status=400)
         token['user'] = user_obj
         return api_success_response(data=token)
 
 
 class Register(APIView):
+    """
+    Api for Registration
+    """
 
     @transaction.atomic()
     def post(self, request):
@@ -62,15 +73,17 @@ class Register(APIView):
         role_name = data.get('role')
 
         if email is None or password is None or role_name is None:
-            return api_error_response(message='Incomplete or Incorrect Credentials are provided for registration',
-                                      status=400)
+            return api_error_response(
+                message='Incomplete or Incorrect Credentials are provided for registration',
+                status=400)
 
         try:
             # Checking if role is correct or not
             role_name = role_name.lower()
             role_obj = Role.objects.get(role=role_name)
         except Role.DoesNotExist:
-            return api_error_response(message='Role assigned is not matching with any role type', status=400)
+            return api_error_response(
+                message='Role assigned is not matching with any role type', status=400)
 
         try:
             user = User.objects.get(email=email)
@@ -81,20 +94,22 @@ class Register(APIView):
         if user is not None:
             return api_error_response(message='A user already exist with the given email id: {}'.
                                       format(email), status=400)
-        else:
-            try:
-                user = User.objects.create_user(email=email, password=password)
 
-                user_profile_obj = UserProfile.objects.create(user=user, name=name, contact_number=contact_number,
-                                                              organization=organization, address=address,
-                                                              role=role_obj)
-                user_profile_obj.save()
+        try:
+            user = User.objects.create_user(email=email, password=password)
 
-                token = get_token_for_user(user)
-                token['user'] = produce_object_for_user(user)
-                return api_success_response(data=token, message='User created successfully', status=201)
-            except Exception as err:
-                return api_error_response(message=str(err), status=400)
+            user_profile_obj = UserProfile.objects.create(
+                user=user, name=name, contact_number=contact_number,
+                organization=organization, address=address,
+                role=role_obj)
+            user_profile_obj.save()
+
+            token = get_token_for_user(user)
+            token['user'] = produce_object_for_user(user)
+            return api_success_response(data=token,
+                                        message='User created successfully', status=201)
+        except Exception as err:
+            return api_error_response(message=str(err), status=400)
 
 
 @api_view(['POST'])

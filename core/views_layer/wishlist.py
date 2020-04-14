@@ -1,3 +1,6 @@
+"""
+All wish list related methods are here
+"""
 import json
 
 import jwt
@@ -15,12 +18,18 @@ from utils.permission import IsSubscriberOrReadOnly
 
 
 class WishListViewSet(viewsets.ViewSet):
+    """
+    Wish list api created in this class
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = WishList.objects.filter(is_active=True)
 
     @transaction.atomic()
     def create(self, request):
+        """
+        Create api for wish list
+        """
         data = json.loads(request.body)
         event_id = data.get('event_id', None)
         token = get_authorization_header(request).split()[1]
@@ -55,11 +64,15 @@ class WishListViewSet(viewsets.ViewSet):
                 serializer = WishListSerializer(data=data)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
-            return api_success_response(data=serializer.data, message="WishListed Successfully", status=200)
-        else:
-            return api_error_response(message="Request Parameters are invalid", status=400)
+            return api_success_response(data=serializer.data, message="WishListed Successfully",
+                                        status=200)
+
+        return api_error_response(message="Request Parameters are invalid", status=400)
 
     def destroy(self, request, pk=None):
+        """
+        Destroy api for wish list
+        """
         event_id = pk
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)

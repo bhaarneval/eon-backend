@@ -1,5 +1,7 @@
+"""
+Events related functions are here
+"""
 from datetime import date
-from functools import reduce
 
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
@@ -18,6 +20,9 @@ import jwt
 
 
 class EventViewSet(ModelViewSet):
+    """
+      Event api are created here
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
     queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
@@ -45,20 +50,24 @@ class EventViewSet(ModelViewSet):
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
-            return api_error_response(message="Not able to fetch the role of the logged in user", status=500)
+            return api_error_response(
+                message="Not able to fetch the role of the logged in user", status=500)
 
         if is_wishlisted == 'True':
             try:
-                event_ids = WishList.objects.filter(user=user_id).values_list('event__id', flat=True)
+                event_ids = WishList.objects.filter(
+                    user=user_id).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
             except Exception as err:
-                return api_error_response(message="Some internal error coming in fetching the wishlist", status=400)
+                return api_error_response(
+                    message="Some internal error coming in fetching the wishlist", status=400)
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_active=False)
         self.queryset = self.queryset.filter(date__gte=str(today))
 
         if search_text:
-            self.queryset = self.queryset.filter(Q(location__icontains=search_text) | Q(name__icontains=search_text))
+            self.queryset = self.queryset.filter(
+                Q(location__icontains=search_text) | Q(name__icontains=search_text))
         if event_created_by == 'True':
             self.queryset = self.queryset.filter(event_created_by=user_id)
         if event_type:
@@ -90,13 +99,15 @@ class EventViewSet(ModelViewSet):
                             }
             if is_subscriber:
                 try:
-                    Subscription.objects.filter(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                    Subscription.objects.filter(
+                        user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     response_obj['is_subscribed'] = True
                 except Subscription.DoesNotExist:
                     response_obj['is_subscribed'] = False
 
                 try:
-                    WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                    WishList.objects.get(user_id=user_logged_in,
+                                         event_id=curr_event.id, is_active=True)
                     response_obj['is_wishlisted'] = True
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
@@ -105,14 +116,22 @@ class EventViewSet(ModelViewSet):
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
+        """
+        Create Api for Event
+        """
         request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
         response.data['event_type'] = response.data.pop('type')
-        response.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data['images']
+        response.data['images'] = \
+            "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
+            'images']
         return response
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Retrive Api for Event
+        """
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
@@ -121,7 +140,8 @@ class EventViewSet(ModelViewSet):
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
-            return api_error_response(message="Not able to fetch the role of the logged in user", status=500)
+            return api_error_response(
+                message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
             is_subscriber = True
         else:
@@ -145,7 +165,8 @@ class EventViewSet(ModelViewSet):
                 if invited.user is not None:
                     try:
                         user_profile = UserProfile.objects.get(user=invited.user.id)
-                        response_obj['user'] = {'user_id': invited.user.id, 'name': user_profile.name,
+                        response_obj['user'] = {'user_id': invited.user.id,
+                                                'name': user_profile.name,
                                                 'contact_number': user_profile.contact_number,
                                                 'address': user_profile.address,
                                                 'organization': user_profile.organization}
@@ -184,11 +205,13 @@ class EventViewSet(ModelViewSet):
             except WishList.DoesNotExist:
                 wishlisted = False
             try:
-                subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
-                                                                is_active=True)
+                subscription_list = Subscription.objects.filter(
+                    user_id=user_id, event_id=curr_event.id,
+                    is_active=True)
                 if subscription_list:
                     is_subscribed = True
-                    no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
+                    no_of_tickets_bought = int(sum(list(
+                        subscription_list.values_list('no_of_tickets', flat=True))))
                     if curr_event.subscription_fee <= 0:
                         # Free event
                         total_amount_paid = 0
@@ -198,13 +221,18 @@ class EventViewSet(ModelViewSet):
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
                                                                       payment__isnull=False, payment__status=3)
-                        refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
-                        discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
+                        refund_amount = int(sum(list(
+                            refund_queryset.values_list('payment__amount', flat=True))))
+                        discount_updated = int(sum(
+                            refund_queryset.values_list('payment__discount_amount', flat=True)))
 
-                        total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
-                        total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
+                        total_amount_paid = int(sum(list(
+                            subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                        total_discount_given = int(sum(list(
+                            subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
                         try:
-                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id,
+                            discount_percentage = Invitation.objects.get(user_id=user_id,
+                                                                         event_id=curr_event.id,
                                                                          is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
@@ -279,12 +307,15 @@ class EventViewSet(ModelViewSet):
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
-            return api_error_response(message="Not able to fetch the role of the logged in user", status=500)
+            return api_error_response(
+                message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
-            return api_error_response(message="A subscriber cannot change an event details", status=500)
+            return api_error_response(
+                message="A subscriber cannot change an event details", status=500)
 
         if self.queryset.get(id=pk).event_created_by.id != user_logged_in:
-            return api_error_response(message="You are not the organiser of this event {}".format(pk), status=400)
+            return api_error_response(
+                message="You are not the organiser of this event {}".format(pk), status=400)
 
         try:
             event_obj = Event.objects.get(id=pk)
@@ -303,25 +334,29 @@ class EventViewSet(ModelViewSet):
             if 'event_type' in data:
                 self.queryset.filter(id=pk).update(type=data.get('event_type'))
         except Exception as err:
-            return api_error_response(message="Some internal error coming while updating the event", status=500)
+            return api_error_response(message="Some internal error coming while updating the event",
+                                      status=500)
         message = ""
         event_name = event_obj.name
         location_update, date_update, time_update, name_update = "", "", "", ""
         if 'name' in data:
             name_update = f"Name of event {prev_name} has changed to {data.get('name')}."
         if 'location' in data:
-            location_update = f"Location of the event {event_name} has changed from {prev_location} to " \
-                              f"{data.get('location')}."
+            location_update = f"Location of the event {event_name} has changed from " \
+                              f"{prev_location} to {data.get('location')}."
         if 'date' in data:
-            date_update = f"Date of the event {event_name} has changed from {prev_date} to {data.get('date')}."
+            date_update = f"Date of the event {event_name} has changed from" \
+                          f" {prev_date} to {data.get('date')}."
         if 'time' in data:
-            time_update = f"Time for the event {event_name} has changed from {prev_time} to {data.get('time')}."
+            time_update = f"Time for the event {event_name} has changed from" \
+                          f" {prev_time} to {data.get('time')}."
 
         message += name_update + location_update + date_update + time_update
 
         subscriber_email_list = list(Subscription.objects.filter(event=pk).
                                      values_list('user__email', flat=True).distinct())
-        user_ids = list(Subscription.objects.filter(event=pk).values_list('user_id', flat=True).distinct())
+        user_ids = list(Subscription.objects.filter(event=pk).
+                        values_list('user_id', flat=True).distinct())
 
         send_email_sms_and_notification(action_name="event_updated",
                                         email_ids=subscriber_email_list,

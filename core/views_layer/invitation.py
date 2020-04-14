@@ -1,3 +1,6 @@
+"""
+Api related to invitation are here
+"""
 import json
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -15,6 +18,9 @@ from utils.permission import IsOrganiser
 
 
 class InvitationViewSet(generics.GenericAPIView):
+    """
+    Add Api from here
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsOrganiser)
     serializer_class = InvitationSerializer
@@ -24,11 +30,12 @@ class InvitationViewSet(generics.GenericAPIView):
     def post(self, request):
         """
         Function to add new invitations
-        :param request: data containing information of an invite in format {
-                                                "event": 11, (event_id)
-                                                "discount_percentage": 10,
-                                                "invitee_list": ["demo1@gmail.com","demo2@gmail.com"] (list_of_emails)
-                                                }
+        :param request: data containing information of an invite in format
+            {
+                "event": 11, (event_id)
+                "discount_percentage": 10,
+                "invitee_list": ["demo1@gmail.com","demo2@gmail.com"] (list_of_emails)
+            }
         :param event_id: Event id (not required)
         :return: Response with a list of all the generated invites
         """
@@ -71,7 +78,9 @@ class InvitationViewSet(generics.GenericAPIView):
                         )
                         response.append(inv_object)
                     except Exception as err:
-                        return api_error_response(message="Some error occurred due to incorrect details", status=400)
+                        return api_error_response(
+                            message="Some error occurred due to incorrect details",
+                            status=400)
 
             except Invitation.DoesNotExist:
                 try:
@@ -103,12 +112,6 @@ class InvitationViewSet(generics.GenericAPIView):
                     pass
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
-        message = f"You are invited to register for '{event.name}' event with {discount_percentage}% discount"
-        if not testing:
-            send_email_sms_and_notification(action_name="invitation_send",
-                                            email_ids=invitee_list,
-                                            message=message,
-                                            numbers_list=contact_nos)
         data_object = {'invitee_list': data}
         return api_success_response(message="Successful invited", data=data_object)
 
@@ -188,4 +191,3 @@ class InvitationViewSet(generics.GenericAPIView):
             data.append(response_obj)
         data_object = {'invitee_list': data}
         return api_success_response(message="Invitations details", data=data_object)
-

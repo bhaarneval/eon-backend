@@ -1,3 +1,6 @@
+"""
+Presigned url are here
+"""
 import json
 import os
 import secrets
@@ -13,9 +16,16 @@ from utils.s3 import AwsS3
 
 
 class PresignedUrl(APIView):
+    """
+    Api for presigned url created here
+    """
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
+        """
+            :param request:
+            :return:
+        """
         event_id = request.GET.get('event_id')
         try:
             event = Event.objects.get(id=event_id)

@@ -1,3 +1,6 @@
+"""
+Payment related model created here
+"""
 import uuid
 from django.conf import settings
 from django.db import models
@@ -9,6 +12,9 @@ PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 
 
 class Payment(ModelBase):
+    """
+    Payment model created here
+    """
     amount = models.PositiveIntegerField()
     discount_amount = models.PositiveIntegerField()
     total_amount = models.PositiveIntegerField()

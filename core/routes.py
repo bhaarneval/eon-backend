@@ -1,3 +1,6 @@
+"""
+Here register the url
+"""
 from rest_framework.routers import DefaultRouter
 
 from core.views_layer.user import UserViewSet
