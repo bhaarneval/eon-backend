@@ -185,32 +185,39 @@ class EventViewSet(ModelViewSet):
             try:
                 subscription_list = Subscription.objects.filter(user_id=user_id, event_id=curr_event.id,
                                                                 is_active=True)
-                subscription_ids = list(subscription_list.values_list('id', flat=True))
-                no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
-                if curr_event.subscription_fee <= 0:
-                    # Free event
-                    total_amount_paid = 0
-                    total_discount_given = 0
-                    discount_percentage = 0
-                else:
-                    # paid event
-                    refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                               payment__isnull=False, payment__status=3)
-                    refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
-                    discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
-                    total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
-                    total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
-                    discount_percentage = (total_discount_given/(total_amount_paid+total_discount_given))*100
+                if subscription_list:
+                    is_subscribed = True
+                    no_of_tickets_bought = int(sum(list(subscription_list.values_list('no_of_tickets', flat=True))))
+                    if curr_event.subscription_fee <= 0:
+                        # Free event
+                        total_amount_paid = 0
+                        total_discount_given = 0
+                        discount_percentage = 0
+                    else:
+                        # paid event
+                        refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
+                                                                      payment__isnull=False, payment__status=3)
+                        refund_amount = int(sum(list(refund_queryset.values_list('payment__amount', flat=True))))
+                        discount_updated = int(sum(refund_queryset.values_list('payment__discount_amount', flat=True)))
 
-                data["subscription_details"] = {
-                    "is_subscribed": is_subscriber,
-                    "id": subscription_ids,
-                    "no_of_tickets_bought": no_of_tickets_bought,
-                    "amount_paid": total_amount_paid,
-                    "discount_given": total_discount_given,
-                    "discount_percentage": discount_percentage
-                }
+                        total_amount_paid = int(sum(list(subscription_list.values_list('payment__total_amount', flat=True)))) - refund_amount
+                        total_discount_given = int(sum(list(subscription_list.values_list('payment__discount_amount', flat=True)))) - discount_updated
+                        try:
+                            discount_percentage = Invitation.objects.get(user_id=user_id, event_id=curr_event.id,
+                                                                         is_active=True).discount_percentage
+                        except Invitation.DoesNotExist:
+                            discount_percentage = 0
+
+                    data["subscription_details"] = {
+                        "no_of_tickets_bought": no_of_tickets_bought,
+                        "amount_paid": total_amount_paid,
+                        "discount_given": total_discount_given,
+                        "discount_percentage": discount_percentage
+                    }
+                else:
+                    is_subscribed = False
             except Subscription.DoesNotExist:
+                is_subscribed: False
                 try:
                     discount_allotted = Invitation.objects.get(user=user_id,
                                                                event=curr_event.id,
@@ -220,6 +227,7 @@ class EventViewSet(ModelViewSet):
                 data['discount_percentage'] = discount_allotted
                 data["subscription_details"] = dict()
             data['is_wishlisted'] = wishlisted
+            data["is_subscribed"] = is_subscribed
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
