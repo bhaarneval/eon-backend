@@ -4,16 +4,14 @@ Added core related api view here
 import json
 
 from django.db.models import F
-from rest_framework import mixins, generics
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
-from core.models import Event, Subscription, EventType, Notification
-from core.serializers import EventTypeSerializer, NotificationSerializer
+from core.models import Event, Subscription, EventType
+from core.serializers import EventTypeSerializer
 
-
-from utils.common import api_success_response, api_error_response
+from utils.common import api_success_response
 from utils.helper import send_email_sms_and_notification
 
 
@@ -26,16 +24,16 @@ def get_event_types(request):
     return api_success_response(data=serializer.data)
 
 
-class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
+class SubscriberNotify(APIView):
     """
-     created api method related to subscriber
-     """
+        created api method related to subscriber
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
-    queryset = Subscription.objects.all()
+    queryset = Subscription.objects.filter(is_active=True)
 
     def post(self, request):
-        data = json.loads(request.data)
+        data = request.data
         event_id = data.get("event_id", None)
         message = data.get("message", "")
         _type = data.get("type", "reminder").lower()
@@ -43,10 +41,11 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
                 self.queryset = self.queryset.filter(event=event_id)
-                response = self.queryset.select_related('user').annotate(
-                    email=F('user__email')).values("email", "id")
+                response = self.queryset.select_related('user').annotate(email=F('user__email'),
+                                                                         users_id=F('user__id')).values("email",
+                                                                                                        "users_id")
                 email_ids = [_["email"] for _ in response]
-                user_ids = [_["id"] for _ in response]
+                user_ids = [_["users_id"] for _ in response]
                 if _type == "reminder":
                     action_name = "event_reminder"
                 else:
@@ -54,7 +53,8 @@ class SubscriberNotify(mixins.ListModelMixin, generics.GenericAPIView):
                 send_email_sms_and_notification(action_name=action_name,
                                                 email_ids=email_ids,
                                                 message=message,
-                                                user_ids=user_ids)
+                                                user_ids=user_ids,
+                                                event_id=event_id)
                 return api_success_response(message="Subscribers notified successfully.")
 
 
@@ -77,54 +77,3 @@ def send_mail_to_a_friend(request):
                                     message=message,
                                     email_ids=email)
     return api_success_response(message="Mail send successfully", status=200)
-
-
-class NotificationView(APIView):
-    """API for Notification"""
-
-    serializer_class = NotificationSerializer
-
-    def patch(self, request):
-        """
-        patch api method for notification
-        """
-
-        list_of_ids = request.data.get('notification_id')
-
-        for notification_id in list_of_ids:
-            try:
-                notification = Notification.objects.get(id=notification_id)
-                notification.has_read = True
-                notification.save()
-            except:
-                api_error_response("Notification Id ={id} does not exist".
-                                   format(id=notification_id),
-                                   400)
-
-        return api_success_response(message="Unread notification updated successfully", status=200)
-
-    def get(self, request):
-        """
-        get api for method notification
-        """
-
-        user_id = request.GET.get('user_id', None)
-
-        if user_id is not None:
-            try:
-                notifications = Notification.objects.filter(user=user_id, has_read=False)
-
-            except:
-                return api_error_response(message="Notification for this user is not exist",
-                                          status=400)
-        else:
-            return api_error_response(message="user ID can not be null", status=400)
-        json_list = []
-        for notification in notifications:
-            notification_obj = {
-                "message": notification.message,
-                "notification_id": notification.id
-            }
-            json_list.append(notification_obj)
-
-        return api_success_response(data=json_list)

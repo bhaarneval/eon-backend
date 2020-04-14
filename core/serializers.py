@@ -144,4 +144,4 @@ class NotificationSerializer(serializers.ModelSerializer):
         use the db_table parameter in class Meta.
         """
         model = Notification
-        fields = "__all__"
+        fields = ("id", "message")
