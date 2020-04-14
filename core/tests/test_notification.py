@@ -1,3 +1,6 @@
+"""
+Notification module test cases are added here
+"""
 import json
 
 from django.test import TestCase
@@ -9,6 +12,9 @@ from core.models import Event, EventType, Notification
 # Create your tests here.
 
 class NotificationTestCase(TestCase):
+    """
+    Notifications Method Test cases are here
+    """
 
     def setUp(cls):
         role = Role(role="subscriber")
@@ -27,7 +33,8 @@ class NotificationTestCase(TestCase):
                                    content_type='application/json')
 
         data = dict(email="usertest@mail.com", password="user123")
-        login_response = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
+        login_response = cls.client.post('/authentication/login', json.dumps(data),
+                                         content_type='application/json')
         cls.user_id = login_response.data['data']['user']['user_id']
         cls.token = login_response.data['data']['access']
         cls.user = User.objects.get(id=cls.user_id)
@@ -35,9 +42,12 @@ class NotificationTestCase(TestCase):
         event_type = EventType(type="test")
         event_type.save()
 
-        cls.event = Event(name="test_event", type=event_type, description="New Event", date="2020-04-02",
-                          time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                          images="https://www.google.com/images", sold_tickets=2, external_links="google.com",
+        cls.event = Event(name="test_event", type=event_type, description="New Event",
+                          date="2020-04-02",
+                          time="12:38:00", location="karnal", subscription_fee=499,
+                          no_of_tickets=250,
+                          images="https://www.google.com/images", sold_tickets=2,
+                          external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
 
@@ -48,11 +58,13 @@ class NotificationTestCase(TestCase):
 
         # Setup
         json_content = {"notification_ids": [1]}
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=False)
         notification.save()
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+        response = self.client.patch("/core/notification/", data=json_content,
+                                     content_type="application/json",
                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
@@ -68,7 +80,8 @@ class NotificationTestCase(TestCase):
         json_content = {"notification_ids": []}
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+        response = self.client.patch("/core/notification/", data=json_content,
+                                     content_type="application/json",
                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
@@ -81,7 +94,8 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=True)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=True)
         notification.save()
 
         # Run
@@ -99,7 +113,8 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=False)
         notification.save()
 
         # Run

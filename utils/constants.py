@@ -1,3 +1,6 @@
+"""
+All related constants are here
+"""
 PAYMENT_CONSTANTS = dict(
     status=[(0, "SUCCESSFUL"), (1, "FAILED"), (2, "IN_PROGRESS"), (3, "REFUND")],
     values=dict(
@@ -10,9 +13,11 @@ DEFAULT_PASSWORD = dict(password='default')
 
 SMS_CONFIG = {
     "invitation_send": {"status": True,
-                        "message": "You are invited for the event. Please registered to avail the discount."},
+                        "message": "You are invited for the event."
+                                   " Please registered to avail the discount."},
     "invitation_delete": {"status": True,
-                          "message": "You have been removed from the invitation list for the event."}
+                          "message":
+                              "You have been removed from the invitation list for the event."}
 }
 
 EMAIL_CONFIG = {
@@ -32,13 +37,16 @@ EMAIL_CONFIG = {
                        "message": "Reminder for the registered event.",
                        "subject": "REGISTERED EVENT REMINDER"},
     "invitation_send": {"status": True,
-                        "message": "You are invited for the event. Please registered to avail the discount.",
+                        "message": "You are invited for the event."
+                                   " Please registered to avail the discount.",
                         "subject": "INVITATION FOR AN EVENT"},
     "invitation_delete": {"status": True,
-                          "message": "You have been removed from the invitation list for the event.",
+                          "message":
+                              "You have been removed from the invitation list for the event.",
                           "subject": "INVITATION CANCELLED FOR EVENT"},
     "user_share": {"status": True,
-                   "message": "Your friend is going for the event asking you to join along with him.",
+                   "message": "Your friend is going for the event asking you to"
+                              " join along with him.",
                    "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."},
     "forget_password": {"status": True,
                         "message": "Verification code for reset password.",

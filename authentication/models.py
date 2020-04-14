@@ -1,23 +1,41 @@
+"""
+Create authentication related models here
+"""
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
 class ModelBase(models.Model):
+    """
+    Abstract Model Base
+    """
     created_on = models.DateTimeField(auto_now_add=True)
     updated_on = models.DateTimeField(auto_now=True, verbose_name="Date Range Filter")
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         abstract = True
 
 
 class ActiveModel(ModelBase):
+    """
+     Provides functionality for Django models that have active and inactive states.
+    """
     is_active = models.BooleanField(default=True)
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         abstract = True
 
 
 class UserManager(BaseUserManager):
+    """
+    User model custom Manager
+    """
     def create_user(self, email, password, **extra_fields):
         """
         Creates and saves a User with the given email and password.
@@ -33,6 +51,9 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password, **extra_fields):
+        """
+        Creating the super user here
+        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
@@ -45,23 +66,35 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser, ModelBase):
+    """
+    User model created here
+    """
     email = models.EmailField(unique=True)
 
     objects = UserManager()
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         db_table = "user"
         verbose_name = "User"
         verbose_name_plural = "Users"
 
 
 class Role(ModelBase):
+    """
+    Model for user role
+    """
     role = models.CharField(max_length=15)
 
     def __str__(self):
         return self.role
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         managed = True
         db_table = "role"
         verbose_name = "role"
@@ -69,6 +102,9 @@ class Role(ModelBase):
 
 
 class VerificationCode(ActiveModel):
+    """
+    Model for user verification code
+    """
     email = models.EmailField()
     code = models.CharField(max_length=4)
 
@@ -76,6 +112,9 @@ class VerificationCode(ActiveModel):
         return self.email
 
     class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
         managed = True
         db_table = "verification_code"
         verbose_name = "verification_code"

@@ -1,3 +1,6 @@
+"""
+ Register your models here.
+"""
 from django.contrib import admin
 
 # Register your models here.
@@ -6,6 +9,9 @@ from payment.models import Payment
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    """
+    Method to show filds for admin
+    """
     list_display = ("id", 'amount', 'discount_amount', 'total_amount', 'status', 'ref_number')
     list_filter = ("status",)
     search_fields = ('id', 'status', 'ref_number')
