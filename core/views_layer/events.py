@@ -99,7 +99,7 @@ class EventViewSet(ModelViewSet):
                             }
             if is_subscriber:
                 try:
-                    Subscription.objects.filter(
+                    subscription_list = Subscription.objects.filter(
                         user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                     if subscription_list:
                         response_obj['is_subscribed'] = True
