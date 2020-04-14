@@ -16,8 +16,8 @@ class EventTypeAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     list_display = (
         "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets",
-        "is_cancelled")
-    search_fields = ("name", "type__type")
+        "is_cancelled", "event_created_by")
+    search_fields = ("name", "type__type", "event_created_by__email", "event_created_by__userprofile__name")
     list_filter = ("type", "event_created_by", ("date", PastDateRangeFilter))
     fieldsets = (
         (
@@ -39,7 +39,7 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
     list_display = ("id", "event", "user", "discount_percentage", "email")
-    search_fields = ("event__name", "user__email")
+    search_fields = ("event__name", "user__email", "user__userprofile__name",)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -51,7 +51,7 @@ class InvitationAdmin(admin.ModelAdmin):
 @admin.register(EventPreference)
 class EventPreferenceAdmin(admin.ModelAdmin):
     list_display = ("id", "event_type", "user")
-    search_fields = ("event_type__type", "user__email")
+    search_fields = ("event_type__type", "user__email", "user__userprofile__name",)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -76,7 +76,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 @admin.register(WishList)
 class WishListAdmin(admin.ModelAdmin):
     list_display = ("id", "event", "user", "is_active")
-    search_fields = ("event__name", "user__email")
+    search_fields = ("event__name", "user__email", "user__userprofile__name",)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -88,7 +88,7 @@ class WishListAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "role")
-    search_fields = ("user__email", "contact_number", "organization", "role")
+    search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization", "role")
     readonly_fields = ('user',)
 
     def has_delete_permission(self, request, obj=None):
@@ -101,7 +101,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "event", "message", "has_read")
-    search_fields = ("user__email", "event__name", "message", "has_read")
+    search_fields = ("user__email", "user__userprofile__name", "event__name", "message", "has_read")
 
     def has_delete_permission(self, request, obj=None):
         return False
