@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com',
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 
     # Installed Apps
     'core',
+    'daterangefilter',
     'authentication',
     'rest_framework',
     'payment',
@@ -95,6 +97,8 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
 
 }
+
+GRAPPELLI_ADMIN_TITLE = "BITS EOn"
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
