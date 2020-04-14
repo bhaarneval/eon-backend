@@ -215,6 +215,14 @@ class EventViewSet(ModelViewSet):
                         "discount_percentage": discount_percentage
                     }
                 else:
+                    data["subscription_details"] = {}
+                    try:
+                        discount_allotted = Invitation.objects.get(user=user_id,
+                                                                   event=curr_event.id,
+                                                                   is_active=True).discount_percentage
+                    except Invitation.DoesNotExist:
+                        discount_allotted = 0
+                    data['discount_percentage'] = discount_allotted
                     is_subscribed = False
             except Subscription.DoesNotExist:
                 is_subscribed: False
