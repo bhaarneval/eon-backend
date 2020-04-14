@@ -1,5 +1,5 @@
 """
-test for subscriptions are here
+Test for subscriptions are here
 """
 import json
 from rest_framework.test import APITestCase
@@ -16,7 +16,7 @@ class SubscriptionAPITest(APITestCase):
 
     def setUp(cls):
         """
-        data setup for the test cases here
+        Data setup for the test cases here
         """
         data = dict(email="user2@gmail.com", password="Password")
         cls.user = cls.client.post('/authentication/login',
@@ -26,7 +26,7 @@ class SubscriptionAPITest(APITestCase):
 
     def test_subscription_api_with_wrong_method(self):
         """
-        test subscription api with wrong method name
+        Test subscription api with wrong method name
         """
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
@@ -35,7 +35,7 @@ class SubscriptionAPITest(APITestCase):
 
     def test_subscription_api_with_wrong_token(self):
         """
-        providing wrong token for subscription method
+        Providing wrong token for subscription method
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format("wrong token")
@@ -44,7 +44,7 @@ class SubscriptionAPITest(APITestCase):
 
     def test_subscription_get_api(self):
         """
-        test for get api of subscription
+        Test for get api of subscription
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -52,6 +52,9 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_subscription_get_api_with_particular_event(self):
+        """
+        Test for subscription get api with event id
+        """
         response = self.client.get(
             self.end_point, {"event_id": 3}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
         )
@@ -59,7 +62,7 @@ class SubscriptionAPITest(APITestCase):
 
     def test_subscription_get_api_with_invalid_event(self):
         """
-        providing invalid event id for subscription get api
+        Providing invalid event id for subscription get api
         """
         response = self.client.get(
             self.end_point, {"event_id": 400}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -83,7 +86,8 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_free_event(self):
-        """ payment_id is a not required
+        """
+        Payment_id is a not required
         """
         data = {
             "event_id": 12,
@@ -98,7 +102,9 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 201)
 
     def test_subscription_api_with_paid_event(self):
-        """ payment_id is required field"""
+        """
+        Payment_id is required field
+        """
         data = {
             "event_id": 3,
             "user_id": 28,
@@ -116,7 +122,9 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 201)
 
     def test_subscription_api_with_invalid_event_id(self):
-        """ payment_id is required field"""
+        """
+        Payment_id is required field
+        """
         data = {
             "event_id": 4000,
             "user_id": 28,
@@ -129,7 +137,9 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_no_of_tickets_greater_than_tickets_left(self):
-        """ payment_id is required field"""
+        """
+        Payment_id is required field
+        """
         data = {
             "event_id": 3,
             "user_id": 28,

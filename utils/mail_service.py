@@ -1,5 +1,5 @@
 """
-configuration for mail
+Configuration for mail
 """
 import boto3
 

@@ -1,5 +1,5 @@
 """
-creating all models related to core here
+Creating all models related to core here
 """
 from django.db import models
 
@@ -46,7 +46,7 @@ class Event(ActiveModel):
 
 class Invitation(ActiveModel):
     """
-    invitation model created here
+    Invitation model created here
     """
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
@@ -59,7 +59,7 @@ class Invitation(ActiveModel):
 
 class EventPreference(ActiveModel):
     """
-    created event preference model here
+    Created event preference model here
     """
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
@@ -95,6 +95,9 @@ class Subscription(ActiveModel):
     payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        Save method for subscription model
+        """
         self.event.sold_tickets += self.no_of_tickets
         self.event.save()
         super().save(*args, **kwargs)
@@ -104,13 +107,16 @@ class Subscription(ActiveModel):
 
 
 class UserInterest(ActiveModel):
+    """
+    User intrest model created here
+    """
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class UserProfile(ModelBase):
     """
-    created user profile model here
+    Created user profile model here
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=250, null=True, blank=True)
@@ -124,6 +130,9 @@ class UserProfile(ModelBase):
 
 
 class Notification(ModelBase):
+    """
+    Notification Model created here
+    """
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     message = models.CharField(max_length=512)

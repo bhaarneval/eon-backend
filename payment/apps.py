@@ -1,5 +1,5 @@
 """
-payment app started from here
+Payment app started from here
 """
 from django.apps import AppConfig
 

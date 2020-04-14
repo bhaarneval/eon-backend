@@ -1,11 +1,11 @@
 """
-providing exception detail for core app
+Providing exception detail for core app
 """
 
 
 class CoreAppException(Exception):
     """
-    custom exception class for core app
+    Custom exception class for core app
     """
     def __init__(self, message=None, default_code=None, status_code=None):
         if message:

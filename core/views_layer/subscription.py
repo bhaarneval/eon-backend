@@ -20,13 +20,16 @@ from utils.common import api_success_response, api_error_response
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
+    """
+    Api methods for subscriptions added here
+    """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
         """
-        Subcription List
+        Subscription List api
         """
         event_id = request.GET.get("event_id", None)
         if event_id:
@@ -142,7 +145,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         'payment__discount_amount'),
                     total_amount=F('payment__total_amount'))
                 success_data = success_queryset.aggregate(Sum('amount'),
-                                                          Sum('discount_amount'), Sum('total_amount'),
+                                                          Sum('discount_amount'),
+                                                          Sum('total_amount'),
                                                           Sum('no_of_tickets'))
                 refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0),
                                                         discount_amount__sum=
@@ -155,10 +159,12 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 data = dict(curent_payment_id=payment_id,
                             current_payment_ref_number=current_payment_queryset[0].ref_no,
                             no_of_tickets=
-                            int(success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum']),
+                            int(success_data['no_of_tickets__sum'] +
+                                refund_data['no_of_tickets__sum']),
                             amount=success_data['amount__sum'] - refund_data['amount__sum'],
                             discount_amount=
-                            success_data['discount_amount__sum'] - refund_data['discount_amount__sum'],
+                            success_data['discount_amount__sum'] -
+                            refund_data['discount_amount__sum'],
                             total_amount=
                             success_data['total_amount__sum'] - refund_data['total_amount__sum'],
                             event_name=success_queryset['event_name'],

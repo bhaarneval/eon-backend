@@ -1,5 +1,5 @@
 """
-payment related views are here
+Payment related views are here
 """
 import datetime
 
@@ -11,7 +11,7 @@ CONSTANTS = APP_CONSTANTS['transaction']['values']
 
 def event_payment(data=None):
     """
-    enent payment method added here
+    Evnent payment method added here
     """
     card_number = data.get('card_number', None)
     expiry_month = data.get('expiry_month', None)

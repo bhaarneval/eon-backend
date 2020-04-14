@@ -1,5 +1,5 @@
 """
-register all the core related model here
+Register all the core related model here
 """
 from django.contrib import admin
 
@@ -20,7 +20,7 @@ class EventTypeAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     """
-    added event model in admin
+    Added event model in admin
     """
     list_display = (
         "id", "name", "type", "date", "time", "location", "subscription_fee",
@@ -31,7 +31,7 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
     """
-    added invitation in admin
+    Added invitation in admin
     """
     list_display = ("id", "event", "user", "discount_percentage", "email")
     search_fields = ("event", "user")
@@ -40,7 +40,7 @@ class InvitationAdmin(admin.ModelAdmin):
 @admin.register(EventPreference)
 class EventPreferenceAdmin(admin.ModelAdmin):
     """
-    added event preference in admin
+    Added event preference in admin
     """
     list_display = ("id", "event_type", "user")
     search_fields = ("event_type", "user")
@@ -49,7 +49,7 @@ class EventPreferenceAdmin(admin.ModelAdmin):
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
     """
-    added subscription model in admin
+    Added subscription model in admin
     """
     list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
     search_fields = ("event", "user")
@@ -58,7 +58,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 @admin.register(WishList)
 class WishListAdmin(admin.ModelAdmin):
     """
-    register the wish list model with admin
+    Register the wish list model with admin
     """
     list_display = ("id", "event", "user", "is_active")
     search_fields = ("event", "user")
@@ -67,7 +67,7 @@ class WishListAdmin(admin.ModelAdmin):
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """
-    added user profile model in admin
+    Added user profile model in admin
     """
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user", "contact_number", "organization", "role")
@@ -76,7 +76,7 @@ class UserProfileAdmin(admin.ModelAdmin):
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
     """
-    register the notification model with admin
+    Register the notification model with admin
     """
     list_display = ("id", "user", "event", "message", "has_read")
     search_fields = ("user", "event", "message", "has_read")

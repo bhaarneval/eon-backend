@@ -5,9 +5,10 @@ import json
 
 from django.db.models import F
 from rest_framework.views import APIView
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 from core.models import Event, Subscription, EventType
 from core.serializers import EventTypeSerializer
 
@@ -19,6 +20,9 @@ from utils.helper import send_email_sms_and_notification
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
 def get_event_types(request):
+    """
+    Get api method for event type
+    """
     event_type = EventType.objects.filter(is_active=True)
     serializer = EventTypeSerializer(event_type, many=True)
     return api_success_response(data=serializer.data)
@@ -26,13 +30,16 @@ def get_event_types(request):
 
 class SubscriberNotify(APIView):
     """
-        created api method related to subscriber
+        Created api method related to subscriber
     """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     queryset = Subscription.objects.filter(is_active=True)
 
     def post(self, request):
+        """
+        Post api method for subscriber notify
+        """
         data = request.data
         event_id = data.get("event_id", None)
         message = data.get("message", "")
@@ -41,9 +48,10 @@ class SubscriberNotify(APIView):
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
                 self.queryset = self.queryset.filter(event=event_id)
-                response = self.queryset.select_related('user').annotate(email=F('user__email'),
-                                                                         users_id=F('user__id')).values("email",
-                                                                                                        "users_id")
+                response = self.queryset.select_related('user'). \
+                    annotate(email=F('user__email'),
+                             users_id=F('user__id')).values("email",
+                                                            "users_id")
                 email_ids = [_["email"] for _ in response]
                 user_ids = [_["users_id"] for _ in response]
                 if _type == "reminder":

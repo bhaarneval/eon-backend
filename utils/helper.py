@@ -1,5 +1,5 @@
 """
-place you all helper method here
+Place you all helper method here
 """
 from utils.sms_service import send_sms
 from utils.mail_service import send_mail

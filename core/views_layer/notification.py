@@ -1,9 +1,12 @@
+"""
+Notification Module Related methods added here
+"""
 import jwt
 
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import get_authorization_header
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework.permissions import IsAuthenticated
 
 from core.models import Notification
 from core.serializers import NotificationSerializer
@@ -21,6 +24,9 @@ class NotificationView(APIView):
     queryset = Notification.objects.all()
 
     def patch(self, request):
+        """
+        Patch api method of notification
+        """
 
         list_of_ids = request.data.get('notification_ids')
 
@@ -32,6 +38,9 @@ class NotificationView(APIView):
         return api_success_response(message="Notification updated successfully", status=200)
 
     def get(self, request):
+        """
+        Get api method for Notification
+        """
 
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)

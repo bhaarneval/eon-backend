@@ -1,5 +1,5 @@
 """
-enents related functions are here
+Events related functions are here
 """
 from datetime import date
 
@@ -116,6 +116,9 @@ class EventViewSet(ModelViewSet):
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
+        """
+        Create Api for Event
+        """
         request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
@@ -123,6 +126,9 @@ class EventViewSet(ModelViewSet):
         return response
 
     def retrieve(self, request, *args, **kwargs):
+        """
+        Retrive Api for Event
+        """
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
@@ -247,6 +253,9 @@ class EventViewSet(ModelViewSet):
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
+        """
+        Destroy Api for Event
+        """
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")

@@ -1,5 +1,5 @@
 """
-all core module serializer classes are here
+All core module serializer classes are here
 """
 from rest_framework import serializers
 from core.models import Event, Subscription, UserProfile,\
@@ -8,7 +8,7 @@ from core.models import Event, Subscription, UserProfile,\
 
 class ListUpdateEventSerializer(serializers.ModelSerializer):
     """
-    serializer class for  event list
+    Serializer class for  event list
     """
     event_type = serializers.CharField()
 
@@ -33,7 +33,7 @@ class ListUpdateEventSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     """
-    serializer class for model Event
+    Serializer class for model Event
     """
 
     class Meta:
@@ -46,7 +46,7 @@ class EventSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     """
-    serializer class for model subscription
+    Serializer class for model subscription
     """
 
     class Meta:
@@ -62,7 +62,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
 class SubscriptionListSerializer(serializers.ModelSerializer):
     """
-    serializer class for  subscription list
+    Serializer class for  subscription list
     """
     name = serializers.CharField()
     email = serializers.EmailField()
@@ -81,7 +81,7 @@ class SubscriptionListSerializer(serializers.ModelSerializer):
 
 class InvitationSerializer(serializers.ModelSerializer):
     """
-    invitation serializer class
+    Invitation serializer class
     """
 
     class Meta:
@@ -94,12 +94,12 @@ class InvitationSerializer(serializers.ModelSerializer):
 
 class EventTypeSerializer(serializers.ModelSerializer):
     """
-    serializer class for model event type
+    Serializer class for model event type
     """
 
     class Meta:
         """
-        class Meta:To override the database table name,
+        Class Meta:To override the database table name,
          use the db_table parameter in class Meta.
         """
         model = EventType
@@ -108,12 +108,12 @@ class EventTypeSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """
-    serializer class for model user profile
+    Serializer class for model user profile
     """
 
     class Meta:
         """
-        class Meta:To override the database table name,
+        Class Meta:To override the database table name,
         use the db_table parameter in class Meta.
 
         """
@@ -127,7 +127,7 @@ class WishListSerializer(serializers.ModelSerializer):
     """
     class Meta:
         """
-            class Meta:To override the database table name,
+            Class Meta:To override the database table name,
             use the db_table parameter in class Meta.
         """
         model = WishList
@@ -136,11 +136,11 @@ class WishListSerializer(serializers.ModelSerializer):
 
 class NotificationSerializer(serializers.ModelSerializer):
     """
-    serializer class for notification model
+    Serializer class for notification model
     """
     class Meta:
         """
-        class Meta:To override the database table name,
+        Class Meta:To override the database table name,
         use the db_table parameter in class Meta.
         """
         model = Notification

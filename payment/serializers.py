@@ -1,5 +1,5 @@
 """
-serializers for payment models
+Serializers for payment models
 """
 from rest_framework import serializers
 

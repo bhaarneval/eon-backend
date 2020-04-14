@@ -13,7 +13,7 @@ PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
 
 class Payment(ModelBase):
     """
-    payment model created here
+    Payment model created here
     """
     amount = models.PositiveIntegerField()
     discount_amount = models.PositiveIntegerField()

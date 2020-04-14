@@ -1,5 +1,5 @@
 """
-here register the url
+Here register the url
 """
 from rest_framework.routers import DefaultRouter
 

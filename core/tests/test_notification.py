@@ -58,11 +58,13 @@ class NotificationTestCase(TestCase):
 
         # Setup
         json_content = {"notification_ids": [1]}
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=False)
         notification.save()
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+        response = self.client.patch("/core/notification/", data=json_content,
+                                     content_type="application/json",
                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
@@ -78,7 +80,8 @@ class NotificationTestCase(TestCase):
         json_content = {"notification_ids": []}
 
         # Run
-        response = self.client.patch("/core/notification/", data=json_content, content_type="application/json",
+        response = self.client.patch("/core/notification/", data=json_content,
+                                     content_type="application/json",
                                      HTTP_AUTHORIZATION="Bearer {}".format(self.token))
 
         # Assert
@@ -91,7 +94,8 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=True)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=True)
         notification.save()
 
         # Run
@@ -109,7 +113,8 @@ class NotificationTestCase(TestCase):
         """
 
         # Setup
-        notification = Notification(user=self.user, event=self.event, message="test message", has_read=False)
+        notification = Notification(user=self.user, event=self.event,
+                                    message="test message", has_read=False)
         notification.save()
 
         # Run

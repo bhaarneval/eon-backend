@@ -1,5 +1,5 @@
 """
-presigned url are here
+Presigned url are here
 """
 import json
 import os
@@ -17,7 +17,7 @@ from utils.s3 import AwsS3
 
 class PresignedUrl(APIView):
     """
-    api for presigned url created here
+    Api for presigned url created here
     """
     authentication_classes = [JWTAuthentication]
 

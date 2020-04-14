@@ -18,7 +18,7 @@ from utils.common import api_error_response, api_success_response
 
 class WishListViewSet(viewsets.ViewSet):
     """
-    wish list api created in this class
+    Wish list api created in this class
     """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, )
@@ -27,7 +27,7 @@ class WishListViewSet(viewsets.ViewSet):
     @transaction.atomic()
     def create(self, request):
         """
-        create api for wish list
+        Create api for wish list
         """
         data = json.loads(request.body)
         event_id = data.get('event_id', None)
@@ -70,7 +70,7 @@ class WishListViewSet(viewsets.ViewSet):
 
     def destroy(self, request, pk=None):
         """
-        destroy api for wish list
+        Destroy api for wish list
         """
         event_id = pk
         token = get_authorization_header(request).split()[1]

@@ -1,5 +1,5 @@
 """
-create authentication related models here
+Create authentication related models here
 """
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
@@ -67,7 +67,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractUser, ModelBase):
     """
-    user model
+    User model created here
     """
     email = models.EmailField(unique=True)
 
