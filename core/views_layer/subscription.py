@@ -14,11 +14,12 @@ from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
+from utils.permission import IsSubscriberOrReadOnly
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = Subscription.objects.filter(is_active=True)
 
     def list(self, request, *args, **kwargs):
@@ -70,8 +71,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
 
         if no_of_tickets < 0:
             instance = self.queryset.filter(user=user_id, event=event_id)
-            tickets_data = instance.values('event').annotate(total_tickets=Sum('no_of_tickets')).first()
-            remaining_tickets = no_of_tickets + tickets_data['total_tickets']
+            tickets_data = instance.values('event').aggregate(Sum('no_of_tickets'))
+            remaining_tickets = no_of_tickets + tickets_data['no_of_tickets__sum']
             if remaining_tickets < 0:
                 return api_error_response(message="Number of tickets are invalid", status=400)
 
@@ -100,7 +101,6 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 current_payment_queryset = self.queryset.filter(event=event_id, payment=payment_id)
                 current_payment_queryset = current_payment_queryset.select_related('payment')
                 current_payment_queryset = current_payment_queryset.annotate(ref_no=F('payment__ref_number'))
-                print(current_payment_queryset[0].ref_no)
                 success_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
                                                         payment__status=0)
                 refund_queryset = self.queryset.filter(user=user_id, event=event_id, payment__isnull=False,
@@ -139,6 +139,22 @@ class SubscriptionViewSet(viewsets.ViewSet):
                             event_name=success_queryset['event_name'],
                             event_date=success_queryset['event_date'], event_time=success_queryset['event_time'],
                             event_location=success_queryset['event_location'])
+            else:
+                queryset = self.queryset.filter(event=event_id, user=user_id, payment_id=None)
+                queryset = queryset.select_related('payment')
+                queryset = queryset.select_related('event')
+                tickets_data = queryset.aggregate(Sum('no_of_tickets'))
+                queryset = queryset.values('event').annotate(
+                    event_name=F('event__name'),
+                    event_date=F('event__date'),
+                    event_time=F('event__time'),
+                    event_location=F('event__location'))
+                queryset = queryset.first()
+                data = dict(
+                    no_of_tickets=int(tickets_data['no_of_tickets__sum']),
+                    event_name=queryset['event_name'],
+                    event_date=queryset['event_date'], event_time=queryset['event_time'],
+                    event_location=queryset['event_location'])
 
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
         else:

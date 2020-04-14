@@ -11,11 +11,12 @@ from core.models import WishList, Event
 from core.serializers import WishListSerializer
 from eon_backend.settings import SECRET_KEY
 from utils.common import api_error_response, api_success_response
+from utils.permission import IsSubscriberOrReadOnly
 
 
 class WishListViewSet(viewsets.ViewSet):
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = WishList.objects.filter(is_active=True)
 
     @transaction.atomic()
@@ -63,7 +64,6 @@ class WishListViewSet(viewsets.ViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-
         if user_id and event_id:
             try:
                 instance = WishList.objects.get(event=event_id, user=user_id)
