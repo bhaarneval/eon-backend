@@ -193,8 +193,7 @@ class EventViewSet(ModelViewSet):
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links,
                     }
             try:
