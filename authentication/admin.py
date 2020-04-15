@@ -14,15 +14,20 @@ class UserAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "email")
     search_fields = ("email",)
+    readonly_fields = ('email',)
+    fieldsets = (
+        (
+            "", {
+                "fields": ('email', 'is_active')
+            }
+        ),
+    )
 
+    def has_delete_permission(self, request, obj=None):
+        return False
 
-@admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
-    """
-    Model for Role
-    """
-    list_display = ("id", "role")
-    search_fields = ("role", )
+    def has_add_permission(self, request):
+        return False
 
 
 admin.site.unregister(Group)

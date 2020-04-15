@@ -41,7 +41,7 @@ class Event(ActiveModel):
         unique_together = ("name", "type", "date", "time")
 
     def __str__(self):
-        return "{}-{}".format(self.name, self.type)
+        return "{}".format(self.name)
 
 
 class Invitation(ActiveModel):

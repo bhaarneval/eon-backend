@@ -9,6 +9,7 @@ from django.db import models
 from authentication.models import ModelBase
 
 PAYMENT_CONSTANTS = settings.APP_CONSTANTS["transaction"]
+PAYMENT_STATUS = PAYMENT_CONSTANTS['status']
 
 
 class Payment(ModelBase):
@@ -22,4 +23,9 @@ class Payment(ModelBase):
     status = models.PositiveSmallIntegerField(choices=PAYMENT_CONSTANTS["status"], default=0)
 
     def __str__(self):
-        return "{}-{}-{}".format(self.amount, self.discount_amount, self.status)
+        amount = "{}".format(self.total_amount)
+        if self.status == 0:
+            status = " (CREDIT)"
+        else:
+            status = " ({})".format(PAYMENT_STATUS[self.status][1])
+        return amount + status
