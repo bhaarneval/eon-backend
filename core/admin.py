@@ -8,6 +8,7 @@ from core.models import EventType, Event, Invitation, EventPreference, Subscript
 Register all the core related model here
 """
 
+
 @admin.register(EventType)
 class EventTypeAdmin(admin.ModelAdmin):
     """
@@ -15,6 +16,9 @@ class EventTypeAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "type")
     search_fields = ("type",)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Event)
@@ -27,21 +31,15 @@ class EventAdmin(admin.ModelAdmin):
         "is_cancelled", "event_created_by")
     search_fields = ("name", "type__type", "event_created_by__email", "event_created_by__userprofile__name")
     list_filter = ("type", "event_created_by", ("date", PastDateRangeFilter))
-    fieldsets = (
-        (
-            "", {
-                'fields': (
+    readonly_fields = (
                     "name", "type", "description", "date", "time", "location", "images", "subscription_fee",
-                    "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_active", "is_cancelled")
-            }
-        ),
-    )
+                    "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_cancelled")
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ["images", "sold_tickets", "event_created_by"]
-        else:
-            return ["sold_tickets", "images", "is_active", "is_cancelled"]
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 
 @admin.register(Invitation)
@@ -51,11 +49,15 @@ class InvitationAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "event", "user", "discount_percentage", "email")
     search_fields = ("event__name", "user__email", "user__userprofile__name",)
+    readonly_fields = ('event', 'user', 'discount_percentage', 'email')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -66,11 +68,15 @@ class EventPreferenceAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "event_type", "user")
     search_fields = ("event_type__type", "user__email", "user__userprofile__name",)
+    readonly_fields = ('user', 'event_type', 'is_active')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -81,12 +87,15 @@ class SubscriptionAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
     search_fields = ("event__name", "user__email")
-    readonly_fields = ("event", "user", "no_of_tickets", "payment")
+    readonly_fields = ('is_active', 'user', 'event', 'no_of_tickets', 'payment')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -97,11 +106,15 @@ class WishListAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "event", "user", "is_active")
     search_fields = ("event__name", "user__email", "user__userprofile__name",)
+    readonly_fields = ('event', 'user', 'is_active')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -112,12 +125,15 @@ class UserProfileAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization", "role")
-    readonly_fields = ('user',)
+    readonly_fields = ('user', 'name', 'contact_number', 'organization', 'address', 'role')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
 
 
@@ -128,9 +144,13 @@ class NotificationAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user", "event", "message", "has_read")
     search_fields = ("user__email", "user__userprofile__name", "event__name", "message", "has_read")
+    readonly_fields = ('user', 'event', 'message', "has_read")
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
         return False
