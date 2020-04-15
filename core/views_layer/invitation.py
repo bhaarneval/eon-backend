@@ -2,6 +2,7 @@
 Api related to invitation are here
 """
 import json
+import jwt
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
 
@@ -15,6 +16,8 @@ from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganiser
+from rest_framework.authentication import get_authorization_header
+from eon_backend.settings import SECRET_KEY
 
 
 class InvitationViewSet(generics.GenericAPIView):
@@ -39,6 +42,9 @@ class InvitationViewSet(generics.GenericAPIView):
         :param event_id: Event id (not required)
         :return: Response with a list of all the generated invites
         """
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
         data = json.loads(request.body)
         event_id = data.get('event', None)
         discount_percentage = data.get('discount_percentage', 0)
@@ -52,6 +58,8 @@ class InvitationViewSet(generics.GenericAPIView):
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
             return api_error_response(message="No event exist with id={}".format(event_id))
+        if event.event_created_by.id != user_id:
+            return api_error_response(message="You are not allowed to perform this action", status=400)
         for invitee in invitee_list:
             try:
                 inv_object = self.queryset.get(email=invitee, event=event_id)
