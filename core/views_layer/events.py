@@ -55,8 +55,7 @@ class EventViewSet(ModelViewSet):
 
         if is_wishlisted == 'True':
             try:
-                event_ids = WishList.objects.filter(
-                    user=user_id).values_list('event__id', flat=True, is_active=True)
+                event_ids = WishList.objects.filter(user=user_id, is_active=True).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
             except Exception as err:
                 return api_error_response(
