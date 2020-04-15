@@ -177,18 +177,13 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data = []
-            data.append({"id": curr_event.id, "name": curr_event.name,
-                         "date": curr_event.date, "time": curr_event.time,
-                         "location": curr_event.location, "event_type": curr_event.type.id,
-                         "description": curr_event.description,
-                         "no_of_tickets": curr_event.no_of_tickets,
-                         "sold_tickets": curr_event.sold_tickets,
-                         "subscription_fee": curr_event.subscription_fee,
-                         "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
-                         "external_links": curr_event.external_links,
-                         "invitee_list": invitee_data
-                         })
+            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
+                    "location": curr_event.location, "event_type": curr_event.type.id,
+                    "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
+                    "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
+                    "external_links": curr_event.external_links, "invitee_list": invitee_data,
+                    "self_organised": self_organised}
 
             return api_success_response(message="event details", data=data, status=200)
         else:
