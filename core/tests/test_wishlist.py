@@ -20,7 +20,7 @@ class WishListAPITest(APITestCase):
         Data setup for Unit test case
         :return:
         """
-        role = Role(role="organizer")
+        role = Role(role="subscriber")
         role.save()
         content = {
             "email": "user12@gmail.com",
@@ -28,7 +28,7 @@ class WishListAPITest(APITestCase):
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
-            "role": "organizer",
+            "role": "subscriber",
             "organization": "Eventhigh"
         }
 
@@ -53,6 +53,25 @@ class WishListAPITest(APITestCase):
                           external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
+
+    def test_wish_list_post_api_without_event_id(self):
+        """
+        Unit test for Wish list post Api
+        :return:
+        """
+        # Setup
+
+        json_content = {
+            # "event_id": self.event.id
+        }
+
+        # Run
+        response = self.client.post("/core/wishlist/", data=json.dumps(json_content),
+                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                    content_type="application/json")
+
+        #  Check
+        self.assertEqual(response.status_code, 400)
 
     def test_wish_list_post_api_with_valid_event_id(self):
         """

@@ -2,8 +2,11 @@
 Unit test case for invitation api methods added here
 """
 import json
+
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
+from authentication.models import Role
 from core.models import EventType, Event
 
 
@@ -11,17 +14,47 @@ class InvitationTestCase(APITestCase):
     """
     All api methods unit test cases are added in this class
     """
-    fixtures = ['default.json']
+    # fixtures = ['default.json']
 
     def setUp(cls):
         """
-        Data setup for the unit test cases
+        Data setup for Unit test case
         :return:
         """
-        data = dict(email="user2@gmail.com", password="Password")
-        cls.user = cls.client.post('/authentication/login', json.dumps(data),
-                                   content_type='application/json')
-        cls.token = cls.user.data['data']['access']
+        role = Role(role="organiser")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organiser",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        cls.client.post(url1, json.dumps(content),
+                        content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = cls.client.post('/authentication/login', json.dumps(data),
+                                         content_type='application/json')
+        cls.user_id = login_response.data['data']['user']['user_id']
+        cls.token = login_response.data['data']['access']
+
+        cls.event_type = EventType(type="test")
+        cls.event_type.save()
+
+        cls.event = Event(name="test_event", type=cls.event_type, description="New Event",
+                          date="2020-04-02",
+                          time="12:38:00", location="karnal", subscription_fee=499,
+                          no_of_tickets=250,
+                          images="https://www.google.com/images", sold_tickets=2,
+                          external_links="google.com",
+                          event_created_by_id=cls.user_id)
+        cls.event.save()
+
         cls.end_point = "/core/invite/"
 
     def test_invitation_api_with_wrong_method(self):
@@ -107,7 +140,7 @@ class InvitationTestCase(APITestCase):
         Test of post api with valid details
         :return:
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com", "email1@gmail.com"],
                 "testing": True
@@ -123,7 +156,7 @@ class InvitationTestCase(APITestCase):
         Test for post api with same user and event
         :return:
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -133,7 +166,7 @@ class InvitationTestCase(APITestCase):
             content_type='application/json'
         )
         prev_id = response.data['data']['invitee_list'][0].get('invitation_id')
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 11,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -150,7 +183,7 @@ class InvitationTestCase(APITestCase):
         Test for post api with same event but different user
         :return:
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True
@@ -160,7 +193,7 @@ class InvitationTestCase(APITestCase):
             content_type='application/json'
         )
         prev_id = response.data['data']['invitee_list'][0].get('invitation_id')
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 11,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -177,7 +210,7 @@ class InvitationTestCase(APITestCase):
         Test for post api for same user but different event
         :return:
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True
@@ -187,7 +220,7 @@ class InvitationTestCase(APITestCase):
             content_type='application/json'
         )
         prev_id = response.data['data']['invitee_list'][0].get('invitation_id')
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 11,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -204,20 +237,9 @@ class InvitationTestCase(APITestCase):
         Tset of delete api with valid id
         :return: response : 500
         """
-        event_type = EventType(type="test")
-        event_type.save()
-        user_id = self.user.data['data']['user']['user_id']
-
-        event = Event(name="test_event", type=event_type, description="New Event",
-                      date="2020-04-02",
-                      time="12:38:00", location="karnal", subscription_fee=499, no_of_tickets=250,
-                      images="https://www.google.com/images", sold_tickets=2,
-                      external_links="google.com",
-                      event_created_by_id=user_id)
-        event.save()
         data = {
             "invitation_ids": [1, 2],
-            "event_id": event.id
+            "event_id": self.event.id
         }
         response = self.client.delete(
             self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -233,7 +255,7 @@ class InvitationTestCase(APITestCase):
         """
         data = {
             "invitation_ids": [1, 2],
-            "event_id": ""
+            "event_id": 23
         }
         response = self.client.delete(
             self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),

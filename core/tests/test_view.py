@@ -42,10 +42,10 @@ class RestAPITest(APITestCase):
         cls.token = login_response.data['data']['access']
         cls.user = User.objects.get(id=cls.user_id)
 
-        event_type = EventType(type="test")
-        event_type.save()
+        cls.event_type = EventType(type="test")
+        cls.event_type.save()
 
-        cls.event = Event(name="test_event", type=event_type, description="New Event",
+        cls.event = Event(name="test_event", type=cls.event_type, description="New Event",
                           date="2020-04-02",
                           time="12:38:00", location="karnal", subscription_fee=499,
                           no_of_tickets=250,
@@ -54,23 +54,23 @@ class RestAPITest(APITestCase):
                           event_created_by_id=cls.user_id)
         cls.event.save()
 
-    def test_subscriber_notify_post_api_with_invalid_data(self):
+    def test_subscriber_notify_post_api_with_valid_data(self):
         """
         Unit test for notify post api
         :return:
         """
         # Setup
         json_data = {
-            "event_id": 1,
+            "event_id": self.event.id,
             "message": "test message",
             "type": "reminder"
         }
 
         # Run
-        response = self.client.post("/core/notify-subscriber/", json_data,
+        response = self.client.post("/core/notify-subscriber/", json.dumps(json_data),
                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
 
     def test_for_get_user_api(self):
         """
@@ -83,3 +83,15 @@ class RestAPITest(APITestCase):
                                    content_type="application/json")
         # check
         self.assertEqual(response.status_code, 200)
+
+    def test_for_get_user_api_with_wrong_token(self):
+        """
+        Get api of user
+        :return:
+        """
+        # Run
+        response = self.client.get("/core/user/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format("wrong-token"),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 401)

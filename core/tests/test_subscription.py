@@ -1,17 +1,49 @@
 import json
+
+from django.urls import reverse
 from rest_framework.test import APITestCase
 
-
 # Create your tests here.
+from authentication.models import Role
+from core.models import Event, EventType
 
 
 class SubscriptionAPITest(APITestCase):
-    fixtures = ["default.json"]
 
     def setUp(cls):
-        data = dict(email="user2@gmail.com", password="Password")
-        cls.user = cls.client.post('/authentication/login', json.dumps(data), content_type='application/json')
-        cls.token = cls.user.data['data']['access']
+        role = Role(role="subscriber")
+        role.save()
+        content = {
+            "email": "user12@gmail.com",
+            "name": "user12@gmail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "subscriber",
+            "organization": "Eventhigh"
+        }
+
+        url1 = reverse('registration')
+        cls.client.post(url1, json.dumps(content),
+                        content_type='application/json')
+
+        data = dict(email="user12@gmail.com", password="user123")
+        login_response = cls.client.post('/authentication/login', json.dumps(data),
+                                         content_type='application/json')
+        cls.user_id = login_response.data['data']['user']['user_id']
+        cls.token = login_response.data['data']['access']
+
+        cls.event_type = EventType(type="test")
+        cls.event_type.save()
+
+        cls.event = Event(name="test_event", type=cls.event_type, description="New Event",
+                          date="2020-04-02",
+                          time="12:38:00", location="karnal", subscription_fee=499,
+                          no_of_tickets=250,
+                          images="https://www.google.com/images", sold_tickets=2,
+                          external_links="google.com", event_created_by_id=cls.user_id)
+        cls.event.save()
+
         cls.ENDPOINT = "/core/subscription/"
 
     def test_subscription_api_with_wrong_method(self):
@@ -61,25 +93,26 @@ class SubscriptionAPITest(APITestCase):
         self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_free_event(self):
-        """ payment_id is a not required
         """
+        payment_id is a not required
+        """
+
         data = {
-            "event_id": 12,
-            "user_id": 28,
-            "no_of_tickets": 4,
-            "amount": 0
+            "event_id": self.event.id,
+            "user_id": self.user_id,
+            "no_of_tickets": 4
         }
         response = self.client.post(
             self.ENDPOINT, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
         )
-        self.assertEquals(response.status_code, 201)
+        self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_paid_event(self):
         """ payment_id is required field"""
         data = {
-            "event_id": 3,
-            "user_id": 28,
+            "event_id": self.event.id,
+            "user_id": self.user_id,
             "no_of_tickets": 4,
             "card_number": 5039303342356004,
             "expiry_year": 2022,
@@ -109,8 +142,8 @@ class SubscriptionAPITest(APITestCase):
     def test_subscription_api_with_no_of_tickets_greater_than_tickets_left(self):
         """ payment_id is required field"""
         data = {
-            "event_id": 3,
-            "user_id": 28,
+            "event_id": self.event.id,
+            "user_id": self.user_id,
             "no_of_tickets": 1000,
             "card_number": 5039303342356004,
             "expiry_year": 2022,
@@ -196,4 +229,3 @@ class SubscriptionAPITest(APITestCase):
             content_type='application/json'
         )
         self.assertEquals(response.status_code, 400)
-
