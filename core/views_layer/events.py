@@ -188,6 +188,10 @@ class EventViewSet(ModelViewSet):
                          "external_links": curr_event.external_links,
                          "invitee_list": invitee_data
                          })
+            if curr_event.event_created_by.id == user_id:
+                data[0]["self_organised"] = True
+            else:
+                data[0]["self_organised"] = False
 
             return api_success_response(message="event details", data=data, status=200)
         else:
