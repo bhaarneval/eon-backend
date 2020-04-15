@@ -2,7 +2,6 @@ from daterangefilter.filters import PastDateRangeFilter
 from django.contrib import admin
 
 # Register your models here.
-from django.contrib.admin.utils import flatten_fieldsets
 
 from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
 """
