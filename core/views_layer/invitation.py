@@ -17,7 +17,7 @@ from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganiser
 from rest_framework.authentication import get_authorization_header
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings import SECRET_KEY, EVENT_URL
 
 
 class InvitationViewSet(generics.GenericAPIView):
@@ -55,7 +55,7 @@ class InvitationViewSet(generics.GenericAPIView):
         contact_nos = []
 
         try:
-            event = Event.objects.get(id=event_id)
+            event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
             return api_error_response(message="No event exist with id={}".format(event_id))
         if event.event_created_by.id != user_id:
@@ -120,6 +120,13 @@ class InvitationViewSet(generics.GenericAPIView):
                     pass
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
+        if not testing:
+            send_email_sms_and_notification(action_name="invitation_send",
+                                            email_ids=invitee_list,
+                                            event_name=event.name,
+                                            discount_percentage=discount_percentage,
+                                            url=EVENT_URL+str(event_id),
+                                            numbers_list=contact_nos)
         data_object = {'invitee_list': data}
         return api_success_response(message="Successful invited", data=data_object)
 
@@ -136,7 +143,7 @@ class InvitationViewSet(generics.GenericAPIView):
         if not event_id:
             return api_error_response(message="Event Id missing", status=400)
         try:
-            event = Event.objects.get(id=event_id)
+            event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
             return api_error_response(message="Invalid event id", status=400)
 
@@ -144,17 +151,16 @@ class InvitationViewSet(generics.GenericAPIView):
             user_ids = self.queryset.filter(id__in=list_of_ids).select_related(
                 "user").annotate(users_id=F("user__id")).values_list("users_id")
             contact_no = UserProfile.objects.filter(id__in=user_ids).values_list("contact_number")
-            contact_no = ["".join(["+91", _[0]]) for _ in contact_no]
+            contact_nos = ["".join(["+91", _[0]]) for _ in contact_no]
             email_ids = self.queryset.filter(id__in=list_of_ids).values_list("email")
             email_ids = [_[0] for _ in email_ids]
 
             self.queryset.filter(id__in=list_of_ids).update(is_active=False)
-            message = f"You have been removed from invitation list of '{event.name}' event."
             if not testing:
                 send_email_sms_and_notification(action_name="invitation_delete",
-                                                message=message,
                                                 email_ids=email_ids,
-                                                numbers_list=contact_no)
+                                                event_name=event.name,
+                                                numbers_list=contact_nos)
             return api_success_response(message="Invitation successfully deleted", status=200)
         except Exception as err:
             return api_error_response(message='Something went wrong', status=500)
