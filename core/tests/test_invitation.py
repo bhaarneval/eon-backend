@@ -132,7 +132,7 @@ class InvitationTestCase(APITestCase):
         """
         Test the post api invitation for valid data
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com", "email1@gmail.com"],
                 "testing": True
@@ -147,7 +147,7 @@ class InvitationTestCase(APITestCase):
         """
         Test the post api invitation for same user and event id
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -173,7 +173,7 @@ class InvitationTestCase(APITestCase):
         """
         Test the post api invitation for same event id
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True
@@ -199,7 +199,7 @@ class InvitationTestCase(APITestCase):
         """
         Test the post api invitation for same user
         """
-        data = {"event": 9,
+        data = {"event": self.event.id,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True

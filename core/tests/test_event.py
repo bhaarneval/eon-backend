@@ -236,8 +236,7 @@ class EventAPITest(APITestCase):
                                      content_type="application/json")
 
         # Check
-        print(response.data)
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 200)
 
     def test_event_retrieve_api_with_invalid_event_id(self):
         """
