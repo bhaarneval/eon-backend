@@ -144,10 +144,10 @@ class EventViewSet(ModelViewSet):
         except Exception as err:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
-        if user_role == 'subscriber':
-            is_subscriber = True
-        else:
-            is_subscriber = False
+        # if user_role == 'subscriber':
+        #     is_subscriber = True
+        # else:
+        #     is_subscriber = False
 
         event_id = int(kwargs.get('pk'))
         try:
@@ -155,12 +155,13 @@ class EventViewSet(ModelViewSet):
         except Event.DoesNotExist:
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
-        if not is_subscriber:
-            data = []
+        if user_role != 'subscriber':
+            invitee_list = Invitation.objects.filter(event=curr_event.id, event__event_created_by_id=user_logged_in,
+                                                     is_active=True)
             if curr_event.event_created_by.id == user_logged_in:
-                invitee_list = Invitation.objects.filter(event=curr_event.id, is_active=True)
+                self_organised = True
             else:
-                invitee_list = []
+                self_organised = False
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
@@ -176,18 +177,14 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data.append({"id": curr_event.id, "name": curr_event.name,
-                         "date": curr_event.date, "time": curr_event.time,
-                         "location": curr_event.location, "event_type": curr_event.type.id,
-                         "description": curr_event.description,
-                         "no_of_tickets": curr_event.no_of_tickets,
-                         "sold_tickets": curr_event.sold_tickets,
-                         "subscription_fee": curr_event.subscription_fee,
-                         "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                             object_name=curr_event.images),
-                         "external_links": curr_event.external_links,
-                         "invitee_list": invitee_data
-                         })
+            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
+                    "location": curr_event.location, "event_type": curr_event.type.id,
+                    "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
+                    "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
+                                                        object_name=curr_event.images),
+                    "external_links": curr_event.external_links, "invitee_list": invitee_data,
+                    "self_organised": self_organised}
 
             return api_success_response(message="event details", data=data, status=200)
         else:
@@ -238,8 +235,8 @@ class EventViewSet(ModelViewSet):
                             ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
                             discount_percentage = Invitation.objects.get(user_id=user_id,
-                                                                               event_id=curr_event.id,
-                                                                               is_active=True).discount_percentage
+                                                                         event_id=curr_event.id,
+                                                                         is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
 
