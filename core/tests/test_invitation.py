@@ -1,5 +1,5 @@
 """
-Unit test case for invitation api methods added here
+Event test case created here
 """
 import json
 
@@ -12,7 +12,7 @@ from core.models import EventType, Event
 
 class InvitationTestCase(APITestCase):
     """
-    All api methods unit test cases are added in this class
+    Test cases for the methods started from here
     """
     # fixtures = ['default.json']
 
@@ -59,8 +59,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_api_with_wrong_method(self):
         """
-        Test api with wrong method type
-        :return:
+        Testing the api with wrong method name
         """
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
@@ -69,8 +68,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_api_with_wrong_token(self):
         """
-        Test api with wrong token
-        :return:
+        providing wrong token and testing the invitation api
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format('token')
@@ -79,8 +77,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api(self):
         """
-        Test for get api
-        :return:
+         Test the get api of invitation
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -89,8 +86,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_event(self):
         """
-        Test for get api with event id
-        :return:
+         Test the get api invitation with specific event id
         """
         response = self.client.get(
             self.end_point, {"event_id": 10}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -99,8 +95,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_user(self):
         """
-        Test of get api with user id
-        :return:
+        Test the get api invitation with specific user id
         """
         response = self.client.get(
             self.end_point, {"user_id": 9}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -109,8 +104,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_invalid_parameters(self):
         """
-        Test with invalid Id
-        :return:
+        Test the get api invitation for invalid parameter
         """
         response = self.client.get(
             self.end_point, {"event_id": 1, "user_id": 1},
@@ -121,8 +115,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_with_invalid_event_id(self):
         """
-        Test for post api with invalid event id
-        :return:
+        Test the post api invitation with wrong data
         """
         data = {"event": 1000,
                 "discount_percentage": 10,
@@ -137,10 +130,9 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_with_valid_details(self):
         """
-        Test of post api with valid details
-        :return:
+        Test the post api invitation for valid data
         """
-        data = {"event": self.event.id,
+        data = {"event": 9,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com", "email1@gmail.com"],
                 "testing": True
@@ -153,10 +145,9 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_event_id_and_users(self):
         """
-        Test for post api with same user and event
-        :return:
+        Test the post api invitation for same user and event id
         """
-        data = {"event": self.event.id,
+        data = {"event": 9,
                 "discount_percentage": 10,
                 "invitee_list": ["email@gmail.com"],
                 "testing": True
@@ -180,10 +171,9 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_event_id_not_users(self):
         """
-        Test for post api with same event but different user
-        :return:
+        Test the post api invitation for same event id
         """
-        data = {"event": self.event.id,
+        data = {"event": 9,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True
@@ -207,10 +197,9 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_user_not_event(self):
         """
-        Test for post api for same user but different event
-        :return:
+        Test the post api invitation for same user
         """
-        data = {"event": self.event.id,
+        data = {"event": 9,
                 "discount_percentage": 10,
                 "invitee_list": ["email1@gmail.com"],
                 "testing": True

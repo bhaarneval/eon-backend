@@ -1,5 +1,5 @@
 """
-Event Api related all method test cases added here
+Event related test cases are added here
 """
 import json
 
@@ -12,7 +12,7 @@ from core.models import Event, EventType
 
 class EventAPITest(APITestCase):
     """
-    Test cases for event module created in this class
+    Event methods test cases are added in this class
     """
 
     def setUp(cls):
@@ -56,7 +56,7 @@ class EventAPITest(APITestCase):
 
     def test_event_post(self):
         """
-        unit test for Event post Api
+        Unit test for Event post Api
         :return:
         """
         # Setup
@@ -90,7 +90,7 @@ class EventAPITest(APITestCase):
 
     def test_event_post_without_parameter(self):
         """
-        unit test for Event post Api
+        Unit test for Event post Api
         :return:
         """
         # Setup
@@ -108,7 +108,7 @@ class EventAPITest(APITestCase):
 
     def test_event_post_with_invalid_event_type_id(self):
         """
-        unit test for Event post Api without required information
+        Unit test for Event post Api without required information
         :return:
         """
         # Setup

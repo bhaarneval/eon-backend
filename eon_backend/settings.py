@@ -29,11 +29,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com', 'localhost', '127.0.0.1', '[::1]' ]
+ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com',
+                 'localhost', '127.0.0.1', '[::1]']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
 
     # Installed Apps
     'core',
+    'daterangefilter',
     'authentication',
     'rest_framework',
     'payment',
@@ -94,6 +97,8 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
 
 }
+
+GRAPPELLI_ADMIN_TITLE = "BITS EOn"
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
