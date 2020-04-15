@@ -24,5 +24,8 @@ class Payment(ModelBase):
 
     def __str__(self):
         amount = "{}".format(self.total_amount)
-        status = " ({})".format(PAYMENT_STATUS[self.status][1])
+        if self.status == 0:
+            status = "CREDIT"
+        else:
+            status = " ({})".format(PAYMENT_STATUS[self.status][1])
         return amount + status
