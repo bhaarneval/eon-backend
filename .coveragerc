@@ -1,0 +1,13 @@
+[run]
+omit =
+
+[report]
+omit =
+    authentication/admin.py,
+    authentication/models.py ,
+    core/admin.py,
+    core/exceptions.py,
+    core/models.py,
+    payment/admin.py,
+    payment/models.py
+

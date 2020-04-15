@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import EventType, Event
+from core.models import EventType, Event, UserInterest
 
 
 class RestAPITest(APITestCase):
@@ -95,3 +95,21 @@ class RestAPITest(APITestCase):
                                    content_type="application/json")
         # check
         self.assertEqual(response.status_code, 401)
+
+    def test_for_post_user_api_with_invalid_parameter(self):
+        """
+        Get api of user test
+        :return:
+        """
+
+        data = {
+            "field_name": "test",
+            # "interest": [self.event_type.id]
+        }
+        # Run
+        response = self.client.post("/core/user/", data=json.dumps(data),
+                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                    content_type="application/json")
+        # check
+        print(response.data)
+        self.assertEqual(response.status_code, 400)
