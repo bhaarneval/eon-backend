@@ -99,25 +99,6 @@ class SubscriptionAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(WishList)
-class WishListAdmin(admin.ModelAdmin):
-    """
-    Register the wish list model with admin
-    """
-    list_display = ("id", "event", "user", "is_active")
-    search_fields = ("event__name", "user__email", "user__userprofile__name",)
-    readonly_fields = ('event', 'user', 'is_active')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     """
@@ -126,25 +107,6 @@ class UserProfileAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "contact_number", "organization", "role")
     search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization", "role")
     readonly_fields = ('user', 'name', 'contact_number', 'organization', 'address', 'role')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    """
-    Register the notification model with admin
-    """
-    list_display = ("id", "user", "event", "message", "has_read")
-    search_fields = ("user__email", "user__userprofile__name", "event__name", "message", "has_read")
-    readonly_fields = ('user', 'event', 'message', "has_read")
 
     def has_delete_permission(self, request, obj=None):
         return False
