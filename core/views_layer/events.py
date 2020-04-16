@@ -144,10 +144,6 @@ class EventViewSet(ModelViewSet):
         except Exception as err:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
-        # if user_role == 'subscriber':
-        #     is_subscriber = True
-        # else:
-        #     is_subscriber = False
 
         event_id = int(kwargs.get('pk'))
         try:
@@ -219,7 +215,8 @@ class EventViewSet(ModelViewSet):
                     else:
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                      payment__isnull=False, payment__status=3)
+                                                                      payment__isnull=False, payment__status=3,
+                                                                      is_active=True)
                         refund_amount = int(sum(list(
                             refund_queryset.values_list('payment__total_amount', flat=True))))
                         discount_updated = int(sum(
@@ -227,11 +224,13 @@ class EventViewSet(ModelViewSet):
 
                         total_amount_paid = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
                             discount_percentage = Invitation.objects.get(user_id=user_id,
