@@ -65,7 +65,7 @@ class InvitationViewSet(generics.GenericAPIView):
                 inv_object = self.queryset.get(email=invitee, event=event_id)
 
                 try:
-                    user = User.objects.get(email=invitee)
+                    user = User.objects.get(email=invitee, is_active=True)
                     try:
                         self.queryset.filter(email=invitee, event=event_id).update(
                             event=event,
@@ -92,7 +92,7 @@ class InvitationViewSet(generics.GenericAPIView):
 
             except Invitation.DoesNotExist:
                 try:
-                    user = User.objects.get(email=invitee)
+                    user = User.objects.get(email=invitee, is_active=True)
                     inv_object = Invitation.objects.create(event=event,
                                                            discount_percentage=discount_percentage,
                                                            user=user,
