@@ -132,22 +132,18 @@ class EventViewSet(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """
-        Retrive Api for Event
+        Retrieve Api for Event
         """
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
+        user_logged_in = user_id
 
         try:
-            user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
-        # if user_role == 'subscriber':
-        #     is_subscriber = True
-        # else:
-        #     is_subscriber = False
 
         event_id = int(kwargs.get('pk'))
         try:
@@ -269,25 +265,30 @@ class EventViewSet(ModelViewSet):
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
         try:
-            self.queryset.get(id=event_id)
+            event = self.queryset.get(id=event_id)
         except Event.DoesNotExist:
             return api_error_response(message="Given event id {} does not exist".format(event_id))
-        try:
-            user_obj = Subscription.objects.filter(event=event_id).select_related('user').annotate(
-                email=F('user__email'), users_id=F('user__id')).values("email", "users_id")
-            email_ids = [_["email"] for _ in user_obj]
-            user_ids = [_["users_id"] for _ in user_obj]
-        except Subscription.DoesNotExist:
-            email_ids = []
-            user_ids = []
+
+        if self.queryset.get(id=event_id).event_created_by.id != user_id:
+            return api_error_response(
+                message="You are not the organiser of this event {}".format(event_id), status=400)
+
+        user_obj = Subscription.objects.filter(event=event_id).select_related('user').annotate(
+            email=F('user__email'), users_id=F('user__id')).values("email", "users_id")
+        email_ids = list({_["email"] for _ in user_obj})
+        user_ids = list({_["users_id"] for _ in user_obj})
         self.queryset.filter(id=event_id).update(is_active=False)
         send_email_sms_and_notification(action_name="event_deleted",
                                         email_ids=email_ids,
                                         message=message,
+                                        event_name=event.name,
                                         user_ids=user_ids,
                                         event_id=event_id)
         return api_success_response(message="Event successfully deleted", status=200)
@@ -302,10 +303,10 @@ class EventViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        pk = int(kwargs.get('pk'))
+        event_id = int(kwargs.get('pk'))
         data = request.data
+        user_logged_in = user_id
         try:
-            user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception as err:
             return api_error_response(
@@ -314,17 +315,17 @@ class EventViewSet(ModelViewSet):
             return api_error_response(
                 message="A subscriber cannot change an event details", status=500)
 
-        if self.queryset.get(id=pk).event_created_by.id != user_logged_in:
+        if self.queryset.get(id=event_id).event_created_by.id != user_logged_in:
             return api_error_response(
-                message="You are not the organiser of this event {}".format(pk), status=400)
+                message="You are not the organiser of this event {}".format(event_id), status=400)
         try:
-            event_obj = Event.objects.get(id=pk)
+            event_obj = Event.objects.get(id=event_id)
             prev_name = event_obj.name
             prev_location = event_obj.location
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
-            return api_error_response(message=f"Event with id {pk} does not exist", status=400)
+            return api_error_response(message=f"Event with id {event_id} does not exist", status=400)
         try:
             partial = kwargs.pop('partial', False)
             if 'event_type' in request.data:
@@ -337,31 +338,42 @@ class EventViewSet(ModelViewSet):
         except Exception as err:
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
-        message = ""
         event_name = event_obj.name
-        location_update, date_update, time_update, name_update = "", "", "", ""
+        field_list = []
+        prev_list = []
+        next_list = []
         if 'name' in data:
-            name_update = f"Name of event {prev_name} has changed to {data.get('name')}."
+            field_list.append("name")
+            prev_list.append(prev_name)
+            next_list.append(data.get('name'))
         if 'location' in data:
-            location_update = f"Location of the event {event_name} has changed from " \
-                              f"{prev_location} to {data.get('location')}."
+            field_list.append("location")
+            prev_list.append(prev_location)
+            next_list.append(data.get('location'))
         if 'date' in data:
-            date_update = f"Date of the event {event_name} has changed from" \
-                          f" {prev_date} to {data.get('date')}."
+            field_list.append("date")
+            prev_list.append(str(prev_date))
+            next_list.append(data.get('date'))
         if 'time' in data:
-            time_update = f"Time for the event {event_name} has changed from" \
-                          f" {prev_time} to {data.get('time')}."
+            field_list.append("time")
+            prev_list.append(str(prev_time))
+            next_list.append(data.get('time'))
 
-        message += name_update + location_update + date_update + time_update
+        field = ", ".join(field_list)
+        prev_value = ", ".join(prev_list)
+        next_value = ", ".join(next_list)
 
-        subscriber_email_list = list(Subscription.objects.filter(event=pk).
-                                     values_list('user__email', flat=True).distinct())
-        user_ids = list(Subscription.objects.filter(event=pk).
-                        values_list('user_id', flat=True).distinct())
-
-        send_email_sms_and_notification(action_name="event_updated",
-                                        email_ids=subscriber_email_list,
-                                        message=message,
-                                        user_ids=user_ids,
-                                        event_id=pk)
+        user_obj = Subscription.objects.filter(event=event_id).select_related('user').annotate(
+            email=F('user__email'), users_id=F('user__id')).values("email", "users_id")
+        email_ids = list({_["email"] for _ in user_obj})
+        user_ids = list({_["users_id"] for _ in user_obj})
+        if field:
+            send_email_sms_and_notification(action_name="event_updated",
+                                            email_ids=email_ids,
+                                            field=field,
+                                            prev_value=prev_value,
+                                            next_value=next_value,
+                                            event_name=event_name,
+                                            user_ids=user_ids,
+                                            event_id=event_id)
         return api_success_response(data=serializer.data, status=200)

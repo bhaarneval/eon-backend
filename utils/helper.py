@@ -15,20 +15,20 @@ def send_email_sms_and_notification(action_name, **kwargs):
     if SMS_CONFIG.get(action_name, {}).get("status"):
         event_dict = SMS_CONFIG.get(action_name)
         send_sms(numbers_list=kwargs["numbers_list"],
-                 message=kwargs.get("message") or event_dict["message"])
+                 message=event_dict["message"].format(**kwargs))
 
     if EMAIL_CONFIG.get(action_name, {}).get("status"):
         event_dict = EMAIL_CONFIG.get(action_name)
         send_mail(
             receiver_list=kwargs["email_ids"],
-            message=kwargs.get("message") or event_dict["message"],
-            subject=kwargs.get("subject") or event_dict["subject"]
+            message=event_dict["message"].format(**kwargs),
+            subject=event_dict["subject"]
         )
     if NOTIFICATION_CONFIG.get(action_name, {}).get("status"):
         event_dict = NOTIFICATION_CONFIG.get(action_name)
         user_ids = kwargs["user_ids"]
         event_id = kwargs["event_id"]
-        message = kwargs.get("message") or event_dict["message"]
+        message = event_dict["message"].format(**kwargs)
         users = User.objects.filter(id__in=user_ids)
         event = Event.objects.get(id=event_id)
         for _id in users:
