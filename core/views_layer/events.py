@@ -128,6 +128,7 @@ class EventViewSet(ModelViewSet):
         response.data['images'] = \
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
                 'images']
+        response['self_organised'] = True
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -177,8 +178,7 @@ class EventViewSet(ModelViewSet):
                     "location": curr_event.location, "event_type": curr_event.type.id,
                     "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
                     "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
                     "self_organised": self_organised}
 
@@ -190,8 +190,7 @@ class EventViewSet(ModelViewSet):
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links,
                     }
             try:
@@ -338,6 +337,8 @@ class EventViewSet(ModelViewSet):
             serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + serializer.data['images'],
+            serializer.data['event_type'] = serializer.data.pop('type')
         except Exception as err:
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
