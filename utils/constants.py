@@ -13,56 +13,64 @@ DEFAULT_PASSWORD = dict(password='default')
 
 SMS_CONFIG = {
     "invitation_send": {"status": True,
-                        "message": "You are invited for the event."
-                                   " Please registered to avail the discount."},
+                        "message": "You are invited to subscribe for '{event_name}' "
+                                   "event with {discount_percentage}% discount by the event organizer."},
     "invitation_delete": {"status": True,
                           "message":
-                              "You have been removed from the invitation list for the event."}
+                              "You have been removed from invitation list of '{event_name}' event "
+                              "by the event organizer."}
 }
 
 EMAIL_CONFIG = {
-    "user_created": {"status": True,
+    "user_created": {"status": False,
                      "message": "Thank you for registering with BITS-EOn.",
-                     "subject": "REGISTRATION SUCCESSFUL"},
-    "change_password": {"status": True,
+                     "subject": "Registration successful"},
+    "change_password": {"status": False,
                         "message": "Your password is changed recently.",
-                        "subject": "PASSWORD CHANGED"},
+                        "subject": "Password changed"},
     "event_updated": {"status": True,
-                      "message": "Your registered event is modified by the organiser.",
-                      "subject": "EVENT UPDATED"},
+                      "message": "The {field} of your subscribed event '{event_name}' has been changed "
+                                 "by the organizer from {prev_value} to {next_value}.",
+                      "subject": "Subscribed event updated"},
     "event_deleted": {"status": True,
-                      "message": "Your registered event is deleted by the organiser.",
-                      "subject": "REGISTERED EVENT DELETED"},
+                      "message": "Your subscribed event '{event_name}' is deleted by the organizer because {message}. "
+                                 "Your amount is initiated for refund.",
+                      "subject": "Subscribed event cancelled"},
     "event_reminder": {"status": True,
-                       "message": "Reminder for the registered event.",
-                       "subject": "REGISTERED EVENT REMINDER"},
+                       "message": "This mail is just a reminder for your subscribed event"
+                                  " '{event_name}' from the event organizer with a note for you.\n'{message}'.",
+                       "subject": "Registered event reminder"},
     "invitation_send": {"status": True,
-                        "message": "You are invited for the event."
-                                   " Please registered to avail the discount.",
-                        "subject": "INVITATION FOR AN EVENT"},
+                        "message": "You are invited for '{event_name}' event with {discount_percentage}% discount. " 
+                                   "Please subscribe for this event here {url}",
+                        "subject": "Invitation for an event"},
     "invitation_delete": {"status": True,
-                          "message":
-                              "You have been removed from the invitation list for the event.",
-                          "subject": "INVITATION CANCELLED FOR EVENT"},
+                          "message": "You have been removed from the invitation list of '{event_name}' event.",
+                          "subject": "Invitation cancelled for the event"},
     "user_share": {"status": True,
-                   "message": "Your friend is going for the event asking you to"
-                              " join along with him.",
-                   "subject": "JOIN THIS EXCITING EVENT WITH YOUR FRIEND."},
+                   "message": "'{message}'\nYour friend is going for the '{event_name}' event asking you to"
+                              " join along with him. Please subscribe for this {url}",
+                   "subject": "Join this exciting event with your friend"},
     "forget_password": {"status": True,
-                        "message": "Verification code for reset password.",
-                        "subject": "VERIFICATION CODE FOR RESET PASSWORD"},
+                        "message": "The verification code for changing password is {verification_code}",
+                        "subject": "Verification code to reset password"},
     "send_updates": {"status": True,
-                     "message": "There is an updates from the organiser.",
-                     "subject": "REGISTERED EVENT UPDATES"},
+                     "message": "Event Organizer for the '{event_name}' event "
+                                "has sent a note for you.\n '{message}'.",
+                     "subject": "Subscribed event updates"},
 }
 
 NOTIFICATION_CONFIG = {
     "event_updated": {"status": True,
-                      "message": "Your registered event is modified by the organiser."},
+                      "message": "The {field} of your subscribed event '{event_name}' has been changed "
+                                 "by the organizer from {prev_value} to {next_value}."},
     "event_deleted": {"status": True,
-                      "message": "Your registered event is deleted by the organiser."},
+                      "message": "Your subscribed event '{event_name}' is deleted by the organizer because {message}. "
+                                 "Your amount is initiated for refund."},
     "event_reminder": {"status": True,
-                       "message": "Reminder for the registered event."},
+                       "message": "Reminder for '{event_name}' event from the organizer "
+                                  "with a note for you.\n'{message}'."},
     "send_updates": {"status": True,
-                     "message": "There is an updates from the organiser."}
+                     "message": "Update for '{event_name}' event from the event organizer "
+                                "with a note for you.\n'{message}'."}
 }

@@ -176,13 +176,13 @@ def reset_password(request):
     password = data.get('password')
     code = data.get('code')
     try:
-        code_obj = VerificationCode.objects.filter(email=email, is_active=True)
-        if code_obj and code_obj[0].code == code:
+        code_obj = VerificationCode.objects.get(email=email, is_active=True)
+        if code_obj and code_obj.code == code:
             user = User.objects.get(email=email)
             user.set_password(password)
             user.save()
-            code_obj[0].is_active = False
-            code_obj[0].save()
+            code_obj.is_active = False
+            code_obj.save()
             return api_success_response(message='Password updated successfully')
         else:
             return api_error_response(message="Invalid Code", status=400)
@@ -204,15 +204,12 @@ def send_forget_password_mail(request):
     except User.DoesNotExist:
         return api_error_response(message="Please provide the registered email id.", status=400)
     verification_code = randint(1000, 9999)
-    message = f"The verification code for changing password is {verification_code}."
-    try:
-        send_email_sms_and_notification(
-            action_name="forget_password",
-            message=message,
-            email_ids=[email]
-        )
-    except Exception:
-        return api_error_response(message="Something went wrong", status=500)
+    VerificationCode.objects.filter(email=email, is_active=True).update(is_active=False)
     code = VerificationCode(email=email, code=verification_code)
     code.save()
+    send_email_sms_and_notification(
+        action_name="forget_password",
+        verification_code=verification_code,
+        email_ids=[email]
+    )
     return api_success_response(message="Verification code send successfully")
