@@ -14,6 +14,7 @@ class UserAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "email")
     search_fields = ("email",)
+    list_filter = ("is_active",)
     readonly_fields = ('email',)
     fieldsets = (
         (
