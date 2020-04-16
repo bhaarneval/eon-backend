@@ -238,12 +238,13 @@ class EventViewSet(ModelViewSet):
                                                                          is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
-
+                    created_on = subscription_list.order_by('created_on')[0].created_on
                     data["subscription_details"] = {
                         "no_of_tickets_bought": no_of_tickets_bought,
                         "amount_paid": total_amount_paid,
                         "discount_given": total_discount_given,
-                        "discount_percentage": discount_percentage
+                        "discount_percentage": discount_percentage,
+                        "created_on": created_on
                     }
                 else:
                     data["subscription_details"] = {}
