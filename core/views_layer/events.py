@@ -128,6 +128,7 @@ class EventViewSet(ModelViewSet):
         response.data['images'] = \
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
                 'images']
+        response['self_organised'] = True
         return response
 
     def retrieve(self, request, *args, **kwargs):
