@@ -2,9 +2,9 @@
 All related constants are here
 """
 PAYMENT_CONSTANTS = dict(
-    status=[(0, "SUCCESSFUL"), (1, "FAILED"), (2, "IN_PROGRESS"), (3, "REFUND")],
+    status=[(0, "CREDIT"), (3, "REFUND")],
     values=dict(
-        status=dict(SUCCESSFUL=0, FAILED=1, IN_PROGRESS=2, DECLINED=3),
+        status=dict(CREDIT=0, REFUND=3),
     ),
 )
 APPLICATION_CONSTANTS = dict(transaction=PAYMENT_CONSTANTS)

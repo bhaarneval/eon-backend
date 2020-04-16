@@ -131,6 +131,7 @@ class EventViewSet(ModelViewSet):
         response.data['images'] = \
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
                 'images']
+        response.data['self_organised'] = True
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -180,12 +181,9 @@ class EventViewSet(ModelViewSet):
             data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
                     "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
-                    "description": curr_event.description,
-                    "no_of_tickets": curr_event.no_of_tickets,
-                    "sold_tickets": curr_event.sold_tickets,
-                    "subscription_fee": curr_event.subscription_fee,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
+                    "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
                     "self_organised": self_organised}
 
@@ -197,8 +195,7 @@ class EventViewSet(ModelViewSet):
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links,
                     }
             try:
@@ -222,8 +219,8 @@ class EventViewSet(ModelViewSet):
                     else:
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                      payment__isnull=False,
-                                                                      payment__status=3)
+                                                                      payment__isnull=False, payment__status=3,
+                                                                      is_active=True)
                         refund_amount = int(sum(list(
                             refund_queryset.values_list('payment__total_amount', flat=True))))
                         discount_updated = int(sum(
@@ -231,13 +228,13 @@ class EventViewSet(ModelViewSet):
 
                         total_amount_paid = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False,
-                                                        payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False,
-                                                        payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
                             discount_percentage = \
@@ -246,12 +243,13 @@ class EventViewSet(ModelViewSet):
                                                        is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
-
+                    created_on = subscription_list.order_by('created_on')[0].created_on
                     data["subscription_details"] = {
                         "no_of_tickets_bought": no_of_tickets_bought,
                         "amount_paid": total_amount_paid,
                         "discount_given": total_discount_given,
-                        "discount_percentage": discount_percentage
+                        "discount_percentage": discount_percentage,
+                        "created_on": created_on
                     }
                 else:
                     data["subscription_details"] = {}
@@ -348,6 +346,8 @@ class EventViewSet(ModelViewSet):
             serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
+            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + serializer.data['images'],
+            serializer.data['event_type'] = serializer.data.pop('type')
         except Exception as err:
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)

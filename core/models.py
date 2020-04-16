@@ -57,17 +57,6 @@ class Invitation(ActiveModel):
         return "{}-{}-{}".format(self.event, self.user, self.discount_percentage)
 
 
-class EventPreference(ActiveModel):
-    """
-    Created event preference model here
-    """
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return "{}-{}".format(self.user, self.event_type)
-
-
 class WishList(ActiveModel):
     """
     Added wish list model here
@@ -112,6 +101,9 @@ class UserInterest(ActiveModel):
     """
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{}-{}".format(self.user, self.event_type)
 
 
 class UserProfile(ModelBase):
