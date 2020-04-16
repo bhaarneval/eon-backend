@@ -27,5 +27,5 @@ class Payment(ModelBase):
         if self.status == 0:
             status = " (CREDIT)"
         else:
-            status = " ({})".format(PAYMENT_STATUS[self.status][1])
+            status = " (REFUND)"
         return amount + status
