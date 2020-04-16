@@ -29,8 +29,8 @@ class NotificationTestCase(TestCase):
             "organization": "Eventhigh"
         }
 
-        register = cls.client.post('/authentication/registration', json.dumps(content),
-                                   content_type='application/json')
+        cls.client.post('/authentication/registration', json.dumps(content),
+                        content_type='application/json')
 
         data = dict(email="usertest@mail.com", password="user123")
         login_response = cls.client.post('/authentication/login', json.dumps(data),

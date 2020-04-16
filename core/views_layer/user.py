@@ -8,14 +8,10 @@ from rest_framework.viewsets import ModelViewSet
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from authentication.models import User
 from core.models import UserProfile, UserInterest
 from core.serializers import UserProfileSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import get_authorization_header
 from utils.common import api_error_response, api_success_response
 from eon_backend.settings import SECRET_KEY
-import jwt
 
 
 class UserViewSet(ModelViewSet):
@@ -73,7 +69,7 @@ class UserViewSet(ModelViewSet):
                 response['interest'] = interest_list
             else:
                 response['interest'] = prev_interest
-        except Exception as err:
+        except Exception:
             return api_error_response(message="Something went wrong", status=500)
         return api_success_response(data=response, status=200)
 
@@ -88,7 +84,7 @@ class UserViewSet(ModelViewSet):
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(message="Something went wrong", status=500)
         data = []
         for profile in self.queryset:

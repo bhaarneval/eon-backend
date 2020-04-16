@@ -180,8 +180,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
                     event_location=queryset['event_location'])
 
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
-        else:
-            return api_error_response(message="Number of tickets are invalid", status=400)
+
+        return api_error_response(message="Number of tickets are invalid", status=400)
 
     def destroy(self, request, pk=None):
         """

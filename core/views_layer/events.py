@@ -3,20 +3,20 @@ Events related functions are here
 """
 from datetime import date
 
+import jwt
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import get_authorization_header
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
-from rest_framework.authentication import get_authorization_header
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganiserOrReadOnlySubscriber
-from eon_backend.settings import SECRET_KEY, BUCKET
-import jwt
+from eon_backend.settings import SECRET_KEY
 
 
 class EventViewSet(ModelViewSet):
@@ -50,7 +50,7 @@ class EventViewSet(ModelViewSet):
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
@@ -59,7 +59,7 @@ class EventViewSet(ModelViewSet):
                 event_ids = WishList.objects.filter(
                     user=user_id, is_active=True).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
-            except Exception as err:
+            except Exception:
                 return api_error_response(
                     message="Some internal error coming in fetching the wishlist", status=400)
         today = date.today()
@@ -80,10 +80,7 @@ class EventViewSet(ModelViewSet):
                 F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
 
-        if user_role == 'subscriber':
-            is_subscriber = True
-        else:
-            is_subscriber = False
+        is_subscriber = (user_role == 'subscriber')
 
         data = []
 
@@ -145,7 +142,7 @@ class EventViewSet(ModelViewSet):
 
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
@@ -159,10 +156,8 @@ class EventViewSet(ModelViewSet):
             invitee_list = Invitation.objects.filter(event=curr_event.id,
                                                      event__event_created_by_id=user_logged_in,
                                                      is_active=True)
-            if curr_event.event_created_by.id == user_logged_in:
-                self_organised = True
-            else:
-                self_organised = False
+
+            self_organised = (curr_event.event_created_by.id == user_logged_in)
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
@@ -320,7 +315,7 @@ class EventViewSet(ModelViewSet):
         user_logged_in = user_id
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
@@ -346,9 +341,10 @@ class EventViewSet(ModelViewSet):
             serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + serializer.data['images'],
+            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + \
+                                        serializer.data['images'],
             serializer.data['event_type'] = serializer.data.pop('type')
-        except Exception as err:
+        except Exception:
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
         event_name = event_obj.name

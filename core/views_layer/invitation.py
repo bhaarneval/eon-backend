@@ -2,21 +2,21 @@
 Api related to invitation are here
 """
 import json
+
 import jwt
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.authentication import get_authorization_header
+from rest_framework import generics
 from django.db import transaction
 from django.db.models import F
 
-from rest_framework import generics
 from authentication.models import User
 from core.models import UserProfile, Invitation, Event
 from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganiser
-from rest_framework.authentication import get_authorization_header
 from eon_backend.settings import SECRET_KEY, EVENT_URL
 
 
@@ -59,7 +59,8 @@ class InvitationViewSet(generics.GenericAPIView):
         except Event.DoesNotExist:
             return api_error_response(message="No event exist with id={}".format(event_id))
         if event.event_created_by.id != user_id:
-            return api_error_response(message="You are not allowed to perform this action", status=400)
+            return api_error_response(message="You are not allowed to perform this action",
+                                      status=400)
         for invitee in invitee_list:
             try:
                 inv_object = self.queryset.get(email=invitee, event=event_id)
@@ -75,7 +76,7 @@ class InvitationViewSet(generics.GenericAPIView):
                         response.append(inv_object)
                         number = UserProfile.objects.get(user=user)
                         contact_nos.append("".join(["+91", number.contact_number]))
-                    except Exception as err:
+                    except Exception:
                         return api_error_response(message="Something went wrong", status=500)
                 except User.DoesNotExist:
                     try:
@@ -85,7 +86,7 @@ class InvitationViewSet(generics.GenericAPIView):
                             email=invitee,
                         )
                         response.append(inv_object)
-                    except Exception as err:
+                    except Exception:
                         return api_error_response(
                             message="Some error occurred due to incorrect details",
                             status=400)
@@ -162,7 +163,7 @@ class InvitationViewSet(generics.GenericAPIView):
                                                 event_name=event.name,
                                                 numbers_list=contact_nos)
             return api_success_response(message="Invitation successfully deleted", status=200)
-        except Exception as err:
+        except Exception:
             return api_error_response(message='Something went wrong', status=500)
 
     def get(self, request):

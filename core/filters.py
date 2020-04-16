@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.db.models import Q
 
-from core.models import Event
-
 
 class PaidFreeEventFilter(admin.SimpleListFilter):
     """
@@ -19,4 +17,3 @@ class PaidFreeEventFilter(admin.SimpleListFilter):
             return queryset.filter(subscription_fee=0)
         elif self.value() == 'paid':
             return queryset.filter(~Q(subscription_fee=0))
-
