@@ -25,7 +25,8 @@ class EventViewSet(ModelViewSet):
     """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
-    queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
+    queryset = Event.objects.filter(
+        is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
 
@@ -55,7 +56,8 @@ class EventViewSet(ModelViewSet):
 
         if is_wishlisted == 'True':
             try:
-                event_ids = WishList.objects.filter(user=user_id, is_active=True).values_list('event__id', flat=True)
+                event_ids = WishList.objects.filter(
+                    user=user_id, is_active=True).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
             except Exception as err:
                 return api_error_response(
@@ -93,7 +95,8 @@ class EventViewSet(ModelViewSet):
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
                             "subscription_fee": curr_event.subscription_fee,
-                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
+                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
+                                      + curr_event.images,
                             "external_links": curr_event.external_links
                             }
             if is_subscriber:
@@ -152,7 +155,8 @@ class EventViewSet(ModelViewSet):
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
         if user_role != 'subscriber':
-            invitee_list = Invitation.objects.filter(event=curr_event.id, event__event_created_by_id=user_logged_in,
+            invitee_list = Invitation.objects.filter(event=curr_event.id,
+                                                     event__event_created_by_id=user_logged_in,
                                                      is_active=True)
             if curr_event.event_created_by.id == user_logged_in:
                 self_organised = True
@@ -173,10 +177,13 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
+            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
+                    "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
-                    "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
-                    "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+                    "description": curr_event.description,
+                    "no_of_tickets": curr_event.no_of_tickets,
+                    "sold_tickets": curr_event.sold_tickets,
+                    "subscription_fee": curr_event.subscription_fee,
                     "images": self.s3.get_presigned_url(bucket_name=BUCKET,
                                                         object_name=curr_event.images),
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
@@ -215,7 +222,8 @@ class EventViewSet(ModelViewSet):
                     else:
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                      payment__isnull=False, payment__status=3)
+                                                                      payment__isnull=False,
+                                                                      payment__status=3)
                         refund_amount = int(sum(list(
                             refund_queryset.values_list('payment__total_amount', flat=True))))
                         discount_updated = int(sum(
@@ -223,16 +231,19 @@ class EventViewSet(ModelViewSet):
 
                         total_amount_paid = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False,
+                                                        payment__status=0).values_list
                             ('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False,
+                                                        payment__status=0).values_list
                             ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
-                            discount_percentage = Invitation.objects.get(user_id=user_id,
-                                                                         event_id=curr_event.id,
-                                                                         is_active=True).discount_percentage
+                            discount_percentage = \
+                                Invitation.objects.get(user_id=user_id,
+                                                       event_id=curr_event.id,
+                                                       is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
 
@@ -245,9 +256,10 @@ class EventViewSet(ModelViewSet):
                 else:
                     data["subscription_details"] = {}
                     try:
-                        discount_allotted = Invitation.objects.get(user=user_id,
-                                                                   event=curr_event.id,
-                                                                   is_active=True).discount_percentage
+                        discount_allotted = \
+                            Invitation.objects.get(user=user_id,
+                                                   event=curr_event.id,
+                                                   is_active=True).discount_percentage
                     except Invitation.DoesNotExist:
                         discount_allotted = 0
                     data['discount_percentage'] = discount_allotted
@@ -327,7 +339,8 @@ class EventViewSet(ModelViewSet):
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
-            return api_error_response(message=f"Event with id {event_id} does not exist", status=400)
+            return api_error_response(message=f"Event with id {event_id} does not exist",
+                                      status=400)
         try:
             partial = kwargs.pop('partial', False)
             if 'event_type' in request.data:

@@ -4,6 +4,7 @@ from django.contrib import admin
 # Register your models here.
 
 from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
+
 """
 Register all the core related model here
 """
@@ -27,13 +28,14 @@ class EventAdmin(admin.ModelAdmin):
     Added event model in admin
     """
     list_display = (
-        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets", "sold_tickets",
-        "is_cancelled", "event_created_by")
-    search_fields = ("name", "type__type", "event_created_by__email", "event_created_by__userprofile__name")
+        "id", "name", "type", "date", "time", "location", "subscription_fee", "no_of_tickets",
+        "sold_tickets", "is_cancelled", "event_created_by")
+    search_fields = ("name", "type__type", "event_created_by__email",
+                     "event_created_by__userprofile__name")
     list_filter = ("type", "event_created_by", ("date", PastDateRangeFilter))
-    readonly_fields = (
-                    "name", "type", "description", "date", "time", "location", "images", "subscription_fee",
-                    "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_cancelled")
+    readonly_fields = ("name", "type", "description", "date", "time", "location", "images",
+                       "subscription_fee", "no_of_tickets", "external_links",
+                       "event_created_by", "sold_tickets", "is_cancelled")
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -105,7 +107,8 @@ class UserProfileAdmin(admin.ModelAdmin):
     Added user profile model in admin
     """
     list_display = ("id", "user", "contact_number", "organization", "role")
-    search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization", "role")
+    search_fields = ("user__email", "user__userprofile__name", "contact_number",
+                     "organization", "role")
     readonly_fields = ('user', 'name', 'contact_number', 'organization', 'address', 'role')
 
     def has_delete_permission(self, request, obj=None):
