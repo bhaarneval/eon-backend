@@ -34,8 +34,8 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ("name", "type__type", "event_created_by__email", "event_created_by__userprofile__name")
     list_filter = ("type", "event_created_by", ("date", PastDateRangeFilter))
     readonly_fields = (
-                    "name", "type", "description", "date", "time", "location", "images", "subscription_fee",
-                    "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_cancelled")
+        "name", "type", "description", "date", "time", "location", "images", "subscription_fee",
+        "no_of_tickets", "external_links", "event_created_by", "sold_tickets", "is_cancelled")
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -49,9 +49,15 @@ class InvitationAdmin(admin.ModelAdmin):
     """
     Added invitation in admin
     """
-    list_display = ("id", "event", "user", "discount_percentage", "email")
-    search_fields = ("event__name", "user__email", "user__userprofile__name",)
+    list_display = ("id", "event", "discount_percentage", "email")
+    search_fields = ("event__name", "email", "user__userprofile__name",)
     readonly_fields = ('event', 'user', 'discount_percentage', 'email')
+    fieldsets = (
+        (
+            "", {
+                "fields": ("event", "discount_percentage", "email")}
+        ),
+    )
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -90,6 +96,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
     search_fields = ("event__name", "user__email")
     readonly_fields = ('is_active', 'user', 'event', 'no_of_tickets', 'payment')
+    list_filter = ("payment__status",)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -106,8 +113,9 @@ class UserProfileAdmin(admin.ModelAdmin):
     """
     Added user profile model in admin
     """
-    list_display = ("id", "user", "contact_number", "organization", "role")
-    search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization", "role")
+    list_display = ("id", "user", "name", "contact_number", "organization", "role")
+    search_fields = ("user__email", "user__userprofile__name", "contact_number", "organization",)
+    list_filter = ("role",)
     readonly_fields = ('user', 'name', 'contact_number', 'organization', 'address', 'role')
 
     def has_delete_permission(self, request, obj=None):
