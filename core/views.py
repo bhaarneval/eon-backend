@@ -53,8 +53,8 @@ class SubscriberNotify(APIView):
                     annotate(email=F('user__email'),
                              users_id=F('user__id')).values("email",
                                                             "users_id")
-                email_ids = [_["email"] for _ in response]
-                user_ids = [_["users_id"] for _ in response]
+                email_ids = list({_["email"] for _ in response})
+                user_ids = list({_["users_id"] for _ in response})
                 if _type == "reminder":
                     action_name = "event_reminder"
                 else:
