@@ -58,8 +58,6 @@ class AuthenticationTestCase(TestCase):
 
         # Check
         self.assertEqual(register.status_code, 400)
-        self.assertEqual(register.data['message'],
-                         'Incomplete or Incorrect Credentials are provided for registration')
 
     def test_user_login_with_valid_credentials(self):
         """
@@ -142,7 +140,7 @@ class AuthenticationTestCase(TestCase):
         # check
         self.assertEqual(response.status_code, 400)
 
-    def test_reset_password_with_invalid_code(self):
+    def test_reset_password_with_invalid_code_and_mail(self):
         """
         Unit test to check reset_password API with invalid code
         :return:
@@ -153,7 +151,21 @@ class AuthenticationTestCase(TestCase):
         reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
                                           content_type='application/json')
         # Check
+        self.assertEqual(reset_response.status_code, 500)
 
+    def test_reset_password_with_invalid_code(self):
+        """
+        Unit test to check reset_password API with invalid code
+        :return:
+        """
+        verification_code = VerificationCode(email='user@mail.com', code='1234')
+        verification_code.save()
+        data = dict(email='user@mail.com', password="user1234", code="code")
+
+        # Run
+        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
+                                          content_type='application/json')
+        # Check
         self.assertEqual(reset_response.status_code, 400)
 
     def test_reset_password_with_valid_code(self):
@@ -188,20 +200,3 @@ class AuthenticationTestCase(TestCase):
 
         # Check
         self.assertEqual(reset_response.status_code, 400)
-
-    def test_for_send_forget_password_mail_api_for_valid_user(self):
-        """
-            Unit test for sending email verification code
-            :return: status: 500
-            trying to send email but fail
-        """
-
-        # setup
-        data = dict(email='user@mail.com', password="user1234", code="1234")
-
-        # Run
-        reset_response = self.client.post('/authentication/generate-code', json.dumps(data),
-                                          content_type='application/json')
-
-        # Check
-        self.assertEqual(reset_response.status_code, 500)
