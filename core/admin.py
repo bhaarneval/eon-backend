@@ -3,7 +3,9 @@ from django.contrib import admin
 
 # Register your models here.
 
-from core.models import EventType, Event, Invitation, EventPreference, Subscription, UserProfile, WishList, Notification
+from core.models import EventType, Event, Invitation, Subscription, UserProfile, WishList, \
+    Notification, UserInterest
+
 """
 Register all the core related model here
 """
@@ -61,8 +63,8 @@ class InvitationAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(EventPreference)
-class EventPreferenceAdmin(admin.ModelAdmin):
+@admin.register(UserInterest)
+class UserInterestAdmin(admin.ModelAdmin):
     """
     Added event preference in admin
     """
