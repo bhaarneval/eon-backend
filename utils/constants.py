@@ -81,3 +81,11 @@ NOTIFICATION_CONFIG = {
                      "message": "Update for '{event_name}' event from the event organizer "
                                 "with a note for you.\n'{message}'."}
 }
+
+EVENT_STATUS_DEFAULT = 'upcoming'
+EVENT_STATUS_COMPLETED = 'completed'
+EVENT_STATUS_CANCELLED = 'cancelled'
+
+SUBSCRIPTION_TYPE_DEFAULT = 'all'
+SUBSCRIPTION_TYPE_FREE = 'free'
+SUBSCRIPTION_TYPE_PAID = 'paid'

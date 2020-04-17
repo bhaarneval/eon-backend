@@ -17,6 +17,7 @@ from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganiserOrReadOnlySubscriber
 from eon_backend.settings import SECRET_KEY
+from utils import constants as c
 
 
 class EventViewSet(ModelViewSet):
@@ -42,17 +43,30 @@ class EventViewSet(ModelViewSet):
         end_date = request.GET.get("end_date", None)
         event_created_by = request.GET.get("event_created_by", False)
         is_wishlisted = request.GET.get('is_wishlisted', False)
+        event_status = request.GET.get('event_status', c.EVENT_STATUS_DEFAULT)
+        subscription_type = request.GET.get('subscription_type', c.SUBSCRIPTION_TYPE_DEFAULT)
 
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
+
+        today = date.today()
+        self.queryset.filter(date__lt=str(today)).update(is_active=False)
+
+        if event_status.lower() == c.EVENT_STATUS_COMPLETED:
+            self.queryset = Event.objects.filter(is_active=False, is_cancelled=False)
+
+        if event_status.lower() == c.EVENT_STATUS_CANCELLED:
+            self.queryset = Event.objects.filter(is_active=False, is_cancelled=True)
+
+        if event_status.lower() == c.EVENT_STATUS_DEFAULT:
+            self.queryset = self.queryset.filter(date__gte=str(today))
 
         if is_wishlisted == 'True':
             try:
@@ -62,9 +76,12 @@ class EventViewSet(ModelViewSet):
             except Exception:
                 return api_error_response(
                     message="Some internal error coming in fetching the wishlist", status=400)
-        today = date.today()
-        self.queryset.filter(date__lt=str(today)).update(is_active=False)
-        self.queryset = self.queryset.filter(date__gte=str(today))
+
+        if subscription_type.lower() == c.SUBSCRIPTION_TYPE_FREE:
+            self.queryset = self.queryset.filter(is_active=True, subscription_fee=0)
+
+        if subscription_type.lower() == c.SUBSCRIPTION_TYPE_PAID:
+            self.queryset = self.queryset.filter(is_active=True, subscription_fee__gt=0)
 
         if search_text:
             self.queryset = self.queryset.filter(
@@ -85,29 +102,26 @@ class EventViewSet(ModelViewSet):
         data = []
 
         for curr_event in self.queryset:
-            response_obj = {"id": curr_event.id, "name": curr_event.name,
-                            "date": curr_event.date, "time": curr_event.time,
-                            "location": curr_event.location, "event_type": curr_event.type.id,
-                            "description": curr_event.description,
-                            "no_of_tickets": curr_event.no_of_tickets,
-                            "sold_tickets": curr_event.sold_tickets,
-                            "subscription_fee": curr_event.subscription_fee,
+            response_obj = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
+                            "time": curr_event.time, "location": curr_event.location, "event_type": curr_event.type.id,
+                            "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
+                            "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
-                                      + curr_event.images,
-                            "external_links": curr_event.external_links
-                            }
+                                      + curr_event.images, "external_links": curr_event.external_links,
+                            'is_free': curr_event.subscription_fee == 0}
+
             if is_subscriber:
-                try:
-                    subscription_list = Subscription.objects.filter(
-                        user_id=user_logged_in, event_id=curr_event.id, is_active=True)
-                    if subscription_list:
-                        response_obj['is_subscribed'] = True
-                    else:
-                        response_obj['is_subscribed'] = False
-                except Subscription.DoesNotExist:
-                    response_obj['is_subscribed'] = False
+                # check for subscription
+                subscription_list = Subscription.objects.filter(
+                    user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                if subscription_list:
+                    is_subscribed = True
+                else:
+                    is_subscribed = False
+                response_obj['is_subscribed'] = is_subscribed
 
                 try:
+                    # check if the event is wish-listed
                     WishList.objects.get(user_id=user_logged_in,
                                          event_id=curr_event.id, is_active=True)
                     response_obj['is_wishlisted'] = True
@@ -148,9 +162,15 @@ class EventViewSet(ModelViewSet):
 
         event_id = int(kwargs.get('pk'))
         try:
-            curr_event = self.queryset.get(id=event_id)
+            curr_event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
             return api_error_response(message="Given event {} does not exist".format(event_id))
+
+        event_status = c.EVENT_STATUS_DEFAULT
+        if not curr_event.is_active and not curr_event.is_cancelled:
+            event_status = c.EVENT_STATUS_COMPLETED
+        if not curr_event.is_active and curr_event.is_cancelled:
+            event_status = c.EVENT_STATUS_CANCELLED
 
         if user_role != 'subscriber':
             invitee_list = Invitation.objects.filter(event=curr_event.id,
@@ -173,14 +193,13 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
-                    "time": curr_event.time,
+            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
                     "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
                     "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                     "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
-                    "self_organised": self_organised}
+                    "self_organised": self_organised, 'event_status': event_status}
 
             return api_success_response(message="event details", data=data, status=200)
         else:
@@ -191,13 +210,14 @@ class EventViewSet(ModelViewSet):
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
                     "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
-                    "external_links": curr_event.external_links,
+                    "external_links": curr_event.external_links, 'event_status': event_status
                     }
             try:
                 WishList.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                 wishlisted = True
             except WishList.DoesNotExist:
                 wishlisted = False
+            is_subscribed = False
             try:
                 subscription_list = Subscription.objects.filter(
                     user_id=user_id, event_id=curr_event.id,
@@ -256,9 +276,7 @@ class EventViewSet(ModelViewSet):
                     except Invitation.DoesNotExist:
                         discount_allotted = 0
                     data['discount_percentage'] = discount_allotted
-                    is_subscribed = False
             except Subscription.DoesNotExist:
-                is_subscribed: False
                 try:
                     discount_allotted = Invitation.objects.get(user=user_id,
                                                                event=curr_event.id,
@@ -291,6 +309,7 @@ class EventViewSet(ModelViewSet):
             email=F('user__email'), users_id=F('user__id')).values("email", "users_id")
         email_ids = list({_["email"] for _ in user_obj})
         user_ids = list({_["users_id"] for _ in user_obj})
+        self.queryset.filter(id=event_id).update(is_cancelled=True)
         self.queryset.filter(id=event_id).update(is_active=False)
         send_email_sms_and_notification(action_name="event_deleted",
                                         email_ids=email_ids,
