@@ -96,20 +96,37 @@ class RestAPITest(APITestCase):
         # check
         self.assertEqual(response.status_code, 401)
 
-    def test_for_post_user_api_with_invalid_parameter(self):
+    def test_for_patch_user_api_without_parameter(self):
         """
-        Get api of user test
+        Patch api of user without parameter
         :return:
         """
+        user_interest = UserInterest(event_type=self.event_type, user=self.user)
+        user_interest.save()
+
+        # Run
+        response = self.client.patch(f"/core/user/{self.user_id}/",
+                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                     content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 200)
+
+    def test_for_patch_user_api_with_parameter(self):
+        """
+        Patch api of user with parameter
+        :return:
+        """
+        user_interest = UserInterest(event_type=self.event_type, user=self.user)
+        user_interest.save()
 
         data = {
             "field_name": "test",
-            # "interest": [self.event_type.id]
+            "interest": [self.event_type.id]
         }
+
         # Run
-        response = self.client.post("/core/user/", data=json.dumps(data),
-                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-                                    content_type="application/json")
+        response = self.client.patch(f"/core/user/{self.user_id}/", json.dumps(data),
+                                     HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                     content_type="application/json")
         # check
-        print(response.data)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)

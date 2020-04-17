@@ -209,7 +209,7 @@ class EventAPITest(APITestCase):
         # Check
         self.assertEqual(response.status_code, 400)
 
-    def test_event_patch_api_updating_something_went_wrong(self):
+    def test_event_patch_api_with_valid_event_id(self):
         """
         Test for patch api of event with  valid event id
         :return:
@@ -266,7 +266,7 @@ class EventAPITest(APITestCase):
         # Check
         self.assertEqual(response.status_code, 200)
 
-    def test_for_pre_signed_url_get_api_with_invalid_data(self):
+    def test_for_pre_signed_url_get_api_without_event_id(self):
         """
         Test for pre signed url get api without event id
         :return:
@@ -284,7 +284,7 @@ class EventAPITest(APITestCase):
                :return:
                """
         # Run
-        response = self.client.get("/core/presigned-url/1/",
+        response = self.client.get("/core/presigned-url/1000/",
                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                    content_type="application/json")
 

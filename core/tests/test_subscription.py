@@ -49,13 +49,13 @@ class SubscriptionAPITest(APITestCase):
                           date="2020-04-02",
                           time="12:38:00", location="karnal", subscription_fee=499,
                           no_of_tickets=250,
-                          images="https://www.google.com/images", sold_tickets=2,
+                          images="https://www.google.com/images", sold_tickets=0,
                           external_links="google.com", event_created_by_id=cls.user_id)
         cls.event.save()
 
         cls.end_point = "/core/subscription/"
 
-    def test_subscription_api_with_wrong_method(self):
+    def test_subscription_api_with_wrong_method_type(self):
         """
         Test subscription api with wrong method name
         """

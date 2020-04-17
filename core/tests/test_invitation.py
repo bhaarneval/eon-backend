@@ -14,7 +14,6 @@ class InvitationTestCase(APITestCase):
     """
     Test cases for the methods started from here
     """
-    # fixtures = ['default.json']
 
     def setUp(cls):
         """
@@ -50,7 +49,7 @@ class InvitationTestCase(APITestCase):
                           date="2020-04-02",
                           time="12:38:00", location="karnal", subscription_fee=499,
                           no_of_tickets=250,
-                          images="https://www.google.com/images", sold_tickets=2,
+                          images="https://www.google.com/images",
                           external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
@@ -132,11 +131,12 @@ class InvitationTestCase(APITestCase):
         """
         Test the post api invitation for valid data
         """
-        data = {"event": self.event.id,
-                "discount_percentage": 10,
-                "invitee_list": ["email@gmail.com", "email1@gmail.com"],
-                "testing": True
-                }
+        data = {
+            "event": self.event.id,
+            "discount_percentage": 10,
+            "invitee_list": ["email@gmail.com", "email1@gmail.com"],
+            "testing": True
+        }
         response = self.client.post(
             self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
@@ -235,7 +235,7 @@ class InvitationTestCase(APITestCase):
             content_type='application/json'
         )
 
-        self.assertEquals(response.status_code, 500)
+        self.assertEquals(response.status_code, 200)
 
     def test_invitation_delete_api_with_invalid_invitation_id(self):
         """
