@@ -6,9 +6,9 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from core.models import UserProfile
 
 
-class IsOrganiserOrReadOnlySubscriber(BasePermission):
+class IsOrganizerOrReadOnlySubscriber(BasePermission):
     """
-    Permission class to check whether that person is Organiser,
+    Permission class to check whether that person is organizer,
     or allowing SAFE_METHODS for subscriber
     """
 
@@ -16,19 +16,19 @@ class IsOrganiserOrReadOnlySubscriber(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        return UserProfile.objects.get(user=request.user).role.role in ['organiser', 'admin']
+        return UserProfile.objects.get(user=request.user).role.role in ['organizer', 'admin']
 
     def has_object_permission(self, request, view, obj):
         return request.user == obj.user
 
 
-class IsOrganiser(BasePermission):
+class IsOrganizer(BasePermission):
     """
-        Permission class to check whether the person is organiser or admin
+        Permission class to check whether the person is organizer or admin
     """
 
     def has_permission(self, request, view):
-        return UserProfile.objects.get(user=request.user).role.role in ["organiser", "admin"]
+        return UserProfile.objects.get(user=request.user).role.role in ["organizer", "admin"]
 
 
 class IsSubscriberOrReadOnly(BasePermission):
