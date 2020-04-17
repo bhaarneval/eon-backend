@@ -2,9 +2,9 @@
 All related constants are here
 """
 PAYMENT_CONSTANTS = dict(
-    status=[(0, "SUCCESSFUL"), (1, "FAILED"), (2, "IN_PROGRESS"), (3, "REFUND")],
+    status=[(0, "CREDIT"), (3, "REFUND")],
     values=dict(
-        status=dict(SUCCESSFUL=0, FAILED=1, IN_PROGRESS=2, DECLINED=3),
+        status=dict(CREDIT=0, REFUND=3),
     ),
 )
 APPLICATION_CONSTANTS = dict(transaction=PAYMENT_CONSTANTS)
@@ -14,7 +14,8 @@ DEFAULT_PASSWORD = dict(password='default')
 SMS_CONFIG = {
     "invitation_send": {"status": True,
                         "message": "You are invited to subscribe for '{event_name}' "
-                                   "event with {discount_percentage}% discount by the event organizer."},
+                                   "event with {discount_percentage}% discount by "
+                                   "the event organizer."},
     "invitation_delete": {"status": True,
                           "message":
                               "You have been removed from invitation list of '{event_name}' event "
@@ -33,26 +34,30 @@ EMAIL_CONFIG = {
                                  "by the organizer from {prev_value} to {next_value}.",
                       "subject": "Subscribed event updated"},
     "event_deleted": {"status": True,
-                      "message": "Your subscribed event '{event_name}' is deleted by the organizer because {message}. "
+                      "message": "Your subscribed event '{event_name}' is deleted "
+                                 "by the organizer because {message}. "
                                  "Your amount is initiated for refund.",
                       "subject": "Subscribed event cancelled"},
     "event_reminder": {"status": True,
                        "message": "This mail is just a reminder for your subscribed event"
-                                  " '{event_name}' from the event organizer with a note for you.\n'{message}'.",
+                                  " '{event_name}' from the event organizer with a note for"
+                                  " you.\n'{message}'.",
                        "subject": "Registered event reminder"},
     "invitation_send": {"status": True,
-                        "message": "You are invited for '{event_name}' event with {discount_percentage}% discount. " 
+                        "message": "You are invited for '{event_name}' event with {discount_percentage}% discount. "
                                    "Please subscribe for this event here {url}",
                         "subject": "Invitation for an event"},
     "invitation_delete": {"status": True,
                           "message": "You have been removed from the invitation list of '{event_name}' event.",
                           "subject": "Invitation cancelled for the event"},
     "user_share": {"status": True,
-                   "message": "'{message}'\nYour friend is going for the '{event_name}' event asking you to"
+                   "message": "'{message}'\nYour friend is going for the "
+                              "'{event_name}' event asking you to"
                               " join along with him. Please subscribe for this {url}",
                    "subject": "Join this exciting event with your friend"},
     "forget_password": {"status": True,
-                        "message": "The verification code for changing password is {verification_code}",
+                        "message":
+                            "The verification code for changing password is {verification_code}",
                         "subject": "Verification code to reset password"},
     "send_updates": {"status": True,
                      "message": "Event Organizer for the '{event_name}' event "
@@ -62,10 +67,12 @@ EMAIL_CONFIG = {
 
 NOTIFICATION_CONFIG = {
     "event_updated": {"status": True,
-                      "message": "The {field} of your subscribed event '{event_name}' has been changed "
+                      "message": "The {field} of your subscribed event "
+                                 "'{event_name}' has been changed "
                                  "by the organizer from {prev_value} to {next_value}."},
     "event_deleted": {"status": True,
-                      "message": "Your subscribed event '{event_name}' is deleted by the organizer because {message}. "
+                      "message": "Your subscribed event '{event_name}' "
+                                 "is deleted by the organizer because {message}. "
                                  "Your amount is initiated for refund."},
     "event_reminder": {"status": True,
                        "message": "Reminder for '{event_name}' event from the organizer "

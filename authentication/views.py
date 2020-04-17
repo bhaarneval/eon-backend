@@ -184,8 +184,7 @@ def reset_password(request):
             code_obj.is_active = False
             code_obj.save()
             return api_success_response(message='Password updated successfully')
-        else:
-            return api_error_response(message="Invalid Code", status=400)
+        return api_error_response(message="Invalid Code", status=400)
     except Exception as err:
         return api_error_response(message=str(err), status=500)
 
@@ -200,7 +199,7 @@ def send_forget_password_mail(request):
     data = json.loads(request.body)
     email = data.get('email')
     try:
-        user = User.objects.get(email=email)
+        User.objects.get(email=email)
     except User.DoesNotExist:
         return api_error_response(message="Please provide the registered email id.", status=400)
     verification_code = randint(1000, 9999)

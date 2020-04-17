@@ -4,7 +4,7 @@ Added model for admin view so admin user can see the model and can update also
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from .models import User, Role
+from .models import User
 
 
 @admin.register(User)
@@ -14,6 +14,7 @@ class UserAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "email")
     search_fields = ("email",)
+    list_filter = ("is_active",)
     readonly_fields = ('email',)
     fieldsets = (
         (

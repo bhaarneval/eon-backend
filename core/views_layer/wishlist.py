@@ -60,10 +60,10 @@ class WishListViewSet(viewsets.ViewSet):
                     message = "Event already wishlisted"
                 serializer = WishListSerializer(wishlist)
                 return api_success_response(message=message, data=serializer.data, status=200)
-            else:
-                serializer = WishListSerializer(data=data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+
+            serializer = WishListSerializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             return api_success_response(data=serializer.data, message="WishListed Successfully",
                                         status=200)
 
@@ -85,5 +85,5 @@ class WishListViewSet(viewsets.ViewSet):
             instance.is_active = False
             instance.save()
             return api_success_response(message='Successfully removed from Wishlist', status=200)
-        else:
-            return api_error_response(message='Invalid event', status=400)
+
+        return api_error_response(message='Invalid event', status=400)

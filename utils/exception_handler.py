@@ -17,7 +17,6 @@ def api_exception_handler(exception, context):
     """
     if isinstance(exception, CoreAppException):
         response = Response(
-            message=exception.default_detail,
             status=exception.status_code,
         )
     elif isinstance(exception, ValidationError) and "unique" in list(

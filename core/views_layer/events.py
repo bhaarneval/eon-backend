@@ -3,20 +3,20 @@ Events related functions are here
 """
 from datetime import date
 
+import jwt
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import get_authorization_header
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
-from rest_framework.authentication import get_authorization_header
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganiserOrReadOnlySubscriber
-from eon_backend.settings import SECRET_KEY, BUCKET
-import jwt
+from eon_backend.settings import SECRET_KEY
 
 
 class EventViewSet(ModelViewSet):
@@ -25,7 +25,8 @@ class EventViewSet(ModelViewSet):
     """
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
-    queryset = Event.objects.filter(is_active=True).select_related('type').annotate(event_type=F('type__type'))
+    queryset = Event.objects.filter(
+        is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
     s3 = AwsS3()
 
@@ -49,15 +50,16 @@ class EventViewSet(ModelViewSet):
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
         if is_wishlisted == 'True':
             try:
-                event_ids = WishList.objects.filter(user=user_id, is_active=True).values_list('event__id', flat=True)
+                event_ids = WishList.objects.filter(
+                    user=user_id, is_active=True).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
-            except Exception as err:
+            except Exception:
                 return api_error_response(
                     message="Some internal error coming in fetching the wishlist", status=400)
         today = date.today()
@@ -78,10 +80,7 @@ class EventViewSet(ModelViewSet):
                 F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
 
-        if user_role == 'subscriber':
-            is_subscriber = True
-        else:
-            is_subscriber = False
+        is_subscriber = (user_role == 'subscriber')
 
         data = []
 
@@ -93,7 +92,8 @@ class EventViewSet(ModelViewSet):
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
                             "subscription_fee": curr_event.subscription_fee,
-                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
+                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
+                                      + curr_event.images,
                             "external_links": curr_event.external_links
                             }
             if is_subscriber:
@@ -128,6 +128,7 @@ class EventViewSet(ModelViewSet):
         response.data['images'] = \
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
                 'images']
+        response.data['self_organised'] = True
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -141,7 +142,7 @@ class EventViewSet(ModelViewSet):
 
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
@@ -152,12 +153,11 @@ class EventViewSet(ModelViewSet):
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
         if user_role != 'subscriber':
-            invitee_list = Invitation.objects.filter(event=curr_event.id, event__event_created_by_id=user_logged_in,
+            invitee_list = Invitation.objects.filter(event=curr_event.id,
+                                                     event__event_created_by_id=user_logged_in,
                                                      is_active=True)
-            if curr_event.event_created_by.id == user_logged_in:
-                self_organised = True
-            else:
-                self_organised = False
+
+            self_organised = (curr_event.event_created_by.id == user_logged_in)
             invitee_data = []
             for invited in invitee_list:
                 response_obj = {'invitation_id': invited.id, 'email': invited.email}
@@ -173,12 +173,12 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
+            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
+                    "time": curr_event.time,
                     "location": curr_event.location, "event_type": curr_event.type.id,
                     "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
                     "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
                     "self_organised": self_organised}
 
@@ -190,8 +190,7 @@ class EventViewSet(ModelViewSet):
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
-                    "images": self.s3.get_presigned_url(bucket_name=BUCKET,
-                                                        object_name=curr_event.images),
+                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links,
                     }
             try:
@@ -215,7 +214,8 @@ class EventViewSet(ModelViewSet):
                     else:
                         # paid event
                         refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                      payment__isnull=False, payment__status=3)
+                                                                      payment__isnull=False, payment__status=3,
+                                                                      is_active=True)
                         refund_amount = int(sum(list(
                             refund_queryset.values_list('payment__total_amount', flat=True))))
                         discount_updated = int(sum(
@@ -223,31 +223,36 @@ class EventViewSet(ModelViewSet):
 
                         total_amount_paid = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__total_amount', flat=True)))) - refund_amount
                         total_discount_given = int(sum(list(
                             Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0).values_list
+                                                        payment__isnull=False, payment__status=0,
+                                                        is_active=True).values_list
                             ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
-                            discount_percentage = Invitation.objects.get(user_id=user_id,
-                                                                         event_id=curr_event.id,
-                                                                         is_active=True).discount_percentage
+                            discount_percentage = \
+                                Invitation.objects.get(user_id=user_id,
+                                                       event_id=curr_event.id,
+                                                       is_active=True).discount_percentage
                         except Invitation.DoesNotExist:
                             discount_percentage = 0
-
+                    created_on = subscription_list.order_by('created_on')[0].created_on
                     data["subscription_details"] = {
                         "no_of_tickets_bought": no_of_tickets_bought,
                         "amount_paid": total_amount_paid,
                         "discount_given": total_discount_given,
-                        "discount_percentage": discount_percentage
+                        "discount_percentage": discount_percentage,
+                        "created_on": created_on
                     }
                 else:
                     data["subscription_details"] = {}
                     try:
-                        discount_allotted = Invitation.objects.get(user=user_id,
-                                                                   event=curr_event.id,
-                                                                   is_active=True).discount_percentage
+                        discount_allotted = \
+                            Invitation.objects.get(user=user_id,
+                                                   event=curr_event.id,
+                                                   is_active=True).discount_percentage
                     except Invitation.DoesNotExist:
                         discount_allotted = 0
                     data['discount_percentage'] = discount_allotted
@@ -310,7 +315,7 @@ class EventViewSet(ModelViewSet):
         user_logged_in = user_id
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
-        except Exception as err:
+        except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
@@ -327,7 +332,8 @@ class EventViewSet(ModelViewSet):
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
-            return api_error_response(message=f"Event with id {event_id} does not exist", status=400)
+            return api_error_response(message=f"Event with id {event_id} does not exist",
+                                      status=400)
         try:
             partial = kwargs.pop('partial', False)
             if 'event_type' in request.data:
@@ -335,7 +341,10 @@ class EventViewSet(ModelViewSet):
             serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        except Exception as err:
+            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + \
+                                        serializer.data['images'],
+            serializer.data['event_type'] = serializer.data.pop('type')
+        except Exception:
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
         event_name = event_obj.name

@@ -1,8 +1,8 @@
 [MASTER]
-ignore=migrations,env,venv
+ignore=migrations,env,venv,manage.py,admin.py
 
 [MESSAGES CONTROL]
-disable=deprecated-method,broad-except,no-member,no-self-use,too-few-public-methods,invalid-name,no-self-argument,bare-except,too-many-locals,self-assigning-variable
+disable=deprecated-method,broad-except,no-member,no-self-use,too-few-public-methods,invalid-name,no-self-argument,bare-except,too-many-locals,self-assigning-variable,too-many-ancestors,too-many-branches
 
 
 
