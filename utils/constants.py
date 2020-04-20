@@ -82,10 +82,6 @@ NOTIFICATION_CONFIG = {
                                 "with a note for you.\n'{message}'."}
 }
 
-EVENT_STATUS_DEFAULT = 'upcoming'
-EVENT_STATUS_COMPLETED = 'completed'
-EVENT_STATUS_CANCELLED = 'cancelled'
 
-SUBSCRIPTION_TYPE_DEFAULT = 'all'
-SUBSCRIPTION_TYPE_FREE = 'free'
-SUBSCRIPTION_TYPE_PAID = 'paid'
+EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled')
+SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')

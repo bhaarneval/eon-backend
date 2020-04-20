@@ -17,7 +17,7 @@ from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
 from eon_backend.settings import SECRET_KEY
-from utils import constants as c
+from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
 
 class EventViewSet(ModelViewSet):
@@ -37,14 +37,15 @@ class EventViewSet(ModelViewSet):
         :param request: contain the query type and it's value
         :return: Response contains complete list of events after the query
         """
+        import pdb;pdb.set_trace()
         search_text = request.GET.get("search", None)
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
         end_date = request.GET.get("end_date", None)
         event_created_by = request.GET.get("event_created_by", False)
         is_wishlisted = request.GET.get('is_wishlisted', False)
-        event_status = request.GET.get('event_status', c.EVENT_STATUS_DEFAULT)
-        subscription_type = request.GET.get('subscription_type', c.SUBSCRIPTION_TYPE_DEFAULT)
+        event_status = request.GET.get('event_status', EVENT_STATUS['default'])
+        subscription_type = request.GET.get('subscription_type', SUBSCRIPTION_TYPE['default'])
 
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
@@ -59,13 +60,13 @@ class EventViewSet(ModelViewSet):
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_active=False)
 
-        if event_status.lower() == c.EVENT_STATUS_COMPLETED:
+        if event_status.lower() == EVENT_STATUS['completed']:
             self.queryset = Event.objects.filter(is_active=False, is_cancelled=False)
 
-        if event_status.lower() == c.EVENT_STATUS_CANCELLED:
+        if event_status.lower() == EVENT_STATUS['cancelled']:
             self.queryset = Event.objects.filter(is_active=False, is_cancelled=True)
 
-        if event_status.lower() == c.EVENT_STATUS_DEFAULT:
+        if event_status.lower() == EVENT_STATUS['default']:
             self.queryset = self.queryset.filter(date__gte=str(today))
 
         if is_wishlisted == 'True':
@@ -77,10 +78,10 @@ class EventViewSet(ModelViewSet):
                 return api_error_response(
                     message="Some internal error coming in fetching the wishlist", status=400)
 
-        if subscription_type.lower() == c.SUBSCRIPTION_TYPE_FREE:
+        if subscription_type.lower() == SUBSCRIPTION_TYPE['free']:
             self.queryset = self.queryset.filter(is_active=True, subscription_fee=0)
 
-        if subscription_type.lower() == c.SUBSCRIPTION_TYPE_PAID:
+        if subscription_type.lower() == SUBSCRIPTION_TYPE['paid']:
             self.queryset = self.queryset.filter(is_active=True, subscription_fee__gt=0)
 
         if search_text:
@@ -166,11 +167,11 @@ class EventViewSet(ModelViewSet):
         except Event.DoesNotExist:
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
-        event_status = c.EVENT_STATUS_DEFAULT
+        event_status = EVENT_STATUS['default']
         if not curr_event.is_active and not curr_event.is_cancelled:
-            event_status = c.EVENT_STATUS_COMPLETED
+            event_status = EVENT_STATUS['completed']
         if not curr_event.is_active and curr_event.is_cancelled:
-            event_status = c.EVENT_STATUS_CANCELLED
+            event_status = EVENT_STATUS['cancelled']
 
         if user_role != 'subscriber':
             invitee_list = Invitation.objects.filter(event=curr_event.id,
