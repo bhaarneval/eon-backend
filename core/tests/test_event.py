@@ -20,7 +20,7 @@ class EventAPITest(APITestCase):
         Data setup for Unit test case
         :return:
         """
-        role = Role(role="organiser")
+        role = Role(role="organizer")
         role.save()
         content = {
             "email": "user12@gmail.com",
@@ -28,7 +28,7 @@ class EventAPITest(APITestCase):
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
-            "role": "organiser",
+            "role": "organizer",
             "organization": "Eventhigh"
         }
 
