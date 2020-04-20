@@ -37,7 +37,6 @@ class EventViewSet(ModelViewSet):
         :param request: contain the query type and it's value
         :return: Response contains complete list of events after the query
         """
-        import pdb;pdb.set_trace()
         search_text = request.GET.get("search", None)
         event_type = request.GET.get("event_type", None)
         start_date = request.GET.get("start_date", None)
@@ -79,10 +78,10 @@ class EventViewSet(ModelViewSet):
                     message="Some internal error coming in fetching the wishlist", status=400)
 
         if subscription_type.lower() == SUBSCRIPTION_TYPE['free']:
-            self.queryset = self.queryset.filter(is_active=True, subscription_fee=0)
+            self.queryset = self.queryset.filter(subscription_fee=0)
 
         if subscription_type.lower() == SUBSCRIPTION_TYPE['paid']:
-            self.queryset = self.queryset.filter(is_active=True, subscription_fee__gt=0)
+            self.queryset = self.queryset.filter(subscription_fee__gt=0)
 
         if search_text:
             self.queryset = self.queryset.filter(
