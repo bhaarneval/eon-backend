@@ -6,7 +6,7 @@ import json
 
 from django.test import TestCase
 
-from authentication.models import Role
+from authentication.models import Role, VerificationCode
 
 
 class AuthenticationTestCase(TestCase):
@@ -58,8 +58,6 @@ class AuthenticationTestCase(TestCase):
 
         # Check
         self.assertEqual(register.status_code, 400)
-        self.assertEqual(register.data['message'],
-                         'Incomplete or Incorrect Credentials are provided for registration')
 
     def test_user_login_with_valid_credentials(self):
         """
@@ -141,3 +139,66 @@ class AuthenticationTestCase(TestCase):
 
         # check
         self.assertEqual(response.status_code, 400)
+
+    def test_reset_password_with_invalid_code(self):
+        """
+        Unit test to check reset_password API with invalid code
+        :return:
+        """
+        data = dict(email='user@mail.com', password="user1234", code="code")
+        verification_code = VerificationCode(email="user@mail.com", code=1234)
+        verification_code.save()
+
+        # Run
+        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
+                                          content_type='application/json')
+        # Check
+        self.assertEqual(reset_response.status_code, 400)
+
+    def test_reset_password_with_invalid_code(self):
+        """
+        Unit test to check reset_password API with invalid code
+        :return:
+        """
+        verification_code = VerificationCode(email='user@mail.com', code='1234')
+        verification_code.save()
+        data = dict(email='user@mail.com', password="user1234", code="code")
+
+        # Run
+        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
+                                          content_type='application/json')
+        # Check
+        self.assertEqual(reset_response.status_code, 400)
+
+    def test_reset_password_with_valid_code(self):
+        """
+        Unit test to check reset_password API with valid code
+        :return:
+        """
+        verification_code = VerificationCode(email='user@mail.com', code='1234')
+        verification_code.save()
+
+        data = dict(email='user@mail.com', password="user1234", code="1234")
+
+        # Run
+        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
+                                          content_type='application/json')
+        # Check
+
+        self.assertEqual(reset_response.status_code, 200)
+
+    def test_for_send_forget_password_mail_for_wrong_user(self):
+        """
+            Unit test to check send_forget_password_mail API with wrong user
+            :return:
+        """
+
+        # setup
+        data = dict(email='user123@mail.com', password="user1234", code="1234")
+
+        # Run
+        reset_response = self.client.post('/authentication/generate-code', json.dumps(data),
+                                          content_type='application/json')
+
+        # Check
+        self.assertEqual(reset_response.status_code, 400)
