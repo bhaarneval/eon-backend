@@ -81,3 +81,7 @@ NOTIFICATION_CONFIG = {
                      "message": "Update for '{event_name}' event from the event organizer "
                                 "with a note for you.\n'{message}'."}
 }
+
+
+EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled')
+SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
