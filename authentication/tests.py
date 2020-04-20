@@ -140,7 +140,7 @@ class AuthenticationTestCase(TestCase):
         # check
         self.assertEqual(response.status_code, 400)
 
-    def test_reset_password_with_invalid_code_and_mail(self):
+    def test_reset_password_with_invalid_code(self):
         """
         Unit test to check reset_password API with invalid code
         :return:
