@@ -138,7 +138,6 @@ def change_user_password(request):
 
     if email is None or old_password is None or new_password is None:
         return api_error_response(message='No field can be left blank')
-
     try:
         user = authenticate(username=email, password=old_password)
     except Exception as err:
@@ -147,6 +146,9 @@ def change_user_password(request):
     if user is None:
         message = "Given credentials does not matches with any registered user"
         return api_error_response(message=message, status=400)
+
+    if old_password == new_password:
+        return api_error_response(message="New password cannot be same as old password", status=400)
 
     try:
         user.set_password(new_password)
@@ -185,6 +187,12 @@ def reset_password(request):
     code = data.get('code')
     try:
         code_obj = VerificationCode.objects.get(email=email, is_active=True)
+        try:
+            user_existed = authenticate(username=email, password=password)
+        except Exception:
+            return api_error_response(message="Some internal error occur", status=500)
+        if user_existed:
+            return api_error_response(message="New password cannot be same as old password")
         if code_obj and code_obj.code == code:
             user = User.objects.get(email=email)
             user.set_password(password)

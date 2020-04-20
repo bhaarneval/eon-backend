@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com',
+ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com','BitsPilaniEonBackend-env.eba-iewfgdnb.us-east-1.elasticbeanstalk.com',
                  'localhost', '127.0.0.1', '[::1]']
 
 # Application definition
