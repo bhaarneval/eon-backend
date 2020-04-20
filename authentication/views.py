@@ -103,8 +103,16 @@ class Register(APIView):
                 organization=organization, address=address,
                 role=role_obj)
             user_profile_obj.save()
+            if role_name == 'orgainser':
+                user.is_active = False
+                user.save()
+                token = {}
+                send_email_sms_and_notification(action_name="new_user_created",
+                                                email_ids=[email],
+                                                user_email=email)
+            else:
+                token = get_token_for_user(user)
 
-            token = get_token_for_user(user)
             token['user'] = produce_object_for_user(user)
             return api_success_response(data=token,
                                         message='User created successfully', status=201)

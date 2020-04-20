@@ -23,6 +23,15 @@ SMS_CONFIG = {
 }
 
 EMAIL_CONFIG = {
+    "new_user_created": {"status": True,
+                         "message": "User with email {user_email}. Please contact Admin for activating account",
+                         "subject": "User Table"},
+    "user_blocked": {"status": True,
+                     "message": "Your account has been blocked by Admin.",
+                     "subject": "Account Blocked"},
+    "user_unblocked": {"status": True,
+                       "message": "Your account has been activated by Admin.",
+                       "subject": "Account Activated"},
     "user_created": {"status": False,
                      "message": "Thank you for registering with BITS-EOn.",
                      "subject": "Registration successful"},
