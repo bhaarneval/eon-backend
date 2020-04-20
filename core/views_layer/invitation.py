@@ -16,7 +16,7 @@ from core.models import UserProfile, Invitation, Event
 from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
-from utils.permission import IsOrganiser
+from utils.permission import IsOrganizer
 from eon_backend.settings import SECRET_KEY, EVENT_URL
 
 
@@ -25,7 +25,7 @@ class InvitationViewSet(generics.GenericAPIView):
     Add Api from here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, IsOrganiser)
+    permission_classes = (IsAuthenticated, IsOrganizer)
     serializer_class = InvitationSerializer
     queryset = Invitation.objects.filter(is_active=True)
 

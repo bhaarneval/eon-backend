@@ -15,7 +15,7 @@ from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
-from utils.permission import IsOrganiserOrReadOnlySubscriber
+from utils.permission import IsOrganizerOrReadOnlySubscriber
 from eon_backend.settings import SECRET_KEY
 
 
@@ -24,7 +24,7 @@ class EventViewSet(ModelViewSet):
       Event api are created here
     """
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated, IsOrganiserOrReadOnlySubscriber)
+    permission_classes = (IsAuthenticated, IsOrganizerOrReadOnlySubscriber)
     queryset = Event.objects.filter(
         is_active=True).select_related('type').annotate(event_type=F('type__type'))
     serializer_class = ListUpdateEventSerializer
@@ -285,7 +285,7 @@ class EventViewSet(ModelViewSet):
 
         if self.queryset.get(id=event_id).event_created_by.id != user_id:
             return api_error_response(
-                message="You are not the organiser of this event {}".format(event_id), status=400)
+                message="You are not the organizer of this event {}".format(event_id), status=400)
 
         user_obj = Subscription.objects.filter(event=event_id).select_related('user').annotate(
             email=F('user__email'), users_id=F('user__id')).values("email", "users_id")
@@ -324,7 +324,7 @@ class EventViewSet(ModelViewSet):
 
         if self.queryset.get(id=event_id).event_created_by.id != user_logged_in:
             return api_error_response(
-                message="You are not the organiser of this event {}".format(event_id), status=400)
+                message="You are not the organizer of this event {}".format(event_id), status=400)
         try:
             event_obj = Event.objects.get(id=event_id)
             prev_name = event_obj.name

@@ -40,7 +40,7 @@ class Login(APIView):
             return api_error_response(message=str(err), status=400)
 
         if user is None:
-            message = "Given Credentials does not matches with any registered user"
+            message = "Given credentials does not matches with any registered user"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
         user_obj = produce_object_for_user(user)
@@ -74,7 +74,7 @@ class Register(APIView):
 
         if email is None or password is None or role_name is None:
             return api_error_response(
-                message='Incomplete or Incorrect Credentials are provided for registration',
+                message='Incomplete or incorrect credentials are provided for registration',
                 status=400)
 
         try:
@@ -137,7 +137,7 @@ def change_user_password(request):
         return api_error_response(message=str(err), status=400)
 
     if user is None:
-        message = "Given Credentials does not matches with any registered user"
+        message = "Given credentials does not matches with any registered user"
         return api_error_response(message=message, status=400)
 
     try:
