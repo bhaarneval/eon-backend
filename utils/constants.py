@@ -23,6 +23,15 @@ SMS_CONFIG = {
 }
 
 EMAIL_CONFIG = {
+    "new_organiser_created": {"status": True,
+                              "message": "Please provide {user_email} access for organiser account.",
+                              "subject": "Permission for Organiser Account"},
+    "user_blocked": {"status": True,
+                     "message": "Your account has been blocked by Admin.",
+                     "subject": "Account Blocked"},
+    "user_unblocked": {"status": True,
+                       "message": "Your account has been activated by Admin.",
+                       "subject": "Account Activated"},
     "user_created": {"status": False,
                      "message": "Thank you for registering with BITS-EOn.",
                      "subject": "Registration successful"},
@@ -81,7 +90,6 @@ NOTIFICATION_CONFIG = {
                      "message": "Update for '{event_name}' event from the event organizer "
                                 "with a note for you.\n'{message}'."}
 }
-
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')

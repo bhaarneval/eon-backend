@@ -70,6 +70,7 @@ class User(AbstractUser, ModelBase):
     User model created here
     """
     email = models.EmailField(unique=True)
+    previous_state = None
 
     objects = UserManager()
 
