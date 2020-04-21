@@ -167,8 +167,8 @@ class Feedback(ActiveModel):
     """
     user_feedback = models.ForeignKey(UserFeedback, on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
-    answer = models.CharField(max_length=1024)
-    image = models.CharField(max_length=1024)
+    answer = models.CharField(max_length=1024, null=True, blank=True)
+    image = models.CharField(max_length=1024, null=True, blank=True)
 
     class Meta:
         """
@@ -177,4 +177,4 @@ class Feedback(ActiveModel):
         unique_together = ("user_feedback", "question")
 
     def __str__(self):
-        return "{}-{}-{}-{}".format(self.user_feedback, self.question)
+        return "{}-{}".format(self.user_feedback, self.question)
