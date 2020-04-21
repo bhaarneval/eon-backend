@@ -23,9 +23,9 @@ SMS_CONFIG = {
 }
 
 EMAIL_CONFIG = {
-    "new_user_created": {"status": True,
-                         "message": "User with email {user_email}. Please contact Admin for activating account",
-                         "subject": "User Table"},
+    "new_organiser_created": {"status": True,
+                              "message": "Please provide {user_email} access for organiser account.",
+                              "subject": "Permission for Organiser Account"},
     "user_blocked": {"status": True,
                      "message": "Your account has been blocked by Admin.",
                      "subject": "Account Blocked"},
@@ -90,7 +90,6 @@ NOTIFICATION_CONFIG = {
                      "message": "Update for '{event_name}' event from the event organizer "
                                 "with a note for you.\n'{message}'."}
 }
-
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')

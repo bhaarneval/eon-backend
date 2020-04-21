@@ -107,7 +107,7 @@ class Register(APIView):
                 user.is_active = False
                 user.save()
                 token = {}
-                send_email_sms_and_notification(action_name="new_user_created",
+                send_email_sms_and_notification(action_name="new_organiser_created",
                                                 email_ids=[email],
                                                 user_email=email)
             else:
