@@ -168,7 +168,7 @@ class Feedback(ActiveModel):
     user_feedback = models.ForeignKey(UserFeedback, on_delete=models.DO_NOTHING)
     question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
     answer = models.CharField(max_length=1024, null=True, blank=True)
-    image = models.CharField(max_length=1024, null=True, blank=True)
+    image = models.CharField(max_length=1024, default="")
 
     class Meta:
         """
