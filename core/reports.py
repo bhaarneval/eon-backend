@@ -59,14 +59,14 @@ def event_analysis_report(request, event_status=None, event_name=None):
                 total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
     elif event_status == "Cancelled":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=True, is_cancelled=True, name__icontains=event_name)
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True, name__icontains=event_name)
+            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
                                                                       event__is_cancelled=True, event__name__icontains=event_name).select_related('event',
                                                                                                                'payment').annotate(
                 total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
         else:
-            events_queryset = Event.objects.filter(is_active=True, is_cancelled=True)
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
+            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
                                                                       event__is_cancelled=True).select_related('event',
                                                                                                                'payment').annotate(
                 total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
