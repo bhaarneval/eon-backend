@@ -1,0 +1,36 @@
+.box {
+  float: left;
+  margin: 1em;
+
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 200px;
+  background-color: #EEE;
+  border-radius: 3px;
+  height: 100px;
+  margin-bottom: 7px;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  background-color: #DDD;
+}
+
+.container {
+  padding: 2px 16px;
+}
+
+.text-color{
+  color: black;
+}
+
+.disp{
+    display: none;
+}
+
+.disp1{
+    display: block;
+}
