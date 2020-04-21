@@ -119,15 +119,13 @@ def get_event_summary(request):
     today = date.today()
     queryset = Event.objects.filter(event_created_by=user_id).order_by('id')
     queryset.filter(date__lt=str(today)).update(is_active=False)
+    total_revenue, revenue_cancelled_events, revenue_completed_events, revenue_ongoing_events = 0, 0, 0, 0
 
-    data = []
+    cancelled_events, completed_events, ongoing_events, total_events = 0, 0, 0, queryset.count()
+    data = {'event_list': []}
     try:
         for event in queryset:
             event_status = EVENT_STATUS['default']
-            if event.is_cancelled:
-                event_status = EVENT_STATUS['cancelled']
-            if not event.is_active and not event.is_cancelled:
-                event_status = EVENT_STATUS['completed']
             if event.subscription_fee == 0:
                 revenue = 0
             else:
@@ -140,13 +138,34 @@ def get_event_summary(request):
                                                 is_active=True).values_list(
                         'payment__total_amount', flat=True)))
                 revenue = total_amount_paid - refund
+                total_revenue += revenue
 
-            data.append({'id': event.id,
-                         'name': event.name,
-                         'total_tickets': event.no_of_tickets,
-                         'sold_tickets': event.sold_tickets,
-                         'revenue': revenue,
-                         'status': event_status})
+            if event.is_cancelled:
+                event_status = EVENT_STATUS['cancelled']
+                revenue_cancelled_events += revenue
+                cancelled_events += 1
+            if not event.is_active and not event.is_cancelled:
+                event_status = EVENT_STATUS['completed']
+                revenue_completed_events += revenue
+                completed_events += 1
+            if event_status == EVENT_STATUS['default']:
+                revenue_ongoing_events += revenue
+                ongoing_events += 1
+
+            data['event_list'].append({'id': event.id,
+                                       'name': event.name,
+                                       'total_tickets': event.no_of_tickets,
+                                       'sold_tickets': event.sold_tickets,
+                                       'revenue': revenue,
+                                       'status': event_status})
+        data['total_revenue'] = total_revenue
+        data['total_events'] = total_events
+        data['ongoing_events'] = ongoing_events
+        data['completed_events'] = completed_events
+        data['cancelled_events'] = cancelled_events
+        data['revenue_ongoing_events'] = revenue_ongoing_events
+        data['revenue_completed_events'] = revenue_completed_events
+        data['revenue_cancelled_events'] = revenue_cancelled_events
     except Exception as err:
         return api_error_response(message="Some internal error occur", status=500)
     return api_success_response(message="Summary of all events", data=data, status=200)
