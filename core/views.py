@@ -2,12 +2,15 @@
 Added core related api view here
 """
 import json
+import jwt
+from datetime import date
 
 from django.db.models import F
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.authentication import get_authorization_header
 
 from core.models import Event, Subscription, EventType
 from core.serializers import EventTypeSerializer
@@ -15,6 +18,9 @@ from eon_backend.settings import EVENT_URL
 
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
+from eon_backend.settings import SECRET_KEY
+from utils.permission import IsOrganizer
+from utils.constants import EVENT_STATUS
 
 
 @api_view(["GET"])
@@ -92,7 +98,55 @@ def send_mail_to_a_friend(request):
         return api_error_response(message="Invalid email id", status=400)
     send_email_sms_and_notification(action_name="user_share",
                                     message=message,
-                                    url=EVENT_URL+str(event_id),
+                                    url=EVENT_URL + str(event_id),
                                     event_name=event_name,
                                     email_ids=email)
     return api_success_response(message="Mail send successfully", status=200)
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated, IsOrganizer])
+def get_event_summary(request):
+    """
+    API to return summary of ongoing events organized by the user
+    :param request: organizer id
+    :return: data object returning the event details like sold tickets, revenue etc.
+    """
+    token = get_authorization_header(request).split()[1]
+    payload = jwt.decode(token, SECRET_KEY)
+    user_id = payload['user_id']
+    today = date.today()
+    queryset = Event.objects.filter(event_created_by=user_id).order_by('id')
+    queryset.filter(date__lt=str(today)).update(is_active=False)
+
+    data = []
+    try:
+        for event in queryset:
+            event_status = EVENT_STATUS['default']
+            if event.is_cancelled:
+                event_status = EVENT_STATUS['cancelled']
+            if not event.is_active and not event.is_cancelled:
+                event_status = EVENT_STATUS['completed']
+            if event.subscription_fee == 0:
+                revenue = 0
+            else:
+                total_amount_paid = sum(list(
+                    Subscription.objects.filter(event=event.id, payment__isnull=False, payment__status=0,
+                                                is_active=True).values_list(
+                        'payment__total_amount', flat=True)))
+                refund = sum(list(
+                    Subscription.objects.filter(event=event.id, payment__isnull=False, payment__status=3,
+                                                is_active=True).values_list(
+                        'payment__total_amount', flat=True)))
+                revenue = total_amount_paid - refund
+
+            data.append({'id': event.id,
+                         'name': event.name,
+                         'total_tickets': event.no_of_tickets,
+                         'sold_tickets': event.sold_tickets,
+                         'revenue': revenue,
+                         'status': event_status})
+    except Exception as err:
+        return api_error_response(message="Some internal error occur", status=500)
+    return api_success_response(message="Summary of all events", data=data, status=200)
