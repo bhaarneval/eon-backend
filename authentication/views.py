@@ -14,6 +14,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from eon_backend.settings import ADMIN_EMAIL
 from utils.common import api_error_response, api_success_response, \
     produce_object_for_user
 from utils.helper import send_email_sms_and_notification
@@ -108,7 +109,7 @@ class Register(APIView):
                 user.save()
                 token = {}
                 send_email_sms_and_notification(action_name="new_organiser_created",
-                                                email_ids=[email],
+                                                email_ids=[ADMIN_EMAIL],
                                                 user_email=email)
             else:
                 token = get_token_for_user(user)
