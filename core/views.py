@@ -116,16 +116,29 @@ def get_event_summary(request):
     token = get_authorization_header(request).split()[1]
     payload = jwt.decode(token, SECRET_KEY)
     user_id = payload['user_id']
+    search_text = request.GET.get("search", None)
+    event_status_filter = request.GET.get('event_status', EVENT_STATUS['all'])
     today = date.today()
     queryset = Event.objects.filter(event_created_by=user_id).order_by('id')
     queryset.filter(date__lt=str(today)).update(is_active=False)
     total_revenue, revenue_cancelled_events, revenue_completed_events, revenue_ongoing_events = 0, 0, 0, 0
 
+    if event_status_filter.lower() == EVENT_STATUS['completed']:
+        queryset = queryset.filter(is_active=False, is_cancelled=False)
+
+    if event_status_filter.lower() == EVENT_STATUS['cancelled']:
+        queryset = queryset.filter(is_active=False, is_cancelled=True)
+
+    if event_status_filter.lower() == EVENT_STATUS['default']:
+        queryset = queryset.filter(date__gte=str(today), is_active=True)
+
+    if search_text:
+        queryset = queryset.filter(name__icontains=search_text)
+
     cancelled_events, completed_events, ongoing_events, total_events = 0, 0, 0, queryset.count()
     data = {'event_list': []}
     try:
         for event in queryset:
-            event_status = EVENT_STATUS['default']
             if event.subscription_fee == 0:
                 revenue = 0
             else:
@@ -139,7 +152,7 @@ def get_event_summary(request):
                         'payment__total_amount', flat=True)))
                 revenue = total_amount_paid - refund
                 total_revenue += revenue
-
+            event_status = EVENT_STATUS['default']
             if event.is_cancelled:
                 event_status = EVENT_STATUS['cancelled']
                 revenue_cancelled_events += revenue

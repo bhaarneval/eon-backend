@@ -83,5 +83,5 @@ NOTIFICATION_CONFIG = {
 }
 
 
-EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled')
+EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
