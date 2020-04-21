@@ -97,11 +97,14 @@ class FeedbackView(APIView):
             },
                 'responses': []}
             for response in feedback:
+                image = response.image
+                if image != '':
+                    image = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + image
                 current_response['responses'].append({
                     'question_id': response.question.id,
                     'question': response.question.question,
                     'answer': response.answer,
-                    'image': "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.image
+                    'image': image
                 })
             data.append(current_response)
         return api_success_response(message="All feedback", status=200, data=data)
