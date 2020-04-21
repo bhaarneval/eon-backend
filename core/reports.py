@@ -116,7 +116,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
         ),
         output_field=CharField(),
     ))
-    event_which_has_subscribers_1 = event_which_has_subscribers.filter(payment__isnull=False,
+    event_which_has_subscribers_1 = event_which_has_subscribers.values('event').filter(payment__isnull=False,
                                                                        no_of_tickets__gt=0).annotate(
         final_amount=F('payment__total_amount'))
     event_which_has_subscribers_2 = event_which_has_subscribers.filter(payment__isnull=False,
