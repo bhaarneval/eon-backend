@@ -1,7 +1,6 @@
 function update_dashboard(){
     var event_status = $('#filtering').find(":selected").text();
     var event_name = $("#search").find('input').val()
-    console.log(event_name)
     $.ajax({
         url: 'filtered_event_summary',
         data: {'event_status':event_status, "event_name":event_name},
@@ -9,7 +8,6 @@ function update_dashboard(){
         success: function(data){
             $('#rank_table tbody').empty();
             var html = '';
-            console.log(data)
             for (var each in data['event_which_has_subscribers']) {
             html += '<tr><th>' + data['event_which_has_subscribers'][each]['name'] +
                     '</th><td>' + data['event_which_has_subscribers'][each]['total_tickets'] +

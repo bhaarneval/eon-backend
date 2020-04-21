@@ -3,7 +3,6 @@ from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import render
 
-
 from core.models import Event, Subscription
 
 
@@ -30,11 +29,11 @@ def filtered_event_summary(request):
     data = []
     for entry in content['event_which_has_subscribers']:
         temp_data = {
-            "name": entry.name,
-            "total_tickets": entry.total_tickets,
-            "total_sold_tickets": entry.total_sold_tickets,
-            "status": entry.status,
-            "final_amount": entry.final_amount
+            "name": entry['name'],
+            "total_tickets": entry['total_tickets'],
+            "total_sold_tickets": entry['total_sold_tickets'],
+            "status": entry['status'],
+            "final_amount": entry['final_amount']
         }
         data.append(temp_data)
     content['event_which_has_subscribers'] = data
@@ -46,113 +45,155 @@ def event_analysis_report(request, event_status=None, event_name=None):
 
     if event_status == "Completed":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=False, is_cancelled=False, name__icontains=event_name)
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=False, name__iexact=event_name)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=False, event__name__icontains=event_name).select_related('event',
-                                                                                                                'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                      event__is_cancelled=False,
+                                                                      event__name__iexact=event_name).select_related(
+                'event',
+                'payment')
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=False)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
                                                                       event__is_cancelled=False).select_related('event',
-                                                                                                                'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                                                                'payment')
     elif event_status == "Cancelled":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True, name__icontains=event_name)
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True, name__iexact=event_name)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=True, event__name__icontains=event_name).select_related('event',
-                                                                                                               'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                      event__is_cancelled=True,
+                                                                      event__name__iexact=event_name).select_related(
+                'event',
+                'payment')
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
                                                                       event__is_cancelled=True).select_related('event',
-                                                                                                               'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                                                               'payment')
     elif event_status == "Ongoing":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=True, is_cancelled=False, name__icontains=event_name)
+            events_queryset = Event.objects.filter(is_active=True, is_cancelled=False, name__iexact=event_name)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
-                                                                      event__is_cancelled=False, event__name__icontains=event_name).select_related('event',
-                                                                                                                'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                      event__is_cancelled=False,
+                                                                      event__name__iexact=event_name).select_related(
+                'event',
+                'payment')
         else:
             events_queryset = Event.objects.filter(is_active=True, is_cancelled=False)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
                                                                       event__is_cancelled=False).select_related('event',
-                                                                                                                'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+                                                                                                                'payment')
     else:
         if event_name:
-            events_queryset = Event.objects.filter(name__icontains=event_name)
-            event_which_has_subscribers = Subscription.objects.filter(event__name__icontains=event_name).select_related('event', 'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+            events_queryset = Event.objects.filter(name__iexact=event_name)
+            event_which_has_subscribers = Subscription.objects.filter(event__name__iexact=event_name).select_related(
+                'event', 'payment')
         else:
             events_queryset = Event.objects.all()
-            event_which_has_subscribers = Subscription.objects.all().select_related('event', 'payment').annotate(
-                total_sold_tickets=F('event__sold_tickets'), total_tickets=F('event__no_of_tickets'))
+            event_which_has_subscribers = Subscription.objects.all().select_related('event', 'payment')
 
     event_completed_count = len(events_queryset.filter(is_active=False, is_cancelled=False))
     event_on_going_count = len(events_queryset.filter(is_active=True, is_cancelled=False))
     event_cancelled_count = len(events_queryset.filter(is_active=False, is_cancelled=True))
 
-    event_which_has_subscribers = event_which_has_subscribers.annotate(name=F('event__name'))
-    event_which_has_subscribers = event_which_has_subscribers.annotate(status=Case(
-        When(
-            event__is_active=False,
-            event__is_cancelled=False,
-            then=Value("Completed"),
-        ),
-        When(
-            event__is_active=True,
-            event__is_cancelled=False,
-            then=Value("Ongoing"),
-        ),
-        When(
-            event__is_active=False,
-            event__is_cancelled=True,
-            then=Value("Cancelled"),
-        ),
-        output_field=CharField(),
-    ))
-    event_which_has_subscribers_1 = event_which_has_subscribers.values('event').filter(payment__isnull=False,
-                                                                       no_of_tickets__gt=0).annotate(
-        final_amount=F('payment__total_amount'))
+    event_which_has_subscribers_1 = event_which_has_subscribers.filter(payment__isnull=False,
+                                                                       no_of_tickets__gt=0)
+    event_which_has_subscribers_1 = event_which_has_subscribers_1.values('event').annotate(
+        final_amount=Sum('payment__total_amount'), total_sold_tickets=F('event__sold_tickets'),
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+            When(
+                event__is_active=False,
+                event__is_cancelled=False,
+                then=Value("Completed"),
+            ),
+            When(
+                event__is_active=True,
+                event__is_cancelled=False,
+                then=Value("Ongoing"),
+            ),
+            When(
+                event__is_active=False,
+                event__is_cancelled=True,
+                then=Value("Cancelled"),
+            ),
+            output_field=CharField(),
+        ))
     event_which_has_subscribers_2 = event_which_has_subscribers.filter(payment__isnull=False,
-                                                                       no_of_tickets__lt=0).annotate(
-        final_amount=F('payment__total_amount') * (-1))
-    event_which_has_subscribers_3 = event_which_has_subscribers.filter(payment__isnull=True).annotate(
-        final_amount=Coalesce('payment__total_amount', 0))
+                                                                       no_of_tickets__lt=0)
+    event_which_has_subscribers_2 = event_which_has_subscribers_2.values('event').annotate(
+        final_amount=Sum('payment__total_amount') * (-1), total_sold_tickets=F('event__sold_tickets'),
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+            When(
+                event__is_active=False,
+                event__is_cancelled=False,
+                then=Value("Completed"),
+            ),
+            When(
+                event__is_active=True,
+                event__is_cancelled=False,
+                then=Value("Ongoing"),
+            ),
+            When(
+                event__is_active=False,
+                event__is_cancelled=True,
+                then=Value("Cancelled"),
+            ),
+            output_field=CharField(),
+        ))
+
+    event_which_has_subscribers_3 = event_which_has_subscribers.filter(payment__isnull=True)
+    event_which_has_subscribers_3 = event_which_has_subscribers_3.values('event').annotate(
+        final_amount=Coalesce('payment__total_amount', 0), total_sold_tickets=F('event__sold_tickets'),
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+            When(
+                event__is_active=False,
+                event__is_cancelled=False,
+                then=Value("Completed"),
+            ),
+            When(
+                event__is_active=True,
+                event__is_cancelled=False,
+                then=Value("Ongoing"),
+            ),
+            When(
+                event__is_active=False,
+                event__is_cancelled=True,
+                then=Value("Cancelled"),
+            ),
+            output_field=CharField(),
+        ))
+
     event_which_has_subscribers = event_which_has_subscribers_1.union(event_which_has_subscribers_2)
     event_which_has_subscribers = event_which_has_subscribers.union(event_which_has_subscribers_3)
     total_revenue = event_which_has_subscribers.aggregate(Sum('final_amount'))
     event_which_has_subscribers = event_which_has_subscribers_1.union(event_which_has_subscribers_3)
+
     if total_revenue['final_amount__sum'] is None:
         total_revenue = 0
     else:
         total_revenue = total_revenue['final_amount__sum']
 
-    event_ids_present_in_subscription = event_which_has_subscribers.values_list('event__id', flat=True)
+    event_ids_present_in_subscription = event_which_has_subscribers.values_list('event', flat=True)
 
-    events_not_subscribed = events_queryset.filter(~Q(id__in=event_ids_present_in_subscription)).annotate(status=Case(
-        When(
-            is_active=False,
-            is_cancelled=False,
-            then=Value("Completed"),
-        ),
-        When(
-            is_active=True,
-            is_cancelled=False,
-            then=Value("Ongoing"),
-        ),
-        When(
-            is_active=False,
-            is_cancelled=True,
-            then=Value("Cancelled"),
-        ),
-        output_field=CharField(),
-    ))
+    events_not_subscribed = events_queryset.filter(~Q(id__in=list(event_ids_present_in_subscription))).annotate(
+        status=Case(
+            When(
+                is_active=False,
+                is_cancelled=False,
+                then=Value("Completed"),
+            ),
+            When(
+                is_active=True,
+                is_cancelled=False,
+                then=Value("Ongoing"),
+            ),
+            When(
+                is_active=False,
+                is_cancelled=True,
+                then=Value("Cancelled"),
+            ),
+            output_field=CharField(),
+        ))
+
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
 
     content = dict(event_completed_count=event_completed_count,
