@@ -95,7 +95,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
 
     event_completed_count = len(events_queryset.filter(is_active=False, is_cancelled=False))
     event_on_going_count = len(events_queryset.filter(is_active=True, is_cancelled=False))
-    event_cancelled_count = len(events_queryset.filter(is_active=True, is_cancelled=True))
+    event_cancelled_count = len(events_queryset.filter(is_active=False, is_cancelled=True))
 
     event_which_has_subscribers = event_which_has_subscribers.annotate(name=F('event__name'))
     event_which_has_subscribers = event_which_has_subscribers.annotate(status=Case(
@@ -110,7 +110,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
             then=Value("Ongoing"),
         ),
         When(
-            event__is_active=True,
+            event__is_active=False,
             event__is_cancelled=True,
             then=Value("Cancelled"),
         ),
@@ -147,7 +147,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
             then=Value("Ongoing"),
         ),
         When(
-            is_active=True,
+            is_active=False,
             is_cancelled=True,
             then=Value("Cancelled"),
         ),
