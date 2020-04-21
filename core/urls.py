@@ -9,6 +9,7 @@ from core.routes import router
 from core.views import get_event_types, SubscriberNotify, send_mail_to_a_friend, get_event_summary
 from core.views_layer.invitation import InvitationViewSet
 from core.views_layer.notification import NotificationView
+from core.views_layer.feedback import get_feedback_questions
 
 urlpatterns = [
     url('^', include(router.urls)),
@@ -18,5 +19,6 @@ urlpatterns = [
     url("event-type", get_event_types, name="event_type"),
     url("share-with-friend", send_mail_to_a_friend, name="share_with_friend"),
     url('notification', NotificationView.as_view(), name='notification'),
-    url(r'^event-summary', get_event_summary, name="event_summary")
+    url(r'^event-summary', get_event_summary, name="event_summary"),
+    url(r'feedback-questions', get_feedback_questions, name="feedback_questions")
 ]
