@@ -4,7 +4,7 @@ from django.contrib import admin
 # Register your models here.
 from core import filters
 from core.models import EventType, Event, Invitation, Subscription, UserProfile, WishList, \
-    UserInterest
+    UserInterest, Question, Feedback, UserFeedback
 
 """
 Register all the core related model here
@@ -144,6 +144,57 @@ class WishListAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+    """
+    Added user profile model in admin
+    """
+    list_display = ("id", "question")
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(UserFeedback)
+class UserFeedbackAdmin(admin.ModelAdmin):
+    """
+    Added user profile model in admin
+    """
+    list_display = ("id", "user", "event")
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Feedback)
+class UserFeedbackAdmin(admin.ModelAdmin):
+    """
+    Added user profile model in admin
+    """
+    list_display = ("id", "user_feedback", "question")
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return True
 
     def has_change_permission(self, request, obj=None):
         return False
