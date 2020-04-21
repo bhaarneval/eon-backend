@@ -132,3 +132,49 @@ class Notification(ModelBase):
 
     def __str__(self):
         return "{}-{}-{}".format(self.user, self.event, self.message)
+
+
+class Question(ActiveModel):
+    """
+    Question model created here
+    """
+    question = models.CharField(max_length=1024)
+
+    def __str__(self):
+        return "{}".format(self.question)
+
+
+class UserFeedback(ActiveModel):
+    """
+        User Feedback model created here
+    """
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
+        unique_together = ("user", "event")
+
+    def __str__(self):
+        return "{}-{}".format(self.user, self.event)
+
+
+class Feedback(ActiveModel):
+    """
+        Feedback model created here
+    """
+    user_feedback = models.ForeignKey(UserFeedback, on_delete=models.DO_NOTHING)
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING)
+    answer = models.CharField(max_length=1024)
+    image = models.CharField(max_length=1024)
+
+    class Meta:
+        """
+        To override the database table name, use the db_table parameter in class Meta.
+        """
+        unique_together = ("user_feedback", "question")
+
+    def __str__(self):
+        return "{}-{}-{}-{}".format(self.user_feedback, self.question)

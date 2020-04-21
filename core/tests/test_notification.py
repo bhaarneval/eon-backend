@@ -123,4 +123,4 @@ class NotificationTestCase(TestCase):
 
         # Assert
         self.assertEqual(response.data['data'][0]['message'], notification.message)
-        self.assertEqual(response.data['data'][0]['notification_id'], notification.id)
+        self.assertEqual(response.data['data'][0]['id'], notification.id)

@@ -138,10 +138,12 @@ class NotificationSerializer(serializers.ModelSerializer):
     """
     Serializer class for notification model
     """
+    event = serializers.SlugRelatedField(read_only=True, slug_field="name")
+
     class Meta:
         """
         Class Meta:To override the database table name,
         use the db_table parameter in class Meta.
         """
         model = Notification
-        fields = ("id", "message")
+        fields = ("id", "event_id", "event", "created_on", "message")

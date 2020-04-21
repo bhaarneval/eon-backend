@@ -7,7 +7,7 @@ from django.urls import include, re_path
 from core.presigned_url import PresignedUrl
 from core.reports import event_analysis_report, filtered_event_summary, event_summary
 from core.routes import router
-from core.views import get_event_types, SubscriberNotify, send_mail_to_a_friend
+from core.views import get_event_types, SubscriberNotify, send_mail_to_a_friend, get_event_summary
 from core.views_layer.invitation import InvitationViewSet
 from core.views_layer.notification import NotificationView
 
@@ -21,4 +21,5 @@ urlpatterns = [
     url('notification', NotificationView.as_view(), name='notification'),
     url('reports', event_summary, name='report'),
     re_path('filtered_event_summary', filtered_event_summary, name="filtered_event_summary"),
+    url(r'^event-summary', get_event_summary, name="event_summary")
 ]
