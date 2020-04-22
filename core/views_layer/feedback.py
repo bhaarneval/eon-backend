@@ -91,6 +91,7 @@ class FeedbackView(APIView):
             feedback = Feedback.objects.filter(user_feedback=instance)
             current_response = {'user': {
                 'id': instance.user.id,
+                'name': UserProfile.objects.get(user_id=instance.user.id).name,
                 'email': instance.user.email,
                 'contact': UserProfile.objects.get(user_id=instance.user.id).contact_number
             },
