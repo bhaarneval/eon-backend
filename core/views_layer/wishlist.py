@@ -81,7 +81,7 @@ class WishListViewSet(viewsets.ViewSet):
             try:
                 instance = WishList.objects.get(event=event_id, user=user_id)
             except:
-                return api_error_response(message='Not Wishlisted', status=400)
+                return api_error_response(message='Not wishlisted', status=400)
             instance.is_active = False
             instance.save()
             return api_success_response(message='Successfully removed from wishlist', status=200)
