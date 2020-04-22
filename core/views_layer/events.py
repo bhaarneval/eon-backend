@@ -129,7 +129,7 @@ class EventViewSet(ModelViewSet):
                     response_obj['is_wishlisted'] = False
 
             try:
-                UserFeedback.objects.get(user_id=user_logged_in)
+                UserFeedback.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
                 feedback_given = True
             except UserFeedback.DoesNotExist:
                 feedback_given = False
@@ -226,7 +226,7 @@ class EventViewSet(ModelViewSet):
                 wishlisted = False
             is_subscribed = False
             try:
-                UserFeedback.objects.get(user_id=user_logged_in, event_id=event_id)
+                UserFeedback.objects.get(user_id=user_logged_in, event_id=event_id, is_active=True)
                 feedback_given = True
             except UserFeedback.DoesNotExist:
                 feedback_given = False
