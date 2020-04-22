@@ -165,7 +165,7 @@ def get_event_summary(request):
                 revenue_ongoing_events += revenue
                 ongoing_events += 1
 
-            data['event_list'].append({'id': event.id,
+            data['event_list'].append({'key': event.id,
                                        'name': event.name,
                                        'total_tickets': event.no_of_tickets,
                                        'sold_tickets': event.sold_tickets,
