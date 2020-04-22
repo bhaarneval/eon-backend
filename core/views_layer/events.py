@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import get_authorization_header
 
-from core.models import Event, UserProfile, Subscription, WishList, Invitation
+from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
@@ -127,6 +127,13 @@ class EventViewSet(ModelViewSet):
                     response_obj['is_wishlisted'] = True
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
+
+            try:
+                UserFeedback.objects.get(user_id=user_logged_in)
+                feedback_given = True
+            except UserFeedback.DoesNotExist:
+                feedback_given = False
+            response_obj['feedback_given'] = feedback_given
             data.append(response_obj)
 
         return api_success_response(message="List of events", data=data)
@@ -219,6 +226,11 @@ class EventViewSet(ModelViewSet):
                 wishlisted = False
             is_subscribed = False
             try:
+                UserFeedback.objects.get(user_id=user_logged_in, event_id=event_id)
+                feedback_given = True
+            except UserFeedback.DoesNotExist:
+                feedback_given = False
+            try:
                 subscription_list = Subscription.objects.filter(
                     user_id=user_id, event_id=curr_event.id,
                     is_active=True)
@@ -287,6 +299,7 @@ class EventViewSet(ModelViewSet):
                 data["subscription_details"] = dict()
             data['is_wishlisted'] = wishlisted
             data["is_subscribed"] = is_subscribed
+            data['feedback_given'] = feedback_given
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
