@@ -155,6 +155,7 @@ class QuestionAdmin(admin.ModelAdmin):
     Added user profile model in admin
     """
     list_display = ("id", "question")
+    readonly_fields = ('question',)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -172,29 +173,31 @@ class UserFeedbackAdmin(admin.ModelAdmin):
     Added user profile model in admin
     """
     list_display = ("id", "user", "event")
+    readonly_fields = ('user', 'event')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
-        return True
+        return False
 
     def has_change_permission(self, request, obj=None):
         return False
 
 
 @admin.register(Feedback)
-class UserFeedbackAdmin(admin.ModelAdmin):
+class FeedbackAdmin(admin.ModelAdmin):
     """
     Added user profile model in admin
     """
     list_display = ("id", "user_feedback", "question")
+    readonly_fields = ('user_feedback', 'question')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def has_add_permission(self, request):
-        return True
+        return False
 
     def has_change_permission(self, request, obj=None):
         return False
