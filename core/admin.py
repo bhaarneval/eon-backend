@@ -194,7 +194,8 @@ class FeedbackAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user_feedback", "question")
     readonly_fields = ('user_feedback', 'question')
-    list_filter = ('question', 'user_feedback__user__email', 'user_feedback__event__name')
+    list_filter = ('question',)
+    search_fields = ('user_feedback__user__email', 'user_feedback__event__name')
 
     def has_delete_permission(self, request, obj=None):
         return False
