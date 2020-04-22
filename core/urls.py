@@ -2,9 +2,10 @@
 In this file we added all the url reference
 """
 from django.conf.urls import url
-from django.urls import include
+from django.urls import include, re_path
 
 from core.presigned_url import PresignedUrl
+from core.reports import event_analysis_report, filtered_event_summary, event_summary
 from core.routes import router
 from core.views import get_event_types, SubscriberNotify, send_mail_to_a_friend, get_event_summary
 from core.views_layer.invitation import InvitationViewSet
@@ -22,4 +23,6 @@ urlpatterns = [
     url(r'^event-summary', get_event_summary, name="event_summary"),
     url(r'feedback-questions', get_feedback_questions, name="feedback_questions"),
     url('feedback', FeedbackView.as_view(), name="feedback")
+    url('reports', event_summary, name='report'),
+    re_path('filtered_event_summary', filtered_event_summary, name="filtered_event_summary")
 ]

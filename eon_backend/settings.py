@@ -173,8 +173,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 AUTH_USER_MODEL = 'authentication.User'
 
@@ -189,6 +192,7 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.environ.get("AWS_REGION")
 EMAIL_ID = os.environ.get("EMAIL_ID")
 TOPIC_NAME = os.environ.get("TOPIC_NAME")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
 
 # configs for sms and email and notification
 SMS_CONFIG = SMS_CONFIG
