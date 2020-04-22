@@ -93,3 +93,7 @@ NOTIFICATION_CONFIG = {
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
+
+HEADERS = {'Content-type': 'application/json'}
+PAYMENT_POST_URL = "http://127.0.0.1:8001/core/payment/"
+

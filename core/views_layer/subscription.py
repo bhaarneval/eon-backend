@@ -2,7 +2,7 @@
 All subscription related api are here
 """
 import json
-
+import requests
 import jwt
 from django.db import transaction
 from django.db.models import F, Value, IntegerField, Sum
@@ -17,6 +17,7 @@ from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
+from utils.constants import PAYMENT_POST_URL, HEADERS
 from utils.permission import IsSubscriberOrReadOnly
 
 
@@ -93,14 +94,19 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         discount_amount=discount_amount, total_amount=total_amount,
                         no_of_tickets=no_of_tickets)
 
-            payment_object = event_payment(data)
+            payment_object = requests.post(PAYMENT_POST_URL, data=json.dumps(data), headers={"Content-Type": "application/json"})
+            if payment_object.status_code == 200:
+                payment_object = payment_object.json().get('data')
+                if payment_object['status'] == 3:
+                    payment_object['total_amount'] = payment_object['total_amount'] * (-1)
 
-            if isinstance(payment_object, str):
-                return api_error_response(message=payment_object, status=400)
+            else:
+                return api_error_response(message="Error in Payment", status=400)
 
             payment_id = payment_object['id']
+            amount = payment_object['total_amount']
 
-        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, payment=payment_id)
+        data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, id_payment=payment_id, amount=amount)
 
         if not payment_id and self.event.subscription_fee > 0:
             return api_error_response(message="Required Fields are not present")
@@ -110,61 +116,46 @@ class SubscriptionViewSet(viewsets.ViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-            if serializer.instance.payment:
-                current_payment_queryset = self.queryset.filter(event=event_id, payment=payment_id)
-                current_payment_queryset = current_payment_queryset.select_related('payment')
-                current_payment_queryset = current_payment_queryset.annotate(
-                    ref_no=F('payment__ref_number'))
+            if serializer.instance.id_payment:
                 success_queryset = self.queryset.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False,
-                                                        payment__status=0)
+                                                        id_payment__isnull=False,
+                                                        amount__gt=0)
                 refund_queryset = self.queryset.filter(user=user_id, event=event_id,
-                                                       payment__isnull=False,
-                                                       payment__status=3)
+                                                       id_payment__isnull=False,
+                                                       amount__lt=0)
 
-                success_queryset = success_queryset.select_related('payment')
                 success_queryset = success_queryset.select_related('event')
-                refund_queryset = refund_queryset.select_related('payment')
                 refund_queryset = refund_queryset.select_related('event')
                 success_queryset = success_queryset.values('event').annotate(
-                    amount=F('payment__amount'),
-                    discount_amount=F('payment__discount_amount'),
-                    total_amount=F('payment__total_amount'),
-                    events=F('event'),
+                    total_amount=Coalesce(Sum('amount'), 0),
+                    total_tickets=Coalesce(Sum('no_of_tickets'), 0),
                     event_name=F('event__name'),
                     event_date=F('event__date'),
                     event_time=F('event__time'),
                     event_location=F('event__location'))
                 refund_queryset = refund_queryset.values('event').annotate(
-                    amount=F('payment__amount'),
-                    discount_amount=F('payment__discount_amount'),
-                    total_amount=F('payment__total_amount'))
-                success_data = success_queryset.aggregate(
-                    Sum('amount'), Sum('discount_amount'), Sum('total_amount'), Sum('no_of_tickets'))
-                refund_data = refund_queryset.aggregate(amount__sum=Coalesce(Sum('amount'), 0),
-                                                        discount_amount__sum=
-                                                        Coalesce(Sum('discount_amount'), 0),
-                                                        total_amount__sum=
-                                                        Coalesce(Sum('total_amount'), 0),
-                                                        no_of_tickets__sum=
-                                                        Coalesce(Sum('no_of_tickets'), 0))
-                success_queryset = success_queryset.first()
+                    total_amount=Coalesce(Sum('amount'), 0),
+                    total_tickets=Coalesce(Sum('no_of_tickets'), 0))
+
+                if len(success_queryset) > 0:
+                    success_queryset = success_queryset[0]
+                if len(refund_queryset) > 0:
+                    refund_queryset = refund_queryset[0]
+                    refund_total_amount = refund_queryset['total_amount']
+                    refund_total_tickets = refund_queryset['total_tickets']
+                else:
+                    refund_total_amount = 0
+                    refund_total_tickets = 0
                 data = dict(curent_payment_id=payment_id,
-                            current_payment_ref_number=current_payment_queryset[0].ref_no,
                             no_of_tickets=
-                            int(success_data['no_of_tickets__sum'] + refund_data['no_of_tickets__sum']),
-                            amount=success_data['amount__sum'] - refund_data['amount__sum'],
-                            discount_amount=
-                            success_data['discount_amount__sum'] - refund_data['discount_amount__sum'],
-                            total_amount=
-                            success_data['total_amount__sum'] - refund_data['total_amount__sum'],
+                            int(success_queryset['total_tickets'] + refund_total_tickets),
+                            total_amount=success_queryset['total_amount'] + refund_total_amount,
                             event_name=success_queryset['event_name'],
                             event_date=success_queryset['event_date'],
                             event_time=success_queryset['event_time'],
                             event_location=success_queryset['event_location'])
             else:
-                queryset = self.queryset.filter(event=event_id, user=user_id, payment_id=None)
-                queryset = queryset.select_related('payment')
+                queryset = self.queryset.filter(event=event_id, user=user_id, id_payment=None)
                 queryset = queryset.select_related('event')
                 tickets_data = queryset.aggregate(Sum('no_of_tickets'))
                 queryset = queryset.values('event').annotate(
