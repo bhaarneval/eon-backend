@@ -95,5 +95,5 @@ EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancel
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
 
 HEADERS = {'Content-type': 'application/json'}
-PAYMENT_POST_URL = "http://127.0.0.1:8001/core/payment/"
+PAYMENT_URL = "http://127.0.0.1:8001/core/payment/"
 

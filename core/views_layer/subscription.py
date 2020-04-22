@@ -17,7 +17,7 @@ from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
-from utils.constants import PAYMENT_POST_URL, HEADERS
+from utils.constants import PAYMENT_URL, HEADERS
 from utils.permission import IsSubscriberOrReadOnly
 
 
@@ -94,14 +94,14 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         discount_amount=discount_amount, total_amount=total_amount,
                         no_of_tickets=no_of_tickets)
 
-            payment_object = requests.post(PAYMENT_POST_URL, data=json.dumps(data), headers={"Content-Type": "application/json"})
+            payment_object = requests.post(PAYMENT_URL, data=json.dumps(data), headers=HEADERS)
             if payment_object.status_code == 200:
                 payment_object = payment_object.json().get('data')
                 if payment_object['status'] == 3:
                     payment_object['total_amount'] = payment_object['total_amount'] * (-1)
 
             else:
-                return api_error_response(message="Error in Payment", status=400)
+                return api_error_response(message="Error in Payment", status=500)
 
             payment_id = payment_object['id']
             amount = payment_object['total_amount']
@@ -172,7 +172,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
 
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
 
-        return api_error_response(message="Number of tickets are invalid", status=400)
+        return api_error_response(message="Requested number of tickets are more than available", status=400)
 
     def destroy(self, request, pk=None):
         """
