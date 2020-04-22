@@ -58,5 +58,4 @@ class UserAdmin(admin.ModelAdmin):
 post_save.connect(post_save_method, sender=User)
 post_init.connect(remember_state_method, sender=User)
 
-admin.site.register(Role)
 admin.site.unregister(Group)
