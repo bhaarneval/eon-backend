@@ -22,7 +22,7 @@ urlpatterns = [
     url('notification', NotificationView.as_view(), name='notification'),
     url(r'^event-summary', get_event_summary, name="event_summary"),
     url(r'feedback-questions', get_feedback_questions, name="feedback_questions"),
-    url('feedback', FeedbackView.as_view(), name="feedback")
+    url('feedback', FeedbackView.as_view(), name="feedback"),
     url('reports', event_summary, name='report'),
     re_path('filtered_event_summary', filtered_event_summary, name="filtered_event_summary")
 ]
