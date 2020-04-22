@@ -109,6 +109,7 @@ class EventViewSet(ModelViewSet):
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
                                       + curr_event.images, "external_links": curr_event.external_links,
                             'is_free': curr_event.subscription_fee == 0,
+                            'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()
                             }
 
             if is_subscriber:
@@ -208,7 +209,8 @@ class EventViewSet(ModelViewSet):
                     "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                     "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
-                    "self_organised": self_organised, 'event_status': event_status}
+                    "self_organised": self_organised, 'event_status': event_status,
+                    'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()}
 
             return api_success_response(message="event details", data=data, status=200)
         else:
