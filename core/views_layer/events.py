@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import get_authorization_header
 
-from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback
+from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback, Feedback
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
@@ -108,7 +108,8 @@ class EventViewSet(ModelViewSet):
                             "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
                                       + curr_event.images, "external_links": curr_event.external_links,
-                            'is_free': curr_event.subscription_fee == 0}
+                            'is_free': curr_event.subscription_fee == 0,
+                            }
 
             if is_subscriber:
                 # check for subscription
@@ -128,12 +129,13 @@ class EventViewSet(ModelViewSet):
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
 
-            try:
-                UserFeedback.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
-                feedback_given = True
-            except UserFeedback.DoesNotExist:
-                feedback_given = False
-            response_obj['feedback_given'] = feedback_given
+                try:
+                    UserFeedback.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                    feedback_given = True
+                except UserFeedback.DoesNotExist:
+                    feedback_given = False
+                response_obj['feedback_given'] = feedback_given
+
             data.append(response_obj)
 
         return api_success_response(message="List of events", data=data)

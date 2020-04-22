@@ -117,7 +117,7 @@ class FeedbackTestCase(APITestCase):
                           date="2020-04-02",
                           time="12:38:00", location="karnal", subscription_fee=499,
                           no_of_tickets=250,
-                          images="https://www.google.com/images", sold_tickets=2,
+                          images="https://www.google.com/images", sold_tickets=0,
                           external_links="google.com",
                           event_created_by_id=User.objects.filter()[0].id)
         cls.event.save()
@@ -186,7 +186,7 @@ class FeedbackTestCase(APITestCase):
         )
         self.assertEquals(response.status_code, 400)
 
-    def test_feedback_post_api(self):
+    def test_feedback_post_api_with_correct_data(self):
         """
         Test Feedback api for post api
         """
