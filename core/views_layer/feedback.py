@@ -52,8 +52,8 @@ class FeedbackView(APIView):
                 return api_error_response(message="Question Ids are not correct", status=400)
 
             answer = response.get('answer', {})
-            answer_description = answer.get('description')
-            image = answer.get('image')
+            answer_description = answer.get('description', "")
+            image = answer.get('image', "")
             try:
                 Feedback.objects.create(user_feedback=user_feedback, question=question,
                                         answer=answer_description, image=image)
