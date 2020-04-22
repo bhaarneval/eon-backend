@@ -6,7 +6,7 @@ from django.contrib.auth.models import Group
 from django.db.models.signals import post_save, post_init
 
 from utils.helper import send_email_sms_and_notification
-from .models import User
+from .models import User, Role
 from .signals import post_save_method, remember_state_method
 
 
@@ -58,4 +58,5 @@ class UserAdmin(admin.ModelAdmin):
 post_save.connect(post_save_method, sender=User)
 post_init.connect(remember_state_method, sender=User)
 
+admin.site.register(Role)
 admin.site.unregister(Group)
