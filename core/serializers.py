@@ -153,21 +153,36 @@ class FeedBackSerializer(serializers.ModelSerializer):
     """
     Serializer class for feedback model
     """
-    model = Feedback
-    fields = "__all__"
+    class Meta:
+        """
+        Class Meta:To override the database table name,
+        use the db_table parameter in class Meta.
+        """
+        model = Feedback
+        fields = "__all__"
 
 
 class UserFeedBackSerializer(serializers.ModelSerializer):
     """
     Serializer class for Userfeedback model
     """
-    model = UserFeedback
-    fields = "__all__"
+    class Meta:
+        """
+        Class Meta:To override the database table name,
+        use the db_table parameter in class Meta.
+        """
+        model = UserFeedback
+        fields = "__all__"
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     """
     Serializer class for Question model
     """
-    model = Question
-    fields = "__all__"
+    class Meta:
+        """
+        Class Meta:To override the database table name,
+        use the db_table parameter in class Meta.
+        """
+        model = Question
+        fields = ('id', 'question')

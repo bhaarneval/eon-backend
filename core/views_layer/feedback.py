@@ -8,7 +8,7 @@ from rest_framework.authentication import get_authorization_header
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Question, UserProfile, UserFeedback, Feedback, Event
-from core.serializers import FeedBackSerializer
+from core.serializers import FeedBackSerializer, QuestionSerializer
 from utils.permission import IsOrganizer, IsSubscriberOrReadOnly
 from eon_backend.settings import SECRET_KEY
 
@@ -21,7 +21,7 @@ class FeedbackView(APIView):
     """
     serializer_class = FeedBackSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
 
     def post(self, request):
         """
@@ -32,8 +32,6 @@ class FeedbackView(APIView):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-        if not UserProfile.objects.get(user=request.user).role.role == 'subscriber':
-            return api_error_response(message="You do not have permission to perform this action.", status=403)
 
         data = json.loads(request.body)
         event_id = data['event_id']
@@ -53,11 +51,12 @@ class FeedbackView(APIView):
             except Question.DoesNotExist:
                 return api_error_response(message="Question Ids are not correct", status=400)
 
-            answer_description = response['answer']['description']
-            image = response.get('answer').get('image')
+            answer = response.get('answer')
+            answer_description = answer.get('description')
+            image = answer.get('image')
             try:
-                feedback_obj = Feedback.objects.create(user_feedback=user_feedback, question=question,
-                                                       answer=answer_description, image=image)
+                Feedback.objects.create(user_feedback=user_feedback, question=question,
+                                        answer=answer_description, image=image)
             except Exception as err:
                 return api_error_response(message="Some internal error occur", status=500)
         return api_success_response(message="Successfully submitted", status=200)
@@ -72,8 +71,6 @@ class FeedbackView(APIView):
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
 
-        if UserProfile.objects.get(user=request.user).role.role == 'subscriber':
-            return api_error_response(message="You do not have permission to perform this action.", status=403)
         event_id = request.GET.get("event_id", None)
         if not event_id:
             return api_error_response(message="You have to provide event_id in feedback details", status=400)
@@ -82,11 +79,13 @@ class FeedbackView(APIView):
             event = Event.objects.get(id=event_id)
         except Exception:
             return api_error_response(message="Provided event doesn't exist", status=400)
-
-        if event.event_created_by != request.user:
+        user_role = UserProfile.objects.get(user=request.user).role.role
+        if user_role == 'organizer' and event.event_created_by != request.user:
             return api_error_response(message="You can only see feedback for self organized events", status=400)
 
         user_feedback = UserFeedback.objects.filter(event_id=event_id)
+        if user_role == 'subscriber':
+            user_feedback = user_feedback.filter(user_id=user_id)
         data = []
         for instance in user_feedback:
             feedback = Feedback.objects.filter(user_feedback=instance)
@@ -112,17 +111,16 @@ class FeedbackView(APIView):
 
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated, IsOrganizer])
+@permission_classes([IsAuthenticated, ])
 def get_feedback_questions(request):
     """
     API to get all questions assigned for feedback
     :return: questions for feedback
     """
     try:
-        query = Question.objects.all()
+        query = Question.objects.filter(is_active=True)
     except Exception as err:
-        return api_error_response(message="Some internal error occue", status=500)
-    data = []
-    for question in query:
-        data.append({'id': question.id, 'question': question.question})
-    return api_success_response(message="Feedback questions list", status=200, data=data)
+        return api_error_response(message="Some internal error occur", status=500)
+    serializer = QuestionSerializer(query, many=True)
+
+    return api_success_response(message="Feedback questions list", status=200, data=serializer.data)
