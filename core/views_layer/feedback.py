@@ -43,7 +43,7 @@ class FeedbackView(APIView):
             user_feedback = UserFeedback.objects.create(user_id=user_id, event_id=event_id)
 
         for response in feedback:
-            question_id = response.get("question_id", None)
+            question_id = response.get("id", None)
             if not question_id:
                 return api_error_response(message="You must provide question id for all questions", status=400)
             try:
