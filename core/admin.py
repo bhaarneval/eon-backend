@@ -156,6 +156,7 @@ class QuestionAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "question")
     readonly_fields = ('question',)
+    search_fields = ('question',)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -174,6 +175,7 @@ class UserFeedbackAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user", "event")
     readonly_fields = ('user', 'event')
+    search_fields = ('user__email', 'event__name')
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -192,6 +194,7 @@ class FeedbackAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user_feedback", "question")
     readonly_fields = ('user_feedback', 'question')
+    list_filter = ('question', 'user_feedback__user__email', 'user_feedback__event__name')
 
     def has_delete_permission(self, request, obj=None):
         return False
