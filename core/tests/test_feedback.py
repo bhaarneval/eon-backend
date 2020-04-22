@@ -15,6 +15,9 @@ class FeedbackQuestionsTestCase(APITestCase):
     Test cases are created in this class
     """
     def setUp(cls):
+        """
+        Setup for Feedback Questions GET Api
+        """
         role = Role(role="organizer")
         role.save()
         content = {
@@ -70,6 +73,9 @@ class FeedbackTestCase(APITestCase):
     """
 
     def setUp(cls):
+        """
+        Setup for Feedback GET/POST APIs
+        """
         role1 = Role(role="organizer")
         role1.save()
         role2 = Role(role="subscriber")
@@ -225,7 +231,6 @@ class FeedbackTestCase(APITestCase):
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 200)
-
 
     def test_feedback_get_api_with_no_event_in_parameter(self):
         """
