@@ -17,7 +17,7 @@ from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
-from utils.constants import PAYMENT_URL, HEADERS
+from utils.constants import PAYMENT_URL
 from utils.permission import IsSubscriberOrReadOnly
 
 
@@ -73,20 +73,24 @@ class SubscriptionViewSet(viewsets.ViewSet):
         total_amount = data.get('total_amount', None)
         payment_id = None
 
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+
         if not event_id or not no_of_tickets or not user_id:
-            return api_error_response(message="Request Parameters are invalid")
+            return api_error_response(message="Request parameters are invalid")
 
         try:
             self.event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
-            return api_error_response("Invalid event_id")
+            return api_error_response("Invalid event id")
 
         if no_of_tickets < 0:
             instance = self.queryset.filter(user=user_id, event=event_id)
             tickets_data = instance.values('event').aggregate(Sum('no_of_tickets'))
             remaining_tickets = no_of_tickets + tickets_data['no_of_tickets__sum']
             if remaining_tickets < 0:
-                return api_error_response(message="Number of tickets are invalid", status=400)
+                return api_error_response(message="Can not cancel tickets more than purchase", status=400)
 
         if amount:
             data = dict(card_number=card_number, expiry_month=expiry_month,
@@ -94,14 +98,16 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         discount_amount=discount_amount, total_amount=total_amount,
                         no_of_tickets=no_of_tickets)
 
-            payment_object = requests.post(PAYMENT_URL, data=json.dumps(data), headers=HEADERS)
+            payment_object = requests.post(PAYMENT_URL, data=json.dumps(data),
+                                           headers={"Authorization": f"Bearer {token.decode('utf-8')}",
+                                                    "Content-type": "application/json"})
             if payment_object.status_code == 200:
                 payment_object = payment_object.json().get('data')
                 if payment_object['status'] == 3:
                     payment_object['total_amount'] = payment_object['total_amount'] * (-1)
 
             else:
-                return api_error_response(message="Error in Payment", status=500)
+                return api_error_response(message="Error while fetching payment", status=500)
 
             payment_id = payment_object['id']
             amount = payment_object['total_amount']
@@ -109,7 +115,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
         data = dict(user=user_id, event=event_id, no_of_tickets=no_of_tickets, id_payment=payment_id, amount=amount)
 
         if not payment_id and self.event.subscription_fee > 0:
-            return api_error_response(message="Required Fields are not present")
+            return api_error_response(message="Required fields are not present")
 
         if self.event.no_of_tickets - self.event.sold_tickets >= no_of_tickets:
             serializer = SubscriptionSerializer(data=data)
@@ -170,7 +176,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
                     event_date=queryset['event_date'], event_time=queryset['event_time'],
                     event_location=queryset['event_location'])
 
-            return api_success_response(message="Subscribed Successfully", data=data, status=201)
+            return api_success_response(message="Subscribed successfully", data=data, status=201)
 
         return api_error_response(message="Requested number of tickets are more than available", status=400)
 
@@ -189,4 +195,4 @@ class SubscriptionViewSet(viewsets.ViewSet):
         event.sold_tickets -= total_tickets['no_of_tickets__sum']
         event.save()
         event_to_be_added_to_inactive.update(is_active=False)
-        return api_success_response(message="Successfully Unsubscribed")
+        return api_success_response(message="Successfully unsubscribed")
