@@ -5,7 +5,7 @@ import json
 import jwt
 from datetime import date
 
-from django.db.models import F
+from django.db.models import F, Q
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
@@ -133,7 +133,7 @@ def get_event_summary(request):
         queryset = queryset.filter(date__gte=str(today), is_active=True)
 
     if search_text:
-        queryset = queryset.filter(name__icontains=search_text)
+        queryset = queryset.filter(Q(location__icontains=search_text) | Q(name__icontains=search_text))
 
     cancelled_events, completed_events, ongoing_events, total_events = 0, 0, 0, queryset.count()
     data = {'event_list': []}
@@ -170,6 +170,7 @@ def get_event_summary(request):
                                        'total_tickets': event.no_of_tickets,
                                        'sold_tickets': event.sold_tickets,
                                        'revenue': revenue,
+                                       'location': event.location,
                                        'status': event_status})
         data['total_revenue'] = total_revenue
         data['total_events'] = total_events
