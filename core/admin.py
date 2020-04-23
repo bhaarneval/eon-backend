@@ -51,7 +51,8 @@ class InvitationAdmin(admin.ModelAdmin):
     Added invitation in admin
     """
     list_display = ("id", "event", "discount_percentage", "email")
-    list_filter = ('event', 'email')
+    list_filter = ('event', )
+    search_fields = ('email', )
     readonly_fields = ('event', 'user', 'discount_percentage', 'email')
     fieldsets = (
         (
@@ -76,7 +77,8 @@ class UserInterestAdmin(admin.ModelAdmin):
     Added event preference in admin
     """
     list_display = ("id", "event_type", "user")
-    list_filter = ('event_type', 'user')
+    list_filter = ('event_type',)
+    search_fields = ('user__email',)
     readonly_fields = ('user', 'event_type', 'is_active')
 
     def has_delete_permission(self, request, obj=None):
