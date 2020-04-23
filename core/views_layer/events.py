@@ -109,7 +109,8 @@ class EventViewSet(ModelViewSet):
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
                                       + curr_event.images, "external_links": curr_event.external_links,
                             'is_free': curr_event.subscription_fee == 0,
-                            'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()
+                            'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count(),
+                            'event_status': event_status
                             }
 
             if is_subscriber:
