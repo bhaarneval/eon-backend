@@ -97,7 +97,8 @@ def event_analysis_report(request, event_status=None, event_name=None):
         if event_name:
             events_queryset = Event.objects.filter(
                 Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
-            event_which_has_subscribers = Subscription.objects.filter(Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name)).select_related(
+            event_which_has_subscribers = Subscription.objects.filter(Q(event__name__iexact=event_name) | Q(
+                event__event_created_by__email__icontains=event_name)).select_related(
                 'event', 'payment')
         else:
             events_queryset = Event.objects.all()
@@ -225,13 +226,12 @@ def event_analysis_report(request, event_status=None, event_name=None):
                    data=dict(labels=['Completed', 'Ongoing', 'Cancelled'], datasets=[
                        dict(label='User Table',
                             data=[event_completed_count, event_on_going_count, event_cancelled_count],
-                            backgroundColor=['rgba(255, 99, 132, 0.2)',
-                                             'rgba(54, 162, 235, 0.2)',
-                                             'rgba(255, 206, 86, 0.2)',
-                                             'rgba(75, 192, 192, 0.2)'],
-                            borderColor=['rgba(255, 99, 132, 1)',
-                                         'rgba(54, 162, 235, 1)',
-                                         'rgba(255, 206, 86, 1)',
-                                         'rgba(75, 192, 192, 1)'],
+                            backgroundColor=['rgba(0,255,127, 0.2)',
+                                             'rgba(255,140,0, 0.2)',
+                                             'rgba(255,0,0, 0.2)'
+                                             ],
+                            borderColor=['rgba(0,255,127, 1)',
+                                         'rgba(255,140,0, 1)',
+                                         'rgba(255,0,0, 1)'],
                             borderWidth=1)]))
     return content
