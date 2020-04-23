@@ -92,6 +92,10 @@
                 <th class="sortable column-dealer sorted ascending" scope="col">
                 <div class="grp-text"><p style="padding:5px 15px 2px 15px; color:#59afcc;font-weight:bold">Status</p></div>
             </th>
+            </th>
+                <th class="sortable column-dealer sorted ascending" scope="col">
+                <div class="grp-text"><p style="padding:5px 15px 2px 15px; color:#59afcc;font-weight:bold">Event Created By</p></div>
+            </th>
         </thead>
         <tbody>
         {% for data in event_which_has_subscribers %}
@@ -101,6 +105,7 @@
                 <td>{{ data.total_sold_tickets }}</td>
                 <td>{{ data.final_amount }}</td>
                 <td>{{ data.status}}</td>
+                <td>{{ data.event_created_by }}</td>
             </tr>
         {% endfor %}
         {% for data in events_not_subscribed %}
@@ -110,6 +115,7 @@
                 <td>{{ data.sold_tickets }}</td>
                 <td>{{ data.sold_tickets }}</td>
                 <td>{{ data.status}}</td>
+                <td>{{ data.event_created_by }}</td>
             </tr>
         {% endfor %}
         </tbody>

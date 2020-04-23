@@ -13,15 +13,18 @@ function update_dashboard(){
                     '</th><td>' + data['event_which_has_subscribers'][each]['total_tickets'] +
                     '</td><td>' + data['event_which_has_subscribers'][each]['total_sold_tickets'] +
                     '</td><td>' + data['event_which_has_subscribers'][each]['final_amount'] +
-                    '</td><td>' + data['event_which_has_subscribers'][each]['status'] +  '</td></tr>';;
+                    '</td><td>' + data['event_which_has_subscribers'][each]['status'] +
+                    '</td><td>' + data['event_which_has_subscribers'][each]['event_created_by'] + '</td></tr>';
             }
             for (var each in data['events_not_subscribed']) {
             html += '<tr><th>' + data['events_not_subscribed'][each]['name'] +
                     '</th><td>' + data['events_not_subscribed'][each]['no_of_tickets'] +
                     '</td><td>' + data['events_not_subscribed'][each]['sold_tickets'] +
                     '</td><td>' + data['events_not_subscribed'][each]['sold_tickets'] +
-                    '</td><td>' + data['events_not_subscribed'][each]['status'] +  '</td></tr>';
+                    '</td><td>' + data['events_not_subscribed'][each]['status'] +
+                    '</td><td>' + data['events_not_subscribed'][each]['event_created_by'] + '</td></tr>';
             }
+            console.log(data)
             $('#rank_table tbody').append(html)
             $('#rank_table tbody tr:odd').addClass('grp-row grp-row-odd');
             $('#rank_table tbody tr:even').addClass('grp-row grp-row-even');

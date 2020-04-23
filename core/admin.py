@@ -138,7 +138,7 @@ class WishListAdmin(admin.ModelAdmin):
     """
     list_display = ("id", "user", "event")
     search_fields = ("user__email",)
-    list_filter = ("event", "user")
+    list_filter = ("event",)
     readonly_fields = ('user', 'event')
 
     def has_delete_permission(self, request, obj=None):
@@ -151,59 +151,59 @@ class WishListAdmin(admin.ModelAdmin):
         return False
 
 
-@admin.register(Question)
-class QuestionAdmin(admin.ModelAdmin):
-    """
-    Added user profile model in admin
-    """
-    list_display = ("id", "question")
-    readonly_fields = ('question',)
-    search_fields = ('question',)
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(UserFeedback)
-class UserFeedbackAdmin(admin.ModelAdmin):
-    """
-    Added user profile model in admin
-    """
-    list_display = ("id", "user", "event")
-    readonly_fields = ('user', 'event')
-    search_fields = ('user__email', 'event__name')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
+# @admin.register(Question)
+# class QuestionAdmin(admin.ModelAdmin):
+#     """
+#     Added user profile model in admin
+#     """
+#     list_display = ("id", "question")
+#     readonly_fields = ('question',)
+#     search_fields = ('question',)
+#
+#     def has_delete_permission(self, request, obj=None):
+#         return False
+#
+#     def has_add_permission(self, request):
+#         return True
+#
+#     def has_change_permission(self, request, obj=None):
+#         return False
 
 
-@admin.register(Feedback)
-class FeedbackAdmin(admin.ModelAdmin):
-    """
-    Added user profile model in admin
-    """
-    list_display = ("id", "user_feedback", "question")
-    readonly_fields = ('user_feedback', 'question')
-    list_filter = ('question',)
-    search_fields = ('user_feedback__user__email', 'user_feedback__event__name')
+# @admin.register(UserFeedback)
+# class UserFeedbackAdmin(admin.ModelAdmin):
+#     """
+#     Added user profile model in admin
+#     """
+#     list_display = ("id", "user", "event")
+#     readonly_fields = ('user', 'event')
+#     search_fields = ('user__email', 'event__name')
+#
+#     def has_delete_permission(self, request, obj=None):
+#         return False
+#
+#     def has_add_permission(self, request):
+#         return False
+#
+#     def has_change_permission(self, request, obj=None):
+#         return False
 
-    def has_delete_permission(self, request, obj=None):
-        return False
 
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return False
+# @admin.register(Feedback)
+# class FeedbackAdmin(admin.ModelAdmin):
+#     """
+#     Added user profile model in admin
+#     """
+#     list_display = ("id", "user_feedback", "question")
+#     readonly_fields = ('user_feedback', 'question')
+#     list_filter = ('question',)
+#     search_fields = ('user_feedback__user__email', 'user_feedback__event__name')
+#
+#     def has_delete_permission(self, request, obj=None):
+#         return False
+#
+#     def has_add_permission(self, request):
+#         return False
+#
+#     def has_change_permission(self, request, obj=None):
+#         return False

@@ -21,7 +21,8 @@ def filtered_event_summary(request):
             "name": entry.name,
             "no_of_tickets": entry.no_of_tickets,
             "sold_tickets": entry.sold_tickets,
-            "status": entry.status
+            "status": entry.status,
+            "event_created_by": entry.event_created_by.email
         }
         data.append(temp_data)
     content['events_not_subscribed'] = data
@@ -33,7 +34,8 @@ def filtered_event_summary(request):
             "total_tickets": entry['total_tickets'],
             "total_sold_tickets": entry['total_sold_tickets'],
             "status": entry['status'],
-            "final_amount": entry['final_amount']
+            "final_amount": entry['final_amount'],
+            "event_created_by": entry['event_created_by']
         }
         data.append(temp_data)
     content['event_which_has_subscribers'] = data
@@ -45,12 +47,15 @@ def event_analysis_report(request, event_status=None, event_name=None):
 
     if event_status == "Completed":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=False, is_cancelled=False, name__iexact=event_name)
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=False)
+            events_queryset = events_queryset.filter(
+                Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=False,
-                                                                      event__name__iexact=event_name).select_related(
+                                                                      event__is_cancelled=False).select_related(
                 'event',
                 'payment')
+            event_which_has_subscribers = event_which_has_subscribers.filter(
+                Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=False)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
@@ -58,12 +63,15 @@ def event_analysis_report(request, event_status=None, event_name=None):
                                                                                                                 'payment')
     elif event_status == "Cancelled":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True, name__iexact=event_name)
+            events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
+            events_queryset = events_queryset.filter(
+                Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=True,
-                                                                      event__name__iexact=event_name).select_related(
+                                                                      event__is_cancelled=True).select_related(
                 'event',
                 'payment')
+            event_which_has_subscribers = event_which_has_subscribers.filter(
+                Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
@@ -71,12 +79,15 @@ def event_analysis_report(request, event_status=None, event_name=None):
                                                                                                                'payment')
     elif event_status == "Ongoing":
         if event_name:
-            events_queryset = Event.objects.filter(is_active=True, is_cancelled=False, name__iexact=event_name)
+            events_queryset = Event.objects.filter(is_active=True, is_cancelled=False)
+            events_queryset = events_queryset.filter(
+                Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
-                                                                      event__is_cancelled=False,
-                                                                      event__name__iexact=event_name).select_related(
+                                                                      event__is_cancelled=False).select_related(
                 'event',
                 'payment')
+            event_which_has_subscribers = event_which_has_subscribers.filter(
+                Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=True, is_cancelled=False)
             event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
@@ -84,8 +95,9 @@ def event_analysis_report(request, event_status=None, event_name=None):
                                                                                                                 'payment')
     else:
         if event_name:
-            events_queryset = Event.objects.filter(name__iexact=event_name)
-            event_which_has_subscribers = Subscription.objects.filter(event__name__iexact=event_name).select_related(
+            events_queryset = Event.objects.filter(
+                Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
+            event_which_has_subscribers = Subscription.objects.filter(Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name)).select_related(
                 'event', 'payment')
         else:
             events_queryset = Event.objects.all()
@@ -99,7 +111,9 @@ def event_analysis_report(request, event_status=None, event_name=None):
                                                                        no_of_tickets__gt=0)
     event_which_has_subscribers_1 = event_which_has_subscribers_1.values('event').annotate(
         final_amount=Sum('payment__total_amount'), total_sold_tickets=F('event__sold_tickets'),
-        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'),
+        event_created_by=F('event__event_created_by__email'),
+        status=Case(
             When(
                 event__is_active=False,
                 event__is_cancelled=False,
@@ -121,7 +135,9 @@ def event_analysis_report(request, event_status=None, event_name=None):
                                                                        no_of_tickets__lt=0)
     event_which_has_subscribers_2 = event_which_has_subscribers_2.values('event').annotate(
         final_amount=Sum('payment__total_amount') * (-1), total_sold_tickets=F('event__sold_tickets'),
-        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'),
+        event_created_by=F('event__event_created_by__email'),
+        status=Case(
             When(
                 event__is_active=False,
                 event__is_cancelled=False,
@@ -143,7 +159,9 @@ def event_analysis_report(request, event_status=None, event_name=None):
     event_which_has_subscribers_3 = event_which_has_subscribers.filter(payment__isnull=True)
     event_which_has_subscribers_3 = event_which_has_subscribers_3.values('event').annotate(
         final_amount=Coalesce('payment__total_amount', 0), total_sold_tickets=F('event__sold_tickets'),
-        total_tickets=F('event__no_of_tickets'), name=F('event__name'), status=Case(
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'),
+        event_created_by=F('event__event_created_by__email'),
+        status=Case(
             When(
                 event__is_active=False,
                 event__is_cancelled=False,
@@ -193,6 +211,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
             ),
             output_field=CharField(),
         ))
+    events_not_subscribed = events_not_subscribed.select_related('event_created_by')
 
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
 
