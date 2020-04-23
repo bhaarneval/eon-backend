@@ -162,7 +162,16 @@ var piechart = new Chart(ctx, {
     grappelli.initFilters = function(method) {
         $("a.grp-pulldown-handler").on("click", function() {
             var pulldownContainer = $(this).closest(".grp-pulldown-container");
-            $(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").addClass('disp1');
+            if ($(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").hasClass('disp1') )
+            {
+                $(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").removeClass('disp1');
+                $(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").addClass('disp');
+            }
+            else
+            {
+                $(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").removeClass('disp');
+                $(pulldownContainer).toggleClass("grp-pulldown-state-open").children(".grp-pulldown-content").addClass('disp1');
+            }
         });
         $("a.grp-pulldown-handler").on('mouseout', function() {
             $(this).blur();

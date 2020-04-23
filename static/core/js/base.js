@@ -24,7 +24,6 @@ function update_dashboard(){
                     '</td><td>' + data['events_not_subscribed'][each]['status'] +
                     '</td><td>' + data['events_not_subscribed'][each]['event_created_by'] + '</td></tr>';
             }
-            console.log(data)
             $('#rank_table tbody').append(html)
             $('#rank_table tbody tr:odd').addClass('grp-row grp-row-odd');
             $('#rank_table tbody tr:even').addClass('grp-row grp-row-even');
@@ -35,7 +34,7 @@ function update_dashboard(){
             $('#revenue').val(data['total_revenue']).html(data['total_revenue'])
             $('#revenue').addClass('text-color')
             $("a.grp-pulldown-handler").closest(".grp-pulldown-container").removeClass('grp-pulldown-state-open').children(".grp-pulldown-content").removeClass('disp1');
-            $("a.grp-pulldown-handler").closest(".grp-pulldown-container").removeClass('grp-pulldown-state-open').children(".grp-pulldown-content").addClass('disp');
+            $("a.grp-pulldown-handler").closest(".grp-pulldown-container").children(".grp-pulldown-content").addClass('disp');
             var data = data['data'];
             $('#piechart').remove();
             $('.chart').append('<canvas id="piechart" width="500" height="200" ><canvas>');
