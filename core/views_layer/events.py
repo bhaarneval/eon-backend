@@ -56,6 +56,10 @@ class EventViewSet(ModelViewSet):
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
+        if event_status.lower() == EVENT_STATUS['all']:
+            self.queryset = Event.objects.all()
+            event_status = event_status.lower()
+
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_active=False)
 
@@ -112,7 +116,8 @@ class EventViewSet(ModelViewSet):
                             'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count(),
                             'event_status': event_status
                             }
-
+            if event_status == EVENT_STATUS['all']:
+                response_obj['event_status'] = get_event_status(curr_event)
             if is_subscriber:
                 # check for subscription
                 subscription_list = Subscription.objects.filter(
@@ -178,11 +183,7 @@ class EventViewSet(ModelViewSet):
         except Event.DoesNotExist:
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
-        event_status = EVENT_STATUS['default']
-        if not curr_event.is_active and not curr_event.is_cancelled:
-            event_status = EVENT_STATUS['completed']
-        if not curr_event.is_active and curr_event.is_cancelled:
-            event_status = EVENT_STATUS['cancelled']
+        event_status = get_event_status(curr_event)
 
         if user_role != 'subscriber':
             invitee_list = Invitation.objects.filter(event=curr_event.id,
@@ -424,3 +425,17 @@ class EventViewSet(ModelViewSet):
                                             user_ids=user_ids,
                                             event_id=event_id)
         return api_success_response(data=serializer.data, status=200)
+
+
+def get_event_status(curr_event):
+    """
+    common function to get event status
+    :param curr_event: event object
+    :return: status
+    """
+    event_status = EVENT_STATUS['default']
+    if not curr_event.is_active and not curr_event.is_cancelled:
+        event_status = EVENT_STATUS['completed']
+    if not curr_event.is_active and curr_event.is_cancelled:
+        event_status = EVENT_STATUS['cancelled']
+    return event_status
