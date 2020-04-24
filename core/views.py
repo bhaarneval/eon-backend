@@ -20,7 +20,7 @@ from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from eon_backend.settings import SECRET_KEY
 from utils.permission import IsOrganizer
-from utils.constants import EVENT_STATUS
+from utils.constants import EVENT_STATUS, MONTH
 
 
 @api_view(["GET"])
@@ -180,6 +180,55 @@ def get_event_summary(request):
         data['revenue_ongoing_events'] = revenue_ongoing_events
         data['revenue_completed_events'] = revenue_completed_events
         data['revenue_cancelled_events'] = revenue_cancelled_events
+        monthly_data = get_month_wise_data(queryset)
+        data['monthly_event_count'] = monthly_data['events']
+        data['monthly_revenue'] = monthly_data['revenue']
+
     except Exception as err:
         return api_error_response(message="Some internal error occur", status=500)
     return api_success_response(message="Summary of all events", data=data, status=200)
+
+
+def get_month_wise_data(queryset):
+    """
+    This function will calculate month wise stats of events
+    :param queryset: queryset object of events
+    :return: Events count
+    """
+    queryset = queryset.filter(date__year=date.today().year)
+    event_count = {}
+    monthly_revenue = {}
+    for month in range(1, 13):
+        current_queryset = queryset.filter(date__month=month)
+        total = current_queryset.count()
+        ongoing_events = current_queryset.filter(is_active=True, is_cancelled=False).count()
+        completed_events = current_queryset.filter(is_active=False, is_cancelled=False).count()
+        cancelled_events = current_queryset.filter(is_active=False, is_cancelled=True).count()
+        event_count[MONTH[month-1]] = {
+                'total': total,
+                'ongoing': ongoing_events,
+                'completed': completed_events,
+                'cancelled': cancelled_events
+            }
+
+        event_ids = current_queryset.values_list('id', flat=True)
+        monthly_revenue[MONTH[month-1]] = get_month_wise_revenue(event_ids)
+
+    return {'events': event_count, 'revenue': monthly_revenue}
+
+
+def get_month_wise_revenue(event_ids):
+    """
+    This function will return total revenue for a specific event_ids given
+    :param event_ids: list of event ids
+    :return: sum of revenue generated from all events
+    """
+    total_amount_paid = sum(list(
+        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=0,
+                                    is_active=True).values_list(
+            'payment__total_amount', flat=True)))
+    refund = sum(list(
+        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=3,
+                                    is_active=True).values_list(
+            'payment__total_amount', flat=True)))
+    return total_amount_paid-refund
