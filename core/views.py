@@ -210,23 +210,33 @@ def get_month_wise_data(queryset):
     :return: Events count
     """
     queryset = queryset.filter(date__year=date.today().year)
-    event_count = {}
-    monthly_revenue = {}
+    event_count = [
+        {
+            'name': EVENT_STATUS['default'],
+            'data': []
+        },
+        {
+            'name': EVENT_STATUS['completed'],
+            'data': []
+        },
+        {
+            'name': EVENT_STATUS['cancelled'],
+            'data': []
+        }
+    ]
+
+    monthly_revenue = []
     for month in range(1, 13):
         current_queryset = queryset.filter(date__month=month)
-        total = current_queryset.count()
         ongoing_events = current_queryset.filter(is_active=True, is_cancelled=False).count()
         completed_events = current_queryset.filter(is_active=False, is_cancelled=False).count()
         cancelled_events = current_queryset.filter(is_active=False, is_cancelled=True).count()
-        event_count[MONTH[month-1]] = {
-                'total': total,
-                'ongoing': ongoing_events,
-                'completed': completed_events,
-                'cancelled': cancelled_events
-            }
+        event_count[0]['data'].append(ongoing_events)
+        event_count[1]['data'].append(completed_events)
+        event_count[2]['data'].append(cancelled_events)
 
         event_ids = current_queryset.values_list('id', flat=True)
-        monthly_revenue[MONTH[month-1]] = get_month_wise_revenue(event_ids)
+        monthly_revenue.append(get_month_wise_revenue(event_ids))
 
     return {'events': event_count, 'revenue': monthly_revenue}
 
