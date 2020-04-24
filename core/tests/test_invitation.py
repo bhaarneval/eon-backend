@@ -3,11 +3,10 @@ Event test case created here
 """
 import json
 
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from authentication.models import Role
-from core.models import EventType, Event
+from authentication.models import Role, User
+from core.models import EventType, Event, UserProfile
 
 
 class InvitationTestCase(APITestCase):
@@ -22,19 +21,15 @@ class InvitationTestCase(APITestCase):
         """
         role = Role(role="organizer")
         role.save()
-        content = {
-            "email": "user12@gmail.com",
-            "name": "user12@gmail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
 
-        url1 = reverse('registration')
-        cls.client.post(url1, json.dumps(content),
-                        content_type='application/json')
+        user = User.objects.create_user(email="user12@gmail.com", password="user123")
+        role_obj = Role.objects.get(role="organizer")
+
+        user_profile_obj = UserProfile.objects.create(
+            user=user, name="user12@gmail.com", contact_number="9999911111",
+            organization="organization", address="Bangalore",
+            role=role_obj)
+        user_profile_obj.save()
 
         data = dict(email="user12@gmail.com", password="user123")
         login_response = cls.client.post('/authentication/login', json.dumps(data),

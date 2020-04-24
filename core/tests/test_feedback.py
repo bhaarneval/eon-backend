@@ -3,11 +3,10 @@ Test for feedback module api added here
 """
 import json
 
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import Event, EventType, Question
+from core.models import Event, EventType, Question, UserProfile
 
 
 class FeedbackQuestionsTestCase(APITestCase):
@@ -20,18 +19,15 @@ class FeedbackQuestionsTestCase(APITestCase):
         """
         role = Role(role="organizer")
         role.save()
-        content = {
-            "email": "user21@gmail.com",
-            "name": "user21@gmail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
 
-        cls.client.post('/authentication/registration', json.dumps(content),
-                        content_type='application/json')
+        user = User.objects.create_user(email="user21@gmail.com", password="user123")
+        role_obj = Role.objects.get(role="organizer")
+
+        user_profile_obj = UserProfile.objects.create(
+            user=user, name="user21@gmail.com", contact_number="9999911111",
+            organization="organization", address="Bangalore",
+            role=role_obj)
+        user_profile_obj.save()
         data = dict(email="user21@gmail.com", password="user123")
         login_response = cls.client.post('/authentication/login', json.dumps(data),
                                          content_type='application/json')
@@ -76,19 +72,23 @@ class FeedbackTestCase(APITestCase):
         """
         Setup for Feedback GET/POST APIs
         """
-        role1 = Role(role="organizer")
-        role1.save()
+        role = Role(role="organizer")
+        role.save()
         role2 = Role(role="subscriber")
         role2.save()
-        content1 = {
-            "email": "user21@gmail.com",
-            "name": "user21@gmail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
+
+        user = User.objects.create_user(email="user21@gmail.com", password="user123")
+        role_obj = Role.objects.get(role="organizer")
+
+        user_profile_obj = UserProfile.objects.create(
+            user=user, name="user21@gmail.com", contact_number="9999911111",
+            organization="organization", address="Bangalore",
+            role=role_obj)
+        user_profile_obj.save()
+
+        # role2 = Role(role="subscriber")
+        # role2.save()
+
         content2 = {
             "email": "user20@gmail.com",
             "name": "user20@gmail.com",
@@ -99,8 +99,6 @@ class FeedbackTestCase(APITestCase):
             "organization": "Eventhigh"
         }
 
-        cls.client.post('/authentication/registration', json.dumps(content1),
-                        content_type='application/json')
         cls.client.post('/authentication/registration', json.dumps(content2),
                         content_type='application/json')
         data = dict(email="user20@gmail.com", password="user123")
@@ -130,7 +128,7 @@ class FeedbackTestCase(APITestCase):
         """
         data = dict(email="user20@gmail.com", password="user123")
         login_response = self.client.post('/authentication/login', json.dumps(data),
-                                         content_type='application/json')
+                                          content_type='application/json')
         user_id = login_response.data['data']['user']['user_id']
         token = login_response.data['data']['access']
         response = self.client.put(
@@ -211,7 +209,7 @@ class FeedbackTestCase(APITestCase):
         Test Feedback api for get with subscriber login
         """
         response = self.client.get(
-            self.end_point+'?event_id={}'.format(self.event.id),
+            self.end_point + '?event_id={}'.format(self.event.id),
             HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type="application/json"
         )
@@ -226,7 +224,7 @@ class FeedbackTestCase(APITestCase):
                                           content_type='application/json')
         self.token = login_response.data['data']['access']
         response = self.client.get(
-            self.end_point+'?event_id={}'.format(self.event.id),
+            self.end_point + '?event_id={}'.format(self.event.id),
             HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type="application/json"
         )
@@ -248,7 +246,7 @@ class FeedbackTestCase(APITestCase):
         Test Feedback api for get with wrong event id
         """
         response = self.client.get(
-            self.end_point+'?event_id={}'.format(100),
+            self.end_point + '?event_id={}'.format(100),
             HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type="application/json"
         )
