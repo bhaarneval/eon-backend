@@ -137,6 +137,10 @@ def get_event_summary(request):
 
     cancelled_events, completed_events, ongoing_events, total_events = 0, 0, 0, queryset.count()
     data = {'event_list': []}
+    event_name_list = []
+    event_revenue_list = []
+    event_remaining_tickets = []
+    event_sold_tickets = []
     try:
         for event in queryset:
             if event.subscription_fee == 0:
@@ -172,6 +176,10 @@ def get_event_summary(request):
                                        'revenue': revenue,
                                        'location': event.location,
                                        'status': event_status})
+            event_name_list.append(event.name)
+            event_revenue_list.append(revenue)
+            event_remaining_tickets.append(event.no_of_tickets-event.sold_tickets)
+            event_sold_tickets.append(event.sold_tickets)
         data['total_revenue'] = total_revenue
         data['total_events'] = total_events
         data['ongoing_events'] = ongoing_events
@@ -180,6 +188,12 @@ def get_event_summary(request):
         data['revenue_ongoing_events'] = revenue_ongoing_events
         data['revenue_completed_events'] = revenue_completed_events
         data['revenue_cancelled_events'] = revenue_cancelled_events
+        data['ticket_graph_object'] = {
+            'name_list': event_name_list,
+            'revenue_list': event_revenue_list,
+            'remaining_tickets': event_remaining_tickets,
+            'sold_tickets': event_sold_tickets
+        }
         monthly_data = get_month_wise_data(queryset)
         data['monthly_event_count'] = monthly_data['events']
         data['monthly_revenue'] = monthly_data['revenue']
