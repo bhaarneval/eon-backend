@@ -93,3 +93,5 @@ NOTIFICATION_CONFIG = {
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
+MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
+             'November', 'December']
