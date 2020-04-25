@@ -9,22 +9,38 @@
 <link href="/static/grappelli/jquery/ui/jquery-ui.min.css" rel="stylesheet" type="text/css" media="screen">
 <link href="/static/grappelli/stylesheets/screen.css" rel="stylesheet" type="text/css" media="all">
 <link href="/static/grappelli/stylesheets/mueller/grid/output.css" rel="stylesheet" type="text/css" media="screen">
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <link rel="stylesheet" href="{% static 'core/css/base.css' %}"/>
 <script src="{% static 'core/js/base.js' %}"></script>
 {% endblock %}
 
 {% block content %}
 
-<div class="box" style="display: flex;">
-    <div class="card">
-        <div class="container">
-            <h1 id="revenue" class="text-color">Rs. {{ total_revenue }}</h1>
-            <p style="color: #4fb2d3;">Total Revenue</p>
+<div class="box" style="display: grid; width:98%" >
+    <div style="display: flex; width:100%">
+        <div>
+            <div class="card">
+                <div class="container">
+                    <h1 id="revenue" class="text-color">Rs. {{ total_revenue }}</h1>
+                    <p style="color: #4fb2d3;">Total Revenue</p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="container">
+                    <h1 id="ongoing_event" class="text-color">{{ event_on_going_count }} </h1>
+                    <p style="color: #4fb2d3;">Ongoing Event Count</p>
+                </div>
+            </div>
+        </div>
+        <div class="chart" id="chart" style=" width:25%; height: 220px;">
+            <canvas id="piechart" height="200"></canvas>
+        </div>
+        <div class="chart" id="chart1" style="width:60%; height:420px;">
+            <canvas id="linechart" style="width:80%" height="400"></canvas>
         </div>
     </div>
-    <div class="chart" style=" height: 220px;">
-        <canvas id="piechart" width="500" height="200"></canvas>
+    <div class="chart" id="chart2" style="width:98%; margin-top:7%">
+        <canvas id="mixchart" style="width:80%" height="300"></canvas>
     </div>
 </div>
 <div class="grp-module">
@@ -147,6 +163,100 @@ var ctx = document.getElementById("piechart").getContext('2d');
 var piechart = new Chart(ctx, {
     type: 'pie',
     data: {{ data|safe }},
+});
+
+var ctx = document.getElementById("mixchart").getContext('2d');
+var mixedChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        datasets: [{
+            label: 'Completed',
+            data: {{ completed|safe }},
+            type: 'line',
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            borderColor: 'rgba(0,255,127, 1)',
+            borderWidth: 1,
+        },
+         {
+            label: 'Ongoing',
+            data: {{ ongoing|safe }},
+            type: 'line',
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            borderColor: 'rgba(255,140,0, 1)',
+            borderWidth: 1,
+        },
+         {
+            label: 'Cancelled',
+            data: {{ cancelled|safe }},
+            type: 'line',
+            backgroundColor: 'rgba(255, 255, 255, 0)',
+            borderColor: 'rgba(255,0,0, 1)',
+            borderWidth: 1,
+        },
+        ],
+        labels: {{ event_organisers|safe }}
+    },
+    options: {
+        scales:
+        {
+            yAxes:
+            [{
+                  scaleLabel:
+                  {
+                        display: true,
+                        fontSize: 14,
+                        fontStyle: 'bold',
+                        labelString: 'Count of events'
+                  }
+            }],
+            xAxes:
+            [{
+                  scaleLabel:
+                  {
+                        display: true,
+                        fontSize: 14,
+                        fontStyle: 'bold',
+                        labelString: 'Organisers'
+                  }
+            }],
+        }
+    }
+});
+
+var ctx = document.getElementById("linechart").getContext('2d');
+var lineChart = new Chart(ctx, {
+    type: 'bar',
+    data: {{ data2|safe }},
+    options: {
+	    hover: {mode: null},
+	    scales:{
+	        xAxes:[
+		        {
+                    stacked: true,
+                    id: "bar-x-axis1",
+		        },
+			    {
+                    display: false,
+                    stacked: true,
+                    id: "bar-x-axis2",
+                    offset: true
+		        },
+		    ],
+	        yAxes:[{
+                ticks:{
+                    beginAtZero: true
+                },
+                stacked:false,
+                scaleLabel:
+                {
+                    display: true,
+                    fontSize: 14,
+                    fontStyle: 'bold',
+                    labelString: 'Sold Tickets/ Total Tickets'
+                },
+		    }],
+	    },
+}
 });
 </script>
 <script>

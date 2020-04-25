@@ -35,13 +35,118 @@ function update_dashboard(){
             $('#revenue').addClass('text-color')
             $("a.grp-pulldown-handler").closest(".grp-pulldown-container").removeClass('grp-pulldown-state-open').children(".grp-pulldown-content").removeClass('disp1');
             $("a.grp-pulldown-handler").closest(".grp-pulldown-container").children(".grp-pulldown-content").addClass('disp');
+            var data2 = data['data2'];
+            var completed = data['completed'];
+            var ongoing = data['ongoing'];
+            var cancelled = data['cancelled'];
+            var event_organisers = data['event_organisers'];
             var data = data['data'];
             $('#piechart').remove();
-            $('.chart').append('<canvas id="piechart" width="500" height="200" ><canvas>');
+            $('#linechart').remove();
+            $('#mixchart').remove();
+            $('#chart').append('<canvas id="piechart" height="200"></canvas>');
+            $('#chart1').append('<canvas id="linechart" style="width:80%" height="400"></canvas>');
+            $('#chart2').append('<canvas id="mixchart" style="width:80%" height="300"></canvas>');
             var ctx = $("#piechart");
             var piechart = new Chart(ctx, {
                 type: 'pie',
                 data: data,
+            });
+            var ctx = $("#mixchart");
+            var mixedChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    datasets: [{
+                        label: 'Completed',
+                        data: completed,
+                        type: 'line',
+                        backgroundColor: 'rgba(255, 255, 255, 0)',
+                        borderColor: 'rgba(0,255,127, 1)',
+                        borderWidth: 1,
+                    },
+                     {
+                        label: 'Ongoing',
+                        data: ongoing,
+                        type: 'line',
+                        backgroundColor: 'rgba(255, 255, 255, 0)',
+                        borderColor: 'rgba(255,140,0, 1)',
+                        borderWidth: 1,
+                    },
+                     {
+                        label: 'Cancelled',
+                        data: cancelled,
+                        type: 'line',
+                        backgroundColor: 'rgba(255, 255, 255, 0)',
+                        borderColor: 'rgba(255,0,0, 1)',
+                        borderWidth: 1,
+                    },
+                    ],
+                    labels: event_organisers
+                },
+                options: {
+                    scales:
+                    {
+                        yAxes:
+                        [{
+                              scaleLabel:
+                              {
+                                    display: true,
+                                    fontSize: 14,
+                                    fontStyle: 'bold',
+                                    labelString: 'Count of events'
+                              }
+                        }],
+                        xAxes:
+                        [{
+                              scaleLabel:
+                              {
+                                    display: true,
+                                    fontSize: 14,
+                                    fontStyle: 'bold',
+                                    labelString: 'Organisers'
+                              }
+                        }],
+                    }
+                }
+            });
+            var ctx = $("#linechart");
+            var lineChart = new Chart(ctx, {
+                type: 'bar',
+                data: data2,
+                options: {
+                    hover:{mode: null},
+                    scales:{
+                        xAxes:[
+                            {
+                                stacked: true,
+                                id: "bar-x-axis1",
+                            },
+                            {
+                                display: false,
+                                stacked: true,
+                                id: "bar-x-axis2",
+                                offset: true
+                            },
+                        ],
+                        yAxes:[{
+                            ticks:{
+                                beginAtZero: true
+                            },
+                            stacked:false,
+                            scaleLabel:
+                            {
+                                display: true,
+                                fontSize: 14,
+                                fontStyle: 'bold',
+                                labelString: 'Number of tickets'
+                            },
+                        }],
+                    },
+                    legend:
+                    {
+                        display: false
+                    },
+                }
             });
 },
         error: function(data){

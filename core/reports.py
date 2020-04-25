@@ -1,4 +1,4 @@
-from django.db.models import Case, When, Value, CharField, F, Sum, Q
+from django.db.models import Case, When, Value, CharField, F, Sum, Q, Count, IntegerField, ExpressionWrapper
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -103,6 +103,75 @@ def event_analysis_report(request, event_status=None, event_name=None):
         else:
             events_queryset = Event.objects.all()
             event_which_has_subscribers = Subscription.objects.all().select_related('event', 'payment')
+
+    events_queryset = events_queryset.select_related('event_created_by')
+    event_organisers = events_queryset.values('event_created_by').annotate(email=F('event_created_by__email'),
+                                                                           completed=Count(Case(
+                                                                               When(is_active=False, is_cancelled=False,
+                                                                                    then=1),
+                                                                               output_field=IntegerField())),
+                                                                           on_going=Count(Case(
+                                                                               When(is_active=True, is_cancelled=False,
+                                                                                    then=1),
+                                                                               output_field=IntegerField())),
+                                                                           cancelled=Count(Case(
+                                                                               When(is_active=False, is_cancelled=True,
+                                                                                    then=1),
+                                                                               output_field=IntegerField())))
+
+    line_chart_organisers = []
+    line_chart_completed = []
+    line_chart_on_going = []
+    line_chart_cancelled = []
+    for event_organiser in event_organisers:
+        line_chart_organisers.append(event_organiser['email'].split('@')[0])
+        line_chart_completed.append(event_organiser['completed'])
+        line_chart_on_going.append(event_organiser['on_going'])
+        line_chart_cancelled.append(event_organiser['cancelled'])
+
+    event_names_and_popularity = events_queryset.annotate(
+        status=Case(
+            When(
+                is_active=False,
+                is_cancelled=False,
+                then=Value("Completed"),
+            ),
+            When(
+                is_active=True,
+                is_cancelled=False,
+                then=Value("Ongoing"),
+            ),
+            When(
+                is_active=False,
+                is_cancelled=True,
+                then=Value("Cancelled"),
+            ),
+            output_field=CharField(),
+        ))
+
+    all_event_names = []
+    all_event_sold_tickets = []
+    all_event_no_of_tickets = []
+    all_event_status = []
+    all_event_status_bg_color_code = []
+    all_event_status_color_code = []
+
+    for event_and_popularity in event_names_and_popularity:
+        all_event_names.append(event_and_popularity.name)
+        all_event_sold_tickets.append(event_and_popularity.sold_tickets)
+        all_event_no_of_tickets.append(event_and_popularity.no_of_tickets)
+        all_event_status.append(event_and_popularity.status)
+
+    for event_status in all_event_status:
+        if event_status == 'Completed':
+            all_event_status_bg_color_code.append('rgba(0,255,127, 0.2)')
+            all_event_status_color_code.append('rgba(0,255,127, 1)')
+        elif event_status == 'Ongoing':
+            all_event_status_bg_color_code.append('rgba(255,140,0, 0.2)')
+            all_event_status_color_code.append('rgba(255,140,0, 1)')
+        elif event_status == 'Cancelled':
+            all_event_status_bg_color_code.append('rgba(255,0,0, 0.2)')
+            all_event_status_color_code.append('rgba(255,0,0, 1)')
 
     event_completed_count = len(events_queryset.filter(is_active=False, is_cancelled=False))
     event_on_going_count = len(events_queryset.filter(is_active=True, is_cancelled=False))
@@ -212,7 +281,6 @@ def event_analysis_report(request, event_status=None, event_name=None):
             ),
             output_field=CharField(),
         ))
-    events_not_subscribed = events_not_subscribed.select_related('event_created_by')
 
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
 
@@ -233,5 +301,24 @@ def event_analysis_report(request, event_status=None, event_name=None):
                             borderColor=['rgba(0,255,127, 1)',
                                          'rgba(255,140,0, 1)',
                                          'rgba(255,0,0, 1)'],
-                            borderWidth=1)]))
+                            borderWidth=1)]),
+                   completed=line_chart_completed,
+                   ongoing=line_chart_on_going,
+                   cancelled=line_chart_cancelled,
+                   event_organisers=line_chart_organisers,
+                   data2=dict(labels=all_event_names, datasets=[
+                       dict(label="Total tickets",
+                            data=all_event_no_of_tickets,
+                            backgroundColor=all_event_status_bg_color_code,
+                            borderColor=all_event_status_color_code,
+                            borderWidth=1,
+                            xAxisID="bar-x-axis1"),
+                       dict(label="Sold tickets",
+                            data=all_event_sold_tickets,
+                            backgroundColor=all_event_status_color_code,
+                            borderColor=all_event_status_color_code,
+                            borderWidth=1,
+                            xAxisID="bar-x-axis2")
+                   ]),
+                   )
     return content
