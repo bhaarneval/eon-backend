@@ -307,6 +307,7 @@ class EventViewSet(ModelViewSet):
             data['is_wishlisted'] = wishlisted
             data["is_subscribed"] = is_subscribed
             data['feedback_given'] = feedback_given
+            data["remaining_tickets"] = curr_event.no_of_tickets - curr_event.sold_tickets
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
