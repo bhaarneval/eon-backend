@@ -8,6 +8,8 @@ omit =
     core/admin.py,
     core/exceptions.py,
     core/models.py,
+    core/filters.py ,
     payment/admin.py,
-    payment/models.py
+    payment/models.py,
+    authentication/signals.py
 
