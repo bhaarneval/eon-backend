@@ -138,7 +138,7 @@ function update_dashboard(){
                                 display: true,
                                 fontSize: 14,
                                 fontStyle: 'bold',
-                                labelString: 'Number of tickets'
+                                labelString: 'Total tickets vs Sold tickets'
                             },
                         }],
                     },
