@@ -76,22 +76,18 @@ EMAIL_CONFIG = {
 
 NOTIFICATION_CONFIG = {
     "event_updated": {"status": True,
-                      "message": "The {field} of your subscribed event "
-                                 "'{event_name}' has been changed "
+                      "message": "The {field} has been changed "
                                  "by the organizer from {prev_value} to {next_value}."},
     "event_deleted": {"status": True,
-                      "message": "Your subscribed event '{event_name}' "
-                                 "is deleted by the organizer because {message}. "
+                      "message": "This event has been deleted by the organize due to {message}. "
                                  "Your amount is initiated for refund."},
     "event_reminder": {"status": True,
-                       "message": "Reminder for '{event_name}' event from the organizer "
-                                  "with a note for you.\n'{message}'."},
+                       "message": "Reminder from the organizer with a note.\n'{message}'"},
     "send_updates": {"status": True,
-                     "message": "Update for '{event_name}' event from the event organizer "
-                                "with a note for you.\n'{message}'."}
+                     "message": "Update from the event organizer with a note.\n'{message}'"}
 }
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
 MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
-             'November', 'December']
+         'November', 'December']
