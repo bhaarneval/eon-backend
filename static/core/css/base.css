@@ -35,7 +35,7 @@
     display: block;
 }
 
-#container {
+#contain {
   position:relative;
   left: 0;
   top: 0;
@@ -44,7 +44,7 @@
 }
 
 #scrollArea {
-  width: 900px;
+  width: 1130px;
   overflow-x: scroll;
 }
 
@@ -58,3 +58,8 @@
   top: 0;
   pointer-events: none;
 }
+
+.strike{
+     text-decoration: line-through !important;
+}
+
