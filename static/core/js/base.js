@@ -127,6 +127,9 @@ function update_dashboard(){
                 type: 'bar',
                 data: data2,
                 options: {
+                    legend :{
+                        display:false,
+                    },
                     hover:{mode: null},
                     scales:{
                         xAxes:[
