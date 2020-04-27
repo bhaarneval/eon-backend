@@ -34,3 +34,27 @@
 .disp1{
     display: block;
 }
+
+#container {
+  position:relative;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#scrollArea {
+  width: 900px;
+  overflow-x: scroll;
+}
+
+#chartArea {
+  width: 1500px;
+}
+
+#chartAxis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}

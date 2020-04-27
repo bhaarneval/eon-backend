@@ -3,11 +3,10 @@ Test for core module api added here
 """
 import json
 
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import EventType, Event, UserInterest
+from core.models import EventType, Event, UserInterest, UserProfile
 
 
 class RestAPITest(APITestCase):
@@ -22,20 +21,17 @@ class RestAPITest(APITestCase):
         """
         role = Role(role="organizer")
         role.save()
-        content = {
-            "email": "usertest@mail.com",
-            "name": "usertest@mail.com",
-            "password": "user123",
-            "contact": "9999911111",
-            "address": "Bangalore",
-            "role": "organizer",
-            "organization": "Eventhigh"
-        }
 
-        cls.client.post('/authentication/registration', json.dumps(content),
-                        content_type='application/json')
+        user = User.objects.create_user(email="user12@gmail.com", password="user123")
+        role_obj = Role.objects.get(role="organizer")
 
-        data = dict(email="usertest@mail.com", password="user123")
+        user_profile_obj = UserProfile.objects.create(
+            user=user, name="user12@gmail.com", contact_number="9999911111",
+            organization="organization", address="Bangalore",
+            role=role_obj)
+        user_profile_obj.save()
+
+        data = dict(email="user12@gmail.com", password="user123")
         login_response = cls.client.post('/authentication/login', json.dumps(data),
                                          content_type='application/json')
         cls.user_id = login_response.data['data']['user']['user_id']

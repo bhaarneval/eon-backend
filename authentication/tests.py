@@ -15,17 +15,19 @@ class AuthenticationTestCase(TestCase):
     """
 
     def setUp(cls):
-        Role.objects.create(role='organizer')
+        Role.objects.create(role='subscriber')
         content = {
             "email": "user@mail.com",
+            "name": "user_test",
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
-            "role": "organizer",
+            "role": "subscriber",
             "organization": "Eventhigh"
         }
         cls.register = cls.client.post('/authentication/registration', json.dumps(content),
                                        content_type='application/json')
+        print(cls.register.data)
 
     def test_register_user_with_complete_details(self):
         """

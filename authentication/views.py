@@ -104,7 +104,7 @@ class Register(APIView):
                 organization=organization, address=address,
                 role=role_obj)
             user_profile_obj.save()
-            if role_name == 'orgainser':
+            if role_name == 'organizer':
                 user.is_active = False
                 user.save()
                 token = {}
