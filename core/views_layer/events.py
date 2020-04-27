@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import get_authorization_header
 
-from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback
+from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback, Feedback
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
@@ -55,6 +55,10 @@ class EventViewSet(ModelViewSet):
         except Exception:
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
+
+        if event_status.lower() == EVENT_STATUS['all']:
+            self.queryset = Event.objects.all()
+            event_status = event_status.lower()
 
         today = date.today()
         self.queryset.filter(date__lt=str(today)).update(is_active=False)
@@ -108,8 +112,12 @@ class EventViewSet(ModelViewSet):
                             "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
                                       + curr_event.images, "external_links": curr_event.external_links,
-                            'is_free': curr_event.subscription_fee == 0}
-
+                            'is_free': curr_event.subscription_fee == 0,
+                            'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count(),
+                            'event_status': event_status
+                            }
+            if event_status == EVENT_STATUS['all']:
+                response_obj['event_status'] = get_event_status(curr_event)
             if is_subscriber:
                 # check for subscription
                 subscription_list = Subscription.objects.filter(
@@ -128,12 +136,13 @@ class EventViewSet(ModelViewSet):
                 except WishList.DoesNotExist:
                     response_obj['is_wishlisted'] = False
 
-            try:
-                UserFeedback.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
-                feedback_given = True
-            except UserFeedback.DoesNotExist:
-                feedback_given = False
-            response_obj['feedback_given'] = feedback_given
+                try:
+                    UserFeedback.objects.get(user_id=user_logged_in, event_id=curr_event.id, is_active=True)
+                    feedback_given = True
+                except UserFeedback.DoesNotExist:
+                    feedback_given = False
+                response_obj['feedback_given'] = feedback_given
+
             data.append(response_obj)
 
         return api_success_response(message="List of events", data=data)
@@ -150,6 +159,7 @@ class EventViewSet(ModelViewSet):
             "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
                 'images']
         response.data['self_organised'] = True
+        response.data['event_status'] = EVENT_STATUS['default']
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -173,11 +183,7 @@ class EventViewSet(ModelViewSet):
         except Event.DoesNotExist:
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
-        event_status = EVENT_STATUS['default']
-        if not curr_event.is_active and not curr_event.is_cancelled:
-            event_status = EVENT_STATUS['completed']
-        if not curr_event.is_active and curr_event.is_cancelled:
-            event_status = EVENT_STATUS['cancelled']
+        event_status = get_event_status(curr_event)
 
         if user_role != 'subscriber':
             invitee_list = Invitation.objects.filter(event=curr_event.id,
@@ -206,7 +212,8 @@ class EventViewSet(ModelViewSet):
                     "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
                     "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
-                    "self_organised": self_organised, 'event_status': event_status}
+                    "self_organised": self_organised, 'event_status': event_status,
+                    'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()}
 
             return api_success_response(message="event details", data=data, status=200)
         else:
@@ -300,6 +307,7 @@ class EventViewSet(ModelViewSet):
             data['is_wishlisted'] = wishlisted
             data["is_subscribed"] = is_subscribed
             data['feedback_given'] = feedback_given
+            data["remaining_tickets"] = curr_event.no_of_tickets - curr_event.sold_tickets
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
@@ -418,3 +426,17 @@ class EventViewSet(ModelViewSet):
                                             user_ids=user_ids,
                                             event_id=event_id)
         return api_success_response(data=serializer.data, status=200)
+
+
+def get_event_status(curr_event):
+    """
+    common function to get event status
+    :param curr_event: event object
+    :return: status
+    """
+    event_status = EVENT_STATUS['default']
+    if not curr_event.is_active and not curr_event.is_cancelled:
+        event_status = EVENT_STATUS['completed']
+    if not curr_event.is_active and curr_event.is_cancelled:
+        event_status = EVENT_STATUS['cancelled']
+    return event_status

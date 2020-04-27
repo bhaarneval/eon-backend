@@ -47,7 +47,7 @@ class NotificationView(APIView):
         user_id = payload['user_id']
 
         try:
-            notifications = self.queryset.filter(user=user_id)
+            notifications = self.queryset.filter(user=user_id).order_by("-created_on")
 
         except Notification.DoesNotExist:
             notifications = []

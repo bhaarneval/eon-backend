@@ -5,7 +5,7 @@ import json
 import jwt
 from datetime import date
 
-from django.db.models import F
+from django.db.models import F, Q
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
@@ -20,7 +20,7 @@ from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from eon_backend.settings import SECRET_KEY
 from utils.permission import IsOrganizer
-from utils.constants import EVENT_STATUS
+from utils.constants import EVENT_STATUS, MONTH
 
 
 @api_view(["GET"])
@@ -133,10 +133,14 @@ def get_event_summary(request):
         queryset = queryset.filter(date__gte=str(today), is_active=True)
 
     if search_text:
-        queryset = queryset.filter(name__icontains=search_text)
+        queryset = queryset.filter(Q(location__icontains=search_text) | Q(name__icontains=search_text))
 
     cancelled_events, completed_events, ongoing_events, total_events = 0, 0, 0, queryset.count()
     data = {'event_list': []}
+    event_name_list = []
+    event_revenue_list = []
+    event_remaining_tickets = []
+    event_sold_tickets = []
     try:
         for event in queryset:
             if event.subscription_fee == 0:
@@ -165,12 +169,17 @@ def get_event_summary(request):
                 revenue_ongoing_events += revenue
                 ongoing_events += 1
 
-            data['event_list'].append({'id': event.id,
+            data['event_list'].append({'key': event.id,
                                        'name': event.name,
                                        'total_tickets': event.no_of_tickets,
                                        'sold_tickets': event.sold_tickets,
                                        'revenue': revenue,
+                                       'location': event.location,
                                        'status': event_status})
+            event_name_list.append(event.name)
+            event_revenue_list.append(revenue)
+            event_remaining_tickets.append(event.no_of_tickets-event.sold_tickets)
+            event_sold_tickets.append(event.sold_tickets)
         data['total_revenue'] = total_revenue
         data['total_events'] = total_events
         data['ongoing_events'] = ongoing_events
@@ -179,6 +188,71 @@ def get_event_summary(request):
         data['revenue_ongoing_events'] = revenue_ongoing_events
         data['revenue_completed_events'] = revenue_completed_events
         data['revenue_cancelled_events'] = revenue_cancelled_events
+        data['ticket_graph_object'] = {
+            'name_list': event_name_list,
+            'revenue_list': event_revenue_list,
+            'remaining_tickets': event_remaining_tickets,
+            'sold_tickets': event_sold_tickets
+        }
+        monthly_data = get_month_wise_data(queryset)
+        data['monthly_event_count'] = monthly_data['events']
+        data['monthly_revenue'] = monthly_data['revenue']
+
     except Exception as err:
         return api_error_response(message="Some internal error occur", status=500)
     return api_success_response(message="Summary of all events", data=data, status=200)
+
+
+def get_month_wise_data(queryset):
+    """
+    This function will calculate month wise stats of events
+    :param queryset: queryset object of events
+    :return: Events count
+    """
+    queryset = queryset.filter(date__year=date.today().year)
+    event_count = [
+        {
+            'name': EVENT_STATUS['default'],
+            'data': []
+        },
+        {
+            'name': EVENT_STATUS['completed'],
+            'data': []
+        },
+        {
+            'name': EVENT_STATUS['cancelled'],
+            'data': []
+        }
+    ]
+
+    monthly_revenue = []
+    for month in range(1, 13):
+        current_queryset = queryset.filter(date__month=month)
+        ongoing_events = current_queryset.filter(is_active=True, is_cancelled=False).count()
+        completed_events = current_queryset.filter(is_active=False, is_cancelled=False).count()
+        cancelled_events = current_queryset.filter(is_active=False, is_cancelled=True).count()
+        event_count[0]['data'].append(ongoing_events)
+        event_count[1]['data'].append(completed_events)
+        event_count[2]['data'].append(cancelled_events)
+
+        event_ids = current_queryset.values_list('id', flat=True)
+        monthly_revenue.append(get_month_wise_revenue(event_ids))
+
+    return {'events': event_count, 'revenue': monthly_revenue}
+
+
+def get_month_wise_revenue(event_ids):
+    """
+    This function will return total revenue for a specific event_ids given
+    :param event_ids: list of event ids
+    :return: sum of revenue generated from all events
+    """
+    total_amount_paid = sum(list(
+        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=0,
+                                    is_active=True).values_list(
+            'payment__total_amount', flat=True)))
+    refund = sum(list(
+        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=3,
+                                    is_active=True).values_list(
+            'payment__total_amount', flat=True)))
+    return total_amount_paid-refund
