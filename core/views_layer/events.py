@@ -51,11 +51,12 @@ class EventViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
+        logger.log_info(f"Event list request initiated by user {user_id}")
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
-            logger.log_error("Fetching of user role from object failed")
+            logger.log_error(f"Fetching of user role for user_id {user_id} failed")
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
@@ -149,14 +150,17 @@ class EventViewSet(ModelViewSet):
 
             data.append(response_obj)
 
-        logger.log_info("Event list sent successfully !!!")
+        logger.log_info(f"Event list sent successfully for user {user_id}!!!")
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
         """
         Create Api for Event
         """
-        logger.log_info("Event creation started")
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+        logger.log_info(f"Event creation started by user {user_id}")
         request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
@@ -166,7 +170,7 @@ class EventViewSet(ModelViewSet):
                 'images']
         response.data['self_organised'] = True
         response.data['event_status'] = EVENT_STATUS['default']
-        logger.log_info("Event created Successfully !!!")
+        logger.log_info(f"Event created Successfully for user {user_id}")
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -178,6 +182,7 @@ class EventViewSet(ModelViewSet):
         user_id = payload['user_id']
         user_logged_in = user_id
 
+
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
@@ -186,6 +191,7 @@ class EventViewSet(ModelViewSet):
                 message="Not able to fetch the role of the logged in user", status=500)
 
         event_id = int(kwargs.get('pk'))
+        logger.log_info(f"Fetch event details request by user {user_id} for event {event_id}")
         try:
             curr_event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
@@ -317,7 +323,7 @@ class EventViewSet(ModelViewSet):
             data["is_subscribed"] = is_subscribed
             data['feedback_given'] = feedback_given
             data["remaining_tickets"] = curr_event.no_of_tickets - curr_event.sold_tickets
-            logger.log_info("Event details successfully returned !!!")
+            logger.log_info(f"Event details successfully returned for event {event_id}!!!")
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
@@ -327,6 +333,7 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
+        logger.log_info(f"Event deletion request from user {user_id}")
         try:
             event = self.queryset.get(id=event_id)
         except Event.DoesNotExist:
@@ -351,7 +358,7 @@ class EventViewSet(ModelViewSet):
                                         event_name=event.name,
                                         user_ids=user_ids,
                                         event_id=event_id)
-        logger.log_info("Event deletion successful for event_id {}".format(event_id))
+        logger.log_info(f"Event deletion successful for event_id {event_id} by user {user_id}")
         return api_success_response(message="Event successfully deleted", status=200)
 
     def update(self, request, *args, **kwargs):
@@ -367,6 +374,7 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         user_logged_in = user_id
+        logger.log_info(f"Event update request started by user {user_id}")
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
@@ -389,7 +397,7 @@ class EventViewSet(ModelViewSet):
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
-            logger.log_error("Event with id {} does not exist".format(event_id))
+            logger.log_error(f"Event with id {event_id} does not exist")
             return api_error_response(message=f"Event with id {event_id} does not exist",
                                       status=400)
         try:
@@ -445,7 +453,7 @@ class EventViewSet(ModelViewSet):
                                             user_ids=user_ids,
                                             event_id=event_id)
             logger.log_info("Subscribers notified for event details update")
-        logger.log_info("Event with id {} updated successfully".format(event_id))
+        logger.log_info(f"Event with id {event_id} successfully updated by user with id {user_id}")
         return api_success_response(data=serializer.data, status=200)
 
 

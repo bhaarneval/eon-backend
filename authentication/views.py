@@ -44,7 +44,7 @@ class Login(APIView):
             return api_error_response(message=str(err), status=400)
 
         if user is None:
-            logger.log_error("Invalid credentials provided")
+            logger.log_error(f"Invalid credentials provided for user login {email}")
             message = "Given credentials do not match with any registered user"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
@@ -54,7 +54,7 @@ class Login(APIView):
             return api_error_response(
                 message='Some error is coming in returning response', status=400)
         token['user'] = user_obj
-        logger.log_info("Login Successful !!!")
+        logger.log_info(f"Login Successful for user {email} !!!")
         return api_success_response(data=token)
 
 
@@ -91,7 +91,7 @@ class Register(APIView):
             role_name = role_name.lower()
             role_obj = Role.objects.get(role=role_name)
         except Role.DoesNotExist:
-            logger.log_error("Role name {} is invalid".format(role_name))
+            logger.log_error(f"Role name {role_name} is invalid for registering user {email}")
             return api_error_response(
                 message='Role assigned is not matching with any role type', status=400)
 
@@ -102,14 +102,14 @@ class Register(APIView):
             user = None
 
         if user is not None:
-            logger.log_error('A user already exist with the given email id: {}'.format(email))
+            logger.log_error(f'A user already exist with the given email id: {email}')
             return api_error_response(message='A user already exist with the given email id: {}'.
                                       format(email), status=400)
 
         try:
             user = User.objects.create_user(email=email, password=password)
 
-            logger.log_info("New User Created")
+            logger.log_info(f"New user created with email id {email}")
 
             user_profile_obj = UserProfile.objects.create(
                 user=user, name=name, contact_number=contact_number,
@@ -117,7 +117,7 @@ class Register(APIView):
                 role=role_obj)
             user_profile_obj.save()
 
-            logger.log_info("User Details successfully registered")
+            logger.log_info(f"User Details successfully registered for user {email}")
             if role_name == 'organizer':
                 user.is_active = False
                 user.save()
@@ -129,7 +129,7 @@ class Register(APIView):
                 token = get_token_for_user(user)
 
             token['user'] = produce_object_for_user(user)
-            logger.log_info("Registration Successful !!!")
+            logger.log_info(f"Registration Successful of the User {email} !!!")
             return api_success_response(data=token,
                                         message='User created successfully', status=201)
         except Exception as err:
@@ -154,7 +154,7 @@ def change_user_password(request):
     new_password = data.get('new_password')
 
     if email is None or old_password is None or new_password is None:
-        logger.log_error("Email or Password field is missing")
+        logger.log_error("Email or Password field is missing for change password request")
         return api_error_response(message='No field can be left blank')
     try:
         user = authenticate(username=email, password=old_password)
@@ -168,13 +168,13 @@ def change_user_password(request):
         return api_error_response(message=message, status=400)
 
     if old_password == new_password:
-        logger.log_error("New password cannot be same as old password")
+        logger.log_error(f"New password cannot be same as old password for user {email}")
         return api_error_response(message="New password cannot be same as old password", status=400)
 
     try:
         user.set_password(new_password)
         user.save()
-        logger.log_info("Password change successful !!!")
+        logger.log_info(f"Password change successful for user {email} ")
         return api_success_response(message='Password updated successfully')
     except Exception as err:
         logger.log_error(str(err))
@@ -216,7 +216,7 @@ def reset_password(request):
             logger.log_error(str(err))
             return api_error_response(message="Some internal error occur", status=500)
         if user_existed:
-            logger.log_error("New password cannot be same as old password")
+            logger.log_error(f"New password cannot be same as old password for reset_password request of {email}")
             return api_error_response(message="New password cannot be same as old password")
         if code_obj and code_obj.code == code:
             user = User.objects.get(email=email)
@@ -245,7 +245,7 @@ def send_forget_password_mail(request):
     try:
         User.objects.get(email=email)
     except User.DoesNotExist:
-        logger.log_error("User does not exist with given email_id")
+        logger.log_error(f"User does not exist with given email_id {email}, send mail failed")
         return api_error_response(message="Please provide the registered email id.", status=400)
     verification_code = randint(1000, 9999)
     VerificationCode.objects.filter(email=email, is_active=True).update(is_active=False)
@@ -256,5 +256,5 @@ def send_forget_password_mail(request):
         verification_code=verification_code,
         email_ids=[email]
     )
-    logger.log_info("Verification code send successfully")
+    logger.log_info(f"Verification code send successfully to user {email}")
     return api_success_response(message="Verification code send successfully")

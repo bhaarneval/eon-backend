@@ -32,7 +32,7 @@ class PresignedUrl(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except:
-            logger.log_error("Invalid event id entered for getting presigned url")
+            logger.log_error(f"Invalid event id {event_id} entered for getting presigned url")
             return api_error_response(message="Event is not valid", status=400)
         image_name = event.images
         bucket = settings.BUCKET

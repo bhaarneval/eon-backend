@@ -74,7 +74,7 @@ class SubscriberNotify(APIView):
                                                 event_name=event_name,
                                                 user_ids=user_ids,
                                                 event_id=event_id)
-                logger.log_info("Subscribers notified successfully.")
+                logger.log_info(f"Subscribers notified successfully for event {event_id}.")
                 return api_success_response(message="Subscribers notified successfully.")
 
 
@@ -107,7 +107,7 @@ def send_mail_to_a_friend(request):
                                     url=EVENT_URL + str(event_id),
                                     event_name=event_name,
                                     email_ids=email)
-    logger.log_info("Mail send successfully to the friend")
+    logger.log_info(f"Mail send successfully to the friend by user {email} for event {event_id}")
     return api_success_response(message="Mail send successfully", status=200)
 
 
@@ -208,7 +208,7 @@ def get_event_summary(request):
     except Exception as err:
         logger.log_error(str(err))
         return api_error_response(message="Some internal error occur", status=500)
-    logger.log_info("Analytics successfully sent !!!")
+    logger.log_info(f"Analytics successfully sent for events of organizer with id {user_id}")
     return api_success_response(message="Summary of all events", data=data, status=200)
 
 
