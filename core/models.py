@@ -5,7 +5,6 @@ from django.db import models
 
 # Create your models here.
 from authentication.models import ModelBase, User, Role, ActiveModel
-from payment.models import Payment
 
 
 class EventType(ActiveModel):
@@ -98,7 +97,7 @@ class Subscription(ActiveModel):
 
 class UserInterest(ActiveModel):
     """
-    User intrest model created here
+    User interest model created here
     """
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
