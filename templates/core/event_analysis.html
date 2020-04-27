@@ -35,8 +35,15 @@
         <div class="chart" id="chart" style=" width:25%; height: 220px;">
             <canvas id="piechart" height="200"></canvas>
         </div>
-        <div class="chart" id="chart1" style="width:60%; height:420px;">
-            <canvas id="linechart" style="width:80%" height="400"></canvas>
+        <div id="container">
+          <div id="scrollArea">
+            <div id="chartArea">
+              <canvas id="lineChart" width="850" height="300"></canvas>
+            </div>
+          </div>
+            <div id="chartyaxis">
+                <canvas id="chartAxis" height="300" width="20" style="background-color:white"></canvas>
+            </div>
         </div>
     </div>
     <div class="chart" id="chart2" style="width:98%; margin-top:7%">
@@ -223,7 +230,10 @@ var mixedChart = new Chart(ctx, {
     }
 });
 
-var ctx = document.getElementById("linechart").getContext('2d');
+var ctx = document.getElementById("lineChart").getContext('2d');
+var targetCtx = document.getElementById("chartAxis").getContext('2d');
+targetCtx.clearRect(0, 0, targetCtx.canvas.width, targetCtx.canvas.height);
+
 var lineChart = new Chart(ctx, {
     type: 'bar',
     data: {{ data2|safe }},
@@ -234,12 +244,22 @@ var lineChart = new Chart(ctx, {
 		        {
                     stacked: true,
                     id: "bar-x-axis1",
+                    ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 90
+                }
 		        },
 			    {
                     display: false,
                     stacked: true,
                     id: "bar-x-axis2",
-                    offset: true
+                    offset: true,
+                                        ticks: {
+                    autoSkip: false,
+                    maxRotation: 90,
+                    minRotation: 90
+                }
 		        },
 		    ],
 	        yAxes:[{
@@ -260,6 +280,31 @@ var lineChart = new Chart(ctx, {
     {
         display: false
     },
+    animation: {
+      onComplete: function() {
+        if (!this.rectangleSet) {
+          var scale = window.devicePixelRatio;
+          var copyWidth = lineChart.scales['y-axis-0'].width;
+          var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + {{max_length}};
+
+          targetCtx.scale(scale, scale);
+          targetCtx.canvas.width = copyWidth * scale;
+          targetCtx.canvas.height = copyHeight * scale;
+          targetCtx.canvas.style.width = copyWidth + 'px';
+          targetCtx.canvas.style.height = copyHeight + 'px';
+          targetCtx.drawImage(ctx.canvas, 0, 0, copyWidth * scale, copyHeight * scale, 0, 0,copyWidth * scale, copyHeight * scale);
+          ctx.clearRect(0, 0, copyWidth, copyHeight);
+          this.rectangleSet = true;
+        }
+      },
+      onProgress: function() {
+        if (this.rectangleSet) {
+          var copyWidth = lineChart.scales['y-axis-0'].width;
+          var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + 10;
+          ctx.clearRect(0, 0, copyWidth, copyHeight);
+        }
+      },
+    }
 }
 });
 </script>
