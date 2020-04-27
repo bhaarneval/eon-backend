@@ -149,5 +149,4 @@ class RestAPITest(APITestCase):
                                    HTTP_AUTHORIZATION="Bearer {}".format("wrong_token"),
                                    content_type="application/json")
         # check
-        print(response.data)
         self.assertEqual(response.status_code, 401)
