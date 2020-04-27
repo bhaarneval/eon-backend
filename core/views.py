@@ -18,9 +18,11 @@ from eon_backend.settings import EVENT_URL
 
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
 from utils.permission import IsOrganizer
 from utils.constants import EVENT_STATUS, MONTH
+
+logger = LOGGER_SERVICE
 
 
 @api_view(["GET"])
@@ -32,6 +34,7 @@ def get_event_types(request):
     """
     event_type = EventType.objects.filter(is_active=True)
     serializer = EventTypeSerializer(event_type, many=True)
+    logger.log_info("Event type GET operation is successful")
     return api_success_response(data=serializer.data)
 
 
@@ -71,6 +74,7 @@ class SubscriberNotify(APIView):
                                                 event_name=event_name,
                                                 user_ids=user_ids,
                                                 event_id=event_id)
+                logger.log_info("Subscribers notified successfully.")
                 return api_success_response(message="Subscribers notified successfully.")
 
 
@@ -88,6 +92,7 @@ def send_mail_to_a_friend(request):
     email = data.get("email_id")
     event_id = data.get("event_id")
     if not (event_id and email):
+        logger.log_error("Event_id or email is missing in the request")
         return api_error_response(message="Please provide necessary details", status=400)
     if isinstance(email, str):
         email = [email]
@@ -95,12 +100,14 @@ def send_mail_to_a_friend(request):
     try:
         event_name = Event.objects.get(id=event_id).name
     except Event.DoesNotExist:
+        logger.log_error("Invalid email id")
         return api_error_response(message="Invalid email id", status=400)
     send_email_sms_and_notification(action_name="user_share",
                                     message=message,
                                     url=EVENT_URL + str(event_id),
                                     event_name=event_name,
                                     email_ids=email)
+    logger.log_info("Mail send successfully to the friend")
     return api_success_response(message="Mail send successfully", status=200)
 
 
@@ -199,7 +206,9 @@ def get_event_summary(request):
         data['monthly_revenue'] = monthly_data['revenue']
 
     except Exception as err:
+        logger.log_error(str(err))
         return api_error_response(message="Some internal error occur", status=500)
+    logger.log_info("Analytics successfully sent !!!")
     return api_success_response(message="Summary of all events", data=data, status=200)
 
 

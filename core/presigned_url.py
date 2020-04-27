@@ -14,6 +14,8 @@ from eon_backend import settings
 from utils.common import api_success_response, api_error_response
 from utils.s3 import AwsS3
 
+logger = settings.LOGGER_SERVICE
+
 
 class PresignedUrl(APIView):
     """
@@ -30,6 +32,7 @@ class PresignedUrl(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except:
+            logger.log_error("Invalid event id entered for getting presigned url")
             return api_error_response(message="Event is not valid", status=400)
         image_name = event.images
         bucket = settings.BUCKET
@@ -59,5 +62,6 @@ class PresignedUrl(APIView):
             object_name=object_name,
             expiry=300,
         )
+        logger.log_info("presigned url successfully registered")
         return api_success_response(data=dict(presigned_url=presigned_url, image_name=object_name),
                                     status=status.HTTP_200_OK)
