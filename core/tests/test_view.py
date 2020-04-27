@@ -126,3 +126,27 @@ class RestAPITest(APITestCase):
                                      content_type="application/json")
         # check
         self.assertEqual(response.status_code, 200)
+
+    def test_for_get_event_summary_for_all_event(self):
+        """
+        Test for get api method for all event summary
+        :return:
+        """
+        # Run
+        response = self.client.get("/core/event-summary/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 200)
+
+    def test_for_get_event_summary_for_all_event_with_wrong_token(self):
+        """
+        Test for get api method for all event summary with wrong token
+        :return:
+        """
+        # Run
+        response = self.client.get("/core/event-summary/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format("wrong_token"),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 401)
