@@ -30,6 +30,9 @@ class NotificationView(APIView):
         Patch api method of notification
         """
 
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
         list_of_ids = request.data.get('notification_ids')
 
         try:
@@ -38,7 +41,7 @@ class NotificationView(APIView):
             logger.log_error(str(err))
             return api_error_response(message="Something went wrong", status=500)
 
-        logger.log_info("Notification updated successfully")
+        logger.log_info(f"Notification status updated successfully by user_id {user_id}")
         return api_success_response(message="Notification updated successfully", status=200)
 
     def get(self, request):
@@ -57,5 +60,5 @@ class NotificationView(APIView):
             notifications = []
 
         serializer = self.serializer_class(notifications, many=True)
-        logger.log_info("Notification fetched successfully")
+        logger.log_info(f"Notification fetched successfully by user_id {user_id}")
         return api_success_response(data=serializer.data)

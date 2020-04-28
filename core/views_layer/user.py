@@ -73,10 +73,10 @@ class UserViewSet(ModelViewSet):
                 response['interest'] = interest_list
             else:
                 response['interest'] = prev_interest
-        except Exception:
+        except Exception as err:
             logger.log_error(str(err))
             return api_error_response(message="Something went wrong", status=500)
-        logger.log_info("User Profile updated successfully !!!")
+        logger.log_info(f"User Profile updated successfully for user_id {user_id}")
         return api_success_response(data=response, status=200)
 
     def list(self, request, *args, **kwargs):
@@ -116,7 +116,8 @@ class UserViewSet(ModelViewSet):
         user_id = int(kwargs.get('user_id'))
 
         if user_logged_in != user_id:
-            logger.log_error("Cannot fetch profile details of other user")
+            logger.log_error(f"Cannot fetch profile details of other user, tried by user "
+                             f"{user_logged_in} for user_id {user_id}")
             return api_error_response(message="You can only view your own profile", status=400)
 
         profile = self.queryset.get(user_id=user_id)
@@ -132,5 +133,5 @@ class UserViewSet(ModelViewSet):
 
         curr_profile['interest'] = list_of_interest
 
-        logger.log_info("User details fetched successfully")
+        logger.log_info(f"User details fetched successfully for user_id {user_id}")
         return api_success_response(data=curr_profile, message="user details", status=200)

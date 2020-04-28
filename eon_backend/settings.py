@@ -13,7 +13,6 @@ import os
 from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import logging
 from utils.constants import APPLICATION_CONSTANTS, SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
 from utils.logger import Logging
 
@@ -207,10 +206,6 @@ OUT_DIR = os.path.join(BASE_DIR, "logs/core")
 if not os.path.exists(OUT_DIR):
     os.mkdir(BASE_DIR + '/logs')
     os.mkdir(BASE_DIR + '/logs/core')
-    logging.basicConfig(filename="logs/core/info.log", filemode='w', level=logging.INFO)
-    logging.basicConfig(filename="logs/core/error.log", filemode='w', level=logging.ERROR)
-    logging.basicConfig(filename="logs/core/warning.log", filemode='w', level=logging.WARNING)
-    logging.basicConfig(filename="logs/core/debug.log", filemode='w', level=logging.DEBUG)
 
 
 CORE_APP_LOG_DIR = (

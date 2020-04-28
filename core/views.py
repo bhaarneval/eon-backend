@@ -208,7 +208,7 @@ def get_event_summary(request):
     except Exception as err:
         logger.log_error(str(err))
         return api_error_response(message="Some internal error occur", status=500)
-    logger.log_info(f"Analytics successfully sent for events of organizer with id {user_id}")
+    logger.log_info(f"Analytics successfully sent for events of organizer with user_id {user_id}")
     return api_success_response(message="Summary of all events", data=data, status=200)
 
 

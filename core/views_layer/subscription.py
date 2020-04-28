@@ -77,7 +77,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
         payment_id = None
 
         if not event_id or not no_of_tickets or not user_id:
-            logger.log_error("Event_id, no_of_tickets and user_id are mandatory")
+            logger.log_error("Event_id, no_of_tickets and user_id are mandatory in request")
             return api_error_response(message="Request Parameters are invalid")
 
         try:
@@ -91,7 +91,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
             tickets_data = instance.values('event').aggregate(Sum('no_of_tickets'))
             remaining_tickets = no_of_tickets + tickets_data['no_of_tickets__sum']
             if remaining_tickets < 0:
-                logger.log_error("Invalid number of tickets entered")
+                logger.log_error(f"Invalid number of tickets entered {no_of_tickets}")
                 return api_error_response(message="Number of tickets are invalid", status=400)
 
         if amount:
@@ -186,10 +186,10 @@ class SubscriptionViewSet(viewsets.ViewSet):
                     event_date=queryset['event_date'], event_time=queryset['event_time'],
                     event_location=queryset['event_location'])
 
-            logger.log_info("Subscription successful !!!")
+            logger.log_info(f"Subscription successful for user with id {user_id}")
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
 
-        logger.log_error("Number of tickets are invalid")
+        logger.log_error(f"Number of tickets are invalid for subscription request of user_id {user_id}")
         return api_error_response(message="Number of tickets are invalid", status=400)
 
     def destroy(self, request, pk=None):
@@ -207,5 +207,5 @@ class SubscriptionViewSet(viewsets.ViewSet):
         event.sold_tickets -= total_tickets['no_of_tickets__sum']
         event.save()
         event_to_be_added_to_inactive.update(is_active=False)
-        logger.log_info(f"Successfully Unsubscribed event {event_id}")
+        logger.log_info(f"Successfully unsubscribed event {event_id} for user_id {user_id}")
         return api_success_response(message="Successfully Unsubscribed")

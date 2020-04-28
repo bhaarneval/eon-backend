@@ -69,7 +69,7 @@ class WishListViewSet(viewsets.ViewSet):
             serializer = WishListSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            logger.log_info("Wishlisted successfully")
+            logger.log_info(f"Wishlist successfully added for user_id {user_id} for event {event_id}")
             return api_success_response(data=serializer.data, message="Wishlisted successfully",
                                         status=200)
         logger.log_error("Request Parameters are invalid")
@@ -79,7 +79,7 @@ class WishListViewSet(viewsets.ViewSet):
         """
         Destroy api for wish list
         """
-        logger.log_error("Wishlist remove process started")
+        logger.log_info("Wishlist remove process started")
         event_id = pk
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
@@ -91,7 +91,7 @@ class WishListViewSet(viewsets.ViewSet):
                 return api_error_response(message='Not wishlisted', status=400)
             instance.is_active = False
             instance.save()
-            logger.log_info("Wishlist removed successfully !!!")
+            logger.log_info(f"Wishlist removed successfully for user_id {user_id}")
             return api_success_response(message='Successfully removed from wishlist', status=200)
 
         logger.log_error(f"Invalid event {event_id}")

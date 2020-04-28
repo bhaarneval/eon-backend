@@ -60,11 +60,11 @@ class InvitationViewSet(generics.GenericAPIView):
         try:
             event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
-            logger.log_error("No event exist with id={}".format(event_id))
+            logger.log_error(f"No event exist with id={event_id}")
             return api_error_response(message="No event exist with id={}".format(event_id))
         if event.event_created_by.id != user_id:
-            logger.log_error("LoggedIn user with id {} is not the organizer of provided event with id {}".
-                             format(user_id, event_id))
+            logger.log_error(f"LoggedIn user with id {user_id} is not the organizer of provided event with id "
+                             f"{event_id}")
             return api_error_response(message="You are not allowed to perform this action",
                                       status=400)
         for invitee in invitee_list:
@@ -137,7 +137,7 @@ class InvitationViewSet(generics.GenericAPIView):
                                             url=EVENT_URL+str(event_id),
                                             numbers_list=contact_nos)
         data_object = {'invitee_list': data}
-        logger.log_info("Invitee list successfully updated for the event {}".format(event_id))
+        logger.log_info(f"Invitee list successfully updated for the event {event_id} by user {user_id}")
         return api_success_response(message="Successful invited", data=data_object)
 
     def delete(self, request):
@@ -152,12 +152,12 @@ class InvitationViewSet(generics.GenericAPIView):
         event_id = data.get('event_id')
         testing = data.get("testing", False)  # for not running mail service for testing
         if not event_id:
-            logger.log_error("Event Id not provided")
+            logger.log_error("Event Id not provided for invitee delete request")
             return api_error_response(message="Event Id missing", status=400)
         try:
             event = Event.objects.get(id=event_id, is_active=True)
-            logger.log_error("Event Id {} is invalid".format(event_id))
         except Event.DoesNotExist:
+            logger.log_error(f"Event Id {event_id} is invalid")
             return api_error_response(message="Invalid event id", status=400)
 
         try:
@@ -174,7 +174,7 @@ class InvitationViewSet(generics.GenericAPIView):
                                                 email_ids=email_ids,
                                                 event_name=event.name,
                                                 numbers_list=contact_nos)
-            logger.log_info("Invitee list delete operation completed")
+            logger.log_info(f"Invitee list delete operation completed for event {event_id}")
             return api_success_response(message="Invitation successfully deleted", status=200)
         except Exception as err:
             logger.log_error(str(err))
@@ -219,5 +219,5 @@ class InvitationViewSet(generics.GenericAPIView):
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
-        logger.log_info("Invitee list successfully fetched")
+        logger.log_info(f"Invitee list successfully fetched by user_id {user_id} for event {event_id}")
         return api_success_response(message="Invitations details", data=data_object)

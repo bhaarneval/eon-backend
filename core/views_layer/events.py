@@ -150,7 +150,7 @@ class EventViewSet(ModelViewSet):
 
             data.append(response_obj)
 
-        logger.log_info(f"Event list sent successfully for user {user_id}!!!")
+        logger.log_info(f"Event list fetched successfully by user_id {user_id}")
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):

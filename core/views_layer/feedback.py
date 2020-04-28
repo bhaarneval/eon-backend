@@ -86,7 +86,7 @@ class FeedbackView(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except Exception:
-            logger.log_error("Event_id {} is invalid".format(event_id))
+            logger.log_error(f"Event_id {event_id} is invalid")
             return api_error_response(message="Provided event doesn't exist", status=400)
         user_role = UserProfile.objects.get(user=request.user).role.role
         if user_role == 'organizer' and event.event_created_by != request.user:
