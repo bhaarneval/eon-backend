@@ -20,6 +20,10 @@ from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
 from eon_backend.settings import SECRET_KEY
 from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE, PAYMENT_URL
+from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
+
+logger = LOGGER_SERVICE
 
 
 class EventViewSet(ModelViewSet):
@@ -51,10 +55,12 @@ class EventViewSet(ModelViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
+        logger.log_info(f"Event list request initiated by user {user_id}")
         try:
             user_logged_in = user_id
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
+            logger.log_error(f"Fetching of user role for user_id {user_id} failed")
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
@@ -79,7 +85,8 @@ class EventViewSet(ModelViewSet):
                 event_ids = WishList.objects.filter(
                     user=user_id, is_active=True).values_list('event__id', flat=True)
                 self.queryset = self.queryset.filter(id__in=event_ids)
-            except Exception:
+            except Exception as err:
+                logger.log_error(str(err))
                 return api_error_response(
                     message="Some internal error coming in fetching the wishlist", status=400)
 
@@ -147,12 +154,17 @@ class EventViewSet(ModelViewSet):
 
             data.append(response_obj)
 
+        logger.log_info(f"Event list fetched successfully by user_id {user_id}")
         return api_success_response(message="List of events", data=data)
 
     def create(self, request, *args, **kwargs):
         """
         Create Api for Event
         """
+        token = get_authorization_header(request).split()[1]
+        payload = jwt.decode(token, SECRET_KEY)
+        user_id = payload['user_id']
+        logger.log_info(f"Event creation started by user {user_id}")
         request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
@@ -162,6 +174,7 @@ class EventViewSet(ModelViewSet):
                 'images']
         response.data['self_organised'] = True
         response.data['event_status'] = EVENT_STATUS['default']
+        logger.log_info(f"Event created Successfully for user {user_id}")
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -176,14 +189,18 @@ class EventViewSet(ModelViewSet):
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
+            logger.log_error("Fetching of user role from object failed")
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
 
         event_id = int(kwargs.get('pk'))
+        logger.log_info(f"Fetch event details request by user {user_id} for event {event_id}")
         try:
             curr_event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return api_error_response(message="Given event id {} does not exist".format(event_id))
+
+            logger.log_error("Invalid event_id {} provided in retrieve request".format(event_id))
+            return api_error_response(message="Given event {} does not exist".format(event_id))
 
         event_status = get_event_status(curr_event)
 
@@ -216,8 +233,8 @@ class EventViewSet(ModelViewSet):
                     "external_links": curr_event.external_links, "invitee_list": invitee_data,
                     "self_organised": self_organised, 'event_status': event_status,
                     'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()}
-
-            return api_success_response(message="Event details", data=data, status=200)
+            logger.log_info("Event details successfully returned !!!")
+            return api_success_response(message="event details", data=data, status=200)
         else:
             data = {"id": curr_event.id, "name": curr_event.name,
                     "date": curr_event.date, "time": curr_event.time,
@@ -310,6 +327,7 @@ class EventViewSet(ModelViewSet):
             data["is_subscribed"] = is_subscribed
             data['feedback_given'] = feedback_given
             data["remaining_tickets"] = curr_event.no_of_tickets - curr_event.sold_tickets
+            logger.log_info(f"Event details successfully returned for event {event_id}!!!")
             return api_success_response(message="Event details", data=data, status=200)
 
     def destroy(self, request, *args, **kwargs):
@@ -319,12 +337,16 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
+        logger.log_info(f"Event deletion request from user {user_id} for event {event_id}")
         try:
             event = self.queryset.get(id=event_id)
         except Event.DoesNotExist:
+            logger.log_error("Given event id {} does not exist".format(event_id))
             return api_error_response(message="Given event id {} does not exist".format(event_id))
 
         if self.queryset.get(id=event_id).event_created_by.id != user_id:
+            logger.log_error(
+                "Organizer with id {} is not the organizer of the event id {}".format(user_id, event_id))
             return api_error_response(
                 message="You are not the organizer of this event {}".format(event_id), status=400)
 
@@ -340,6 +362,7 @@ class EventViewSet(ModelViewSet):
                                         event_name=event.name,
                                         user_ids=user_ids,
                                         event_id=event_id)
+        logger.log_info(f"Event deletion successful for event_id {event_id} by user {user_id}")
         return api_success_response(message="Event successfully deleted", status=200)
 
     def update(self, request, *args, **kwargs):
@@ -355,16 +378,21 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         user_logged_in = user_id
+        logger.log_info(f"Event update request started by user {user_id} for event {event_id}")
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
+            logger.log_error(f"Event update request by user_id {user_id}: fetching of user role from object failed")
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
+            logger.log_error(f"Event update request by user_id {user_id}: a subscriber cannot update event details")
             return api_error_response(
                 message="A subscriber cannot change an event details", status=500)
 
         if self.queryset.get(id=event_id).event_created_by.id != user_logged_in:
+            logger.log_error(f"Event update request: LoggedIn user {user_id} is not the organizer of the event with id "
+                             f"{event_id} ")
             return api_error_response(
                 message="You are not the organizer of this event {}".format(event_id), status=400)
         try:
@@ -374,6 +402,7 @@ class EventViewSet(ModelViewSet):
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
+            logger.log_error(f"Event update request: event_id {event_id} does not exist")
             return api_error_response(message=f"Event with id {event_id} does not exist",
                                       status=400)
         try:
@@ -386,7 +415,8 @@ class EventViewSet(ModelViewSet):
             serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + \
                                         serializer.data['images'],
             serializer.data['event_type'] = serializer.data.pop('type')
-        except Exception:
+        except Exception as err:
+            logger.log_error(str(err))
             return api_error_response(message="Some internal error coming while updating the event",
                                       status=500)
         event_name = event_obj.name
@@ -427,6 +457,8 @@ class EventViewSet(ModelViewSet):
                                             event_name=event_name,
                                             user_ids=user_ids,
                                             event_id=event_id)
+            logger.log_info("Subscribers notified for event details update")
+        logger.log_info(f"Event with id {event_id} successfully updated by user with id {user_id}")
         return api_success_response(data=serializer.data, status=200)
 
 

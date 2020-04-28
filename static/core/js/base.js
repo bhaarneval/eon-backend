@@ -46,14 +46,20 @@ function update_dashboard(){
             $('#lineChart').remove();
             $('#mixchart').remove();
             $('#chartAxis').remove();
-            $('#chart').append('<canvas id="piechart" height="200"></canvas>');
+            $('#chart').append('<canvas id="piechart"></canvas>');
             $('#chartArea').append('<canvas id="lineChart" width="850" height="300"></canvas>');
             $('#chart2').append('<canvas id="mixchart" style="width:80%" height="300"></canvas>');
             $('#chartyaxis').append('<canvas id="chartAxis" height="300" width="20" style="background-color:white"></canvas>');
             var ctx = $("#piechart");
             var piechart = new Chart(ctx, {
-                type: 'pie',
+                type: 'doughnut',
                 data: data,
+                options : {
+                    legend: {
+                           display: true,
+                           position: 'right',
+                    }
+                }
             });
             var ctx = $("#mixchart");
             var mixedChart = new Chart(ctx, {
@@ -121,6 +127,9 @@ function update_dashboard(){
                 type: 'bar',
                 data: data2,
                 options: {
+                    legend :{
+                        display:false,
+                    },
                     hover:{mode: null},
                     scales:{
                         xAxes:[
@@ -159,15 +168,11 @@ function update_dashboard(){
                             },
                         }],
                     },
-                    legend:
-                    {
-                        display: false
-                    },
                     animation: {
                       onComplete: function() {
                         if (!this.rectangleSet) {
                           var scale = window.devicePixelRatio;
-                          var copyWidth = lineChart.scales['y-axis-0'].width;
+                          var copyWidth = lineChart.scales['y-axis-0'].width + 3;
                           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + max_length;
 
                           targetCtx.scale(scale, scale);

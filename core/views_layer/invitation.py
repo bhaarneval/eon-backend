@@ -17,7 +17,9 @@ from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganizer
-from eon_backend.settings import SECRET_KEY, EVENT_URL
+from eon_backend.settings import SECRET_KEY, EVENT_URL, LOGGER_SERVICE
+
+logger = LOGGER_SERVICE
 
 
 class InvitationViewSet(generics.GenericAPIView):
@@ -42,6 +44,7 @@ class InvitationViewSet(generics.GenericAPIView):
         :param event_id: Event id (not required)
         :return: Response with a list of all the generated invites
         """
+        logger.log_info("Update Invitee list process started")
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
@@ -57,8 +60,11 @@ class InvitationViewSet(generics.GenericAPIView):
         try:
             event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
+            logger.log_error(f"No event exist with id={event_id}")
             return api_error_response(message="No event exist with id={}".format(event_id))
         if event.event_created_by.id != user_id:
+            logger.log_error(f"LoggedIn user with id {user_id} is not the organizer of provided event with id "
+                             f"{event_id}")
             return api_error_response(message="You are not allowed to perform this action",
                                       status=400)
         for invitee in invitee_list:
@@ -76,7 +82,8 @@ class InvitationViewSet(generics.GenericAPIView):
                         response.append(inv_object)
                         number = UserProfile.objects.get(user=user)
                         contact_nos.append("".join(["+91", number.contact_number]))
-                    except Exception:
+                    except Exception as err:
+                        logger.log_error(str(err))
                         return api_error_response(message="Something went wrong", status=500)
                 except User.DoesNotExist:
                     try:
@@ -86,7 +93,8 @@ class InvitationViewSet(generics.GenericAPIView):
                             email=invitee,
                         )
                         response.append(inv_object)
-                    except Exception:
+                    except Exception as err:
+                        logger.log_error(str(err))
                         return api_error_response(
                             message="Some error occurred due to incorrect details",
                             status=400)
@@ -129,6 +137,7 @@ class InvitationViewSet(generics.GenericAPIView):
                                             url=EVENT_URL+str(event_id),
                                             numbers_list=contact_nos)
         data_object = {'invitee_list': data}
+        logger.log_info(f"Invitee list successfully updated for the event {event_id} by user {user_id}")
         return api_success_response(message="Successful invited", data=data_object)
 
     def delete(self, request):
@@ -137,15 +146,18 @@ class InvitationViewSet(generics.GenericAPIView):
         :param request: List of Id's in body with {'invitation_ids'=[list_of_ids]}
         :return:
         """
+        logger.log_info("Invitee list delete operation started")
         data = request.data
         list_of_ids = data.get('invitation_ids')
         event_id = data.get('event_id')
         testing = data.get("testing", False)  # for not running mail service for testing
         if not event_id:
+            logger.log_error("Event Id not provided for invitee delete request")
             return api_error_response(message="Event Id missing", status=400)
         try:
             event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
+            logger.log_error(f"Event Id {event_id} is invalid")
             return api_error_response(message="Invalid event id", status=400)
 
         try:
@@ -162,8 +174,10 @@ class InvitationViewSet(generics.GenericAPIView):
                                                 email_ids=email_ids,
                                                 event_name=event.name,
                                                 numbers_list=contact_nos)
+            logger.log_info(f"Invitee list delete operation completed for event {event_id}")
             return api_success_response(message="Invitation successfully deleted", status=200)
-        except Exception:
+        except Exception as err:
+            logger.log_error(str(err))
             return api_error_response(message='Something went wrong', status=500)
 
     def get(self, request):
@@ -205,4 +219,5 @@ class InvitationViewSet(generics.GenericAPIView):
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
+        logger.log_info(f"Invitee list successfully fetched by user_id {user_id} for event {event_id}")
         return api_success_response(message="Invitations details", data=data_object)

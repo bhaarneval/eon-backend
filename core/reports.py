@@ -148,8 +148,6 @@ def event_analysis_report(request, event_status=None, event_name=None):
     all_event_sold_tickets = []
     all_event_no_of_tickets = []
     all_event_status = []
-    all_event_status_bg_color_code = []
-    all_event_status_color_code = []
 
     for event_and_popularity in event_names_and_popularity:
         all_event_names.append(event_and_popularity.name)
@@ -157,16 +155,6 @@ def event_analysis_report(request, event_status=None, event_name=None):
         all_event_no_of_tickets.append(event_and_popularity.no_of_tickets)
         all_event_status.append(event_and_popularity.status)
 
-    for event_status in all_event_status:
-        if event_status == 'Completed':
-            all_event_status_bg_color_code.append('rgba(0,255,127, 0.2)')
-            all_event_status_color_code.append('rgba(0,255,127, 1)')
-        elif event_status == 'Ongoing':
-            all_event_status_bg_color_code.append('rgba(255,140,0, 0.2)')
-            all_event_status_color_code.append('rgba(255,140,0, 1)')
-        elif event_status == 'Cancelled':
-            all_event_status_bg_color_code.append('rgba(255,0,0, 0.2)')
-            all_event_status_color_code.append('rgba(255,0,0, 1)')
 
     event_completed_count = len(events_queryset.filter(is_active=False, is_cancelled=False))
     event_on_going_count = len(events_queryset.filter(is_active=True, is_cancelled=False))
@@ -251,6 +239,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
     res = max(all_event_names, key=len)
     max_length = len(res)
+
     content = dict(event_completed_count=event_completed_count,
                    event_on_going_count=event_on_going_count,
                    event_cancelled_count=event_cancelled_count,
@@ -261,13 +250,10 @@ def event_analysis_report(request, event_status=None, event_name=None):
                    data=dict(labels=['Completed', 'Ongoing', 'Cancelled'], datasets=[
                        dict(label='User Table',
                             data=[event_completed_count, event_on_going_count, event_cancelled_count],
-                            backgroundColor=['rgba(0,255,127, 0.2)',
-                                             'rgba(255,140,0, 0.2)',
-                                             'rgba(255,0,0, 0.2)'
+                            backgroundColor=['rgba(0,255,127, 0.75)',
+                                             'rgba(255,140,0, 0.75)',
+                                             'rgba(255,0,0, 0.75)'
                                              ],
-                            borderColor=['rgba(0,255,127, 1)',
-                                         'rgba(255,140,0, 1)',
-                                         'rgba(255,0,0, 1)'],
                             borderWidth=1)]),
                    completed=line_chart_completed,
                    ongoing=line_chart_on_going,
@@ -277,14 +263,14 @@ def event_analysis_report(request, event_status=None, event_name=None):
                    data2=dict(labels=all_event_names, datasets=[
                        dict(label="Total tickets",
                             data=all_event_no_of_tickets,
-                            backgroundColor=all_event_status_bg_color_code,
-                            borderColor=all_event_status_color_code,
+                            backgroundColor='rgba(255,140,0,0.2)',
+                            borderColor='rgba(255,140,0,0.2)',
                             borderWidth=1,
                             xAxisID="bar-x-axis1"),
                        dict(label="Sold tickets",
                             data=all_event_sold_tickets,
-                            backgroundColor=all_event_status_color_code,
-                            borderColor=all_event_status_color_code,
+                            backgroundColor='rgba(255,140,0,1)',
+                            borderColor='rgba(255,140,0,1)',
                             borderWidth=1,
                             xAxisID="bar-x-axis2")
                    ]),

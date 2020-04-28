@@ -31,11 +31,11 @@
                     <p style="color: #4fb2d3;">Ongoing Event Count</p>
                 </div>
             </div>
+            <div class="chart" id="chart" style="width:275px; margin-top:30px;">
+                <canvas id="piechart"></canvas>
+            </div>
         </div>
-        <div class="chart" id="chart" style=" width:25%; height: 220px;">
-            <canvas id="piechart" height="200"></canvas>
-        </div>
-        <div id="container">
+        <div id="contain">
           <div id="scrollArea">
             <div id="chartArea">
               <canvas id="lineChart" width="850" height="300"></canvas>
@@ -168,8 +168,15 @@
 <script>
 var ctx = document.getElementById("piechart").getContext('2d');
 var piechart = new Chart(ctx, {
-    type: 'pie',
+    type: 'doughnut',
     data: {{ data|safe }},
+    options : {
+        responsive: true,
+           legend: {
+               display: true,
+               position: 'right',
+            }
+    }
 });
 
 var ctx = document.getElementById("mixchart").getContext('2d');
@@ -238,6 +245,9 @@ var lineChart = new Chart(ctx, {
     type: 'bar',
     data: {{ data2|safe }},
     options: {
+        legend :{
+            display:false,
+        },
 	    hover: {mode: null},
 	    scales:{
 	        xAxes:[
@@ -245,21 +255,27 @@ var lineChart = new Chart(ctx, {
                     stacked: true,
                     id: "bar-x-axis1",
                     ticks: {
-                    autoSkip: false,
-                    maxRotation: 90,
-                    minRotation: 90
-                }
+                        autoSkip: false,
+                        maxRotation: 90,
+                        minRotation: 90
+                    },
+                    gridLines: {
+                        display:false
+                    }
 		        },
 			    {
                     display: false,
                     stacked: true,
                     id: "bar-x-axis2",
                     offset: true,
-                                        ticks: {
-                    autoSkip: false,
-                    maxRotation: 90,
-                    minRotation: 90
-                }
+                    ticks: {
+                        autoSkip: false,
+                        maxRotation: 90,
+                        minRotation: 90
+                    },
+                    gridLines: {
+                        display:false
+                    }
 		        },
 		    ],
 	        yAxes:[{
@@ -276,15 +292,11 @@ var lineChart = new Chart(ctx, {
                 },
 		    }],
 	    },
-    legend:
-    {
-        display: false
-    },
     animation: {
       onComplete: function() {
         if (!this.rectangleSet) {
           var scale = window.devicePixelRatio;
-          var copyWidth = lineChart.scales['y-axis-0'].width;
+          var copyWidth = lineChart.scales['y-axis-0'].width + 3 ;
           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + {{max_length}};
 
           targetCtx.scale(scale, scale);

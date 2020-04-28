@@ -11,7 +11,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import UserProfile, UserInterest
 from core.serializers import UserProfileSerializer
 from utils.common import api_error_response, api_success_response
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+
+logger = LOGGER_SERVICE
 
 
 class UserViewSet(ModelViewSet):
@@ -28,6 +30,7 @@ class UserViewSet(ModelViewSet):
         """
         User update api created here
         """
+        logger.log_info("User Profile Update Initialised")
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
@@ -51,16 +54,17 @@ class UserViewSet(ModelViewSet):
                     interest_to_be_deleted = list(set(prev_interest).difference(interests))
                     UserInterest.objects.filter(
                         event_type_id__in=interest_to_be_deleted).update(is_active=False)
-            except:
+            except Exception as err:
+                logger.log_error(str(err))
                 prev_interest = []
                 return api_error_response(message="Something went wrong", status=500)
 
             for current in interests:
                 try:
-                    user_interest = UserInterest.objects.get(
+                    UserInterest.objects.get(
                         user=user_id, event_type_id=current, is_active=True)
                 except:
-                    user_interest_obj = UserInterest.objects.create(
+                    UserInterest.objects.create(
                         user_id=user_id, event_type_id=current).save()
                 interest_list.append(current)
 
@@ -69,8 +73,10 @@ class UserViewSet(ModelViewSet):
                 response['interest'] = interest_list
             else:
                 response['interest'] = prev_interest
-        except Exception:
+        except Exception as err:
+            logger.log_error(str(err))
             return api_error_response(message="Something went wrong", status=500)
+        logger.log_info(f"User Profile updated successfully for user_id {user_id}")
         return api_success_response(data=response, status=200)
 
     def list(self, request, *args, **kwargs):
@@ -110,6 +116,8 @@ class UserViewSet(ModelViewSet):
         user_id = int(kwargs.get('user_id'))
 
         if user_logged_in != user_id:
+            logger.log_error(f"Cannot fetch profile details of other user, tried by user "
+                             f"{user_logged_in} for user_id {user_id}")
             return api_error_response(message="You can only view your own profile", status=400)
 
         profile = self.queryset.get(user_id=user_id)
@@ -125,4 +133,5 @@ class UserViewSet(ModelViewSet):
 
         curr_profile['interest'] = list_of_interest
 
+        logger.log_info(f"User details fetched successfully for user_id {user_id}")
         return api_success_response(data=curr_profile, message="user details", status=200)

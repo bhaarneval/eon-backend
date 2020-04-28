@@ -59,3 +59,14 @@ $ celery -A eon_backend worker -l info
 $ python manage.py migrate
 $ python manage.py runserver
 ```
+
+## Run Test (with coverage)
+```bash
+$ python manage.py test
+```
+
+## Check Pylint Score
+Run this command outside of project folder
+```bash
+$ pylint eon-backend --rcfile=eon-backend/.pylintrc
+```

@@ -13,11 +13,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
-from core.serializers import SubscriptionSerializer
-from eon_backend.settings import SECRET_KEY
+from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
+from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
 from utils.constants import PAYMENT_URL
 from utils.permission import IsSubscriberOrReadOnly
+
+logger = LOGGER_SERVICE
 
 
 class SubscriptionViewSet(viewsets.ViewSet):
@@ -37,6 +40,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
                             amount, discount_amount, total_amount
             :return: json response subscribed successful or error message
         """
+        logger.log_info("Subscription Started")
         data = json.loads(request.body)
         event_id = data.get('event_id', None)
         no_of_tickets = data.get('no_of_tickets', None)
@@ -54,11 +58,13 @@ class SubscriptionViewSet(viewsets.ViewSet):
         user_id = payload['user_id']
 
         if not event_id or not no_of_tickets or not user_id:
-            return api_error_response(message="Request parameters are invalid")
+            logger.log_error("Event_id, no_of_tickets and user_id are mandatory in request")
+            return api_error_response(message="Request Parameters are invalid")
 
         try:
             self.event = Event.objects.get(id=event_id, is_active=True)
         except Event.DoesNotExist:
+            logger.log_error(f"Event_id {event_id} does not exist")
             return api_error_response("Invalid event id")
 
         if no_of_tickets < 0:
@@ -66,6 +72,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
             tickets_data = instance.values('event').aggregate(Sum('no_of_tickets'))
             remaining_tickets = no_of_tickets + tickets_data['no_of_tickets__sum']
             if remaining_tickets < 0:
+                logger.log_error(f"Can not cancel tickets more than purchase {no_of_tickets}")
                 return api_error_response(message="Can not cancel tickets more than purchase", status=400)
 
         if amount:
@@ -152,9 +159,11 @@ class SubscriptionViewSet(viewsets.ViewSet):
                     event_date=queryset['event_date'], event_time=queryset['event_time'],
                     event_location=queryset['event_location'])
 
-            return api_success_response(message="Subscribed successfully", data=data, status=201)
+            logger.log_info(f"Subscription successful for user with id {user_id}")
+            return api_success_response(message="Subscribed Successfully", data=data, status=201)
 
-        return api_error_response(message="Requested number of tickets are more than available", status=400)
+        logger.log_error(f"Number of tickets are invalid for subscription request of user_id {user_id}")
+        return api_error_response(message="Requested number of tickets are more than availabl", status=400)
 
     def destroy(self, request, pk=None):
         """
@@ -171,4 +180,5 @@ class SubscriptionViewSet(viewsets.ViewSet):
         event.sold_tickets -= total_tickets['no_of_tickets__sum']
         event.save()
         event_to_be_added_to_inactive.update(is_active=False)
-        return api_success_response(message="Successfully unsubscribed")
+        logger.log_info(f"Successfully unsubscribed event {event_id} for user_id {user_id}")
+        return api_success_response(message="Successfully Unsubscribed")
