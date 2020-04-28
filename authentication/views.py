@@ -45,7 +45,7 @@ class Login(APIView):
 
         if user is None:
             logger.log_error(f"Invalid credentials provided for user login {email}")
-            message = "Given credentials do not match with any registered user"
+            message = "Given credentials do not match with any registered user!"
             return api_error_response(message=message, status=400)
         token = get_token_for_user(user)
         user_obj = produce_object_for_user(user)
