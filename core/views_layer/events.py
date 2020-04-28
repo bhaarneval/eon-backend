@@ -182,7 +182,6 @@ class EventViewSet(ModelViewSet):
         user_id = payload['user_id']
         user_logged_in = user_id
 
-
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
@@ -333,7 +332,7 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
-        logger.log_info(f"Event deletion request from user {user_id}")
+        logger.log_info(f"Event deletion request from user {user_id} for event {event_id}")
         try:
             event = self.queryset.get(id=event_id)
         except Event.DoesNotExist:
@@ -374,20 +373,21 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         user_logged_in = user_id
-        logger.log_info(f"Event update request started by user {user_id}")
+        logger.log_info(f"Event update request started by user {user_id} for event {event_id}")
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
         except Exception:
-            logger.log_error("Fetching of user role from object failed")
+            logger.log_error(f"Event update request by user_id {user_id}: fetching of user role from object failed")
             return api_error_response(
                 message="Not able to fetch the role of the logged in user", status=500)
         if user_role == 'subscriber':
-            logger.log_error("A subscriber cannot update event details")
+            logger.log_error(f"Event update request by user_id {user_id}: a subscriber cannot update event details")
             return api_error_response(
                 message="A subscriber cannot change an event details", status=500)
 
         if self.queryset.get(id=event_id).event_created_by.id != user_logged_in:
-            logger.log_error("LoggedIn User is not the organizer of the event with id {} ".format(event_id))
+            logger.log_error(f"Event update request: LoggedIn user {user_id} is not the organizer of the event with id "
+                             f"{event_id} ")
             return api_error_response(
                 message="You are not the organizer of this event {}".format(event_id), status=400)
         try:
@@ -397,7 +397,7 @@ class EventViewSet(ModelViewSet):
             prev_date = event_obj.date
             prev_time = event_obj.time
         except Event.DoesNotExist:
-            logger.log_error(f"Event with id {event_id} does not exist")
+            logger.log_error(f"Event update request: event_id {event_id} does not exist")
             return api_error_response(message=f"Event with id {event_id} does not exist",
                                       status=400)
         try:
