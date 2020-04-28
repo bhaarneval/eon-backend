@@ -3,7 +3,7 @@ Payment related views are here
 """
 import datetime
 
-from eon_backend.settings import APP_CONSTANTS
+from eon_backend.settings.common import APP_CONSTANTS
 from payment.serializers import PaymentSerializer
 
 CONSTANTS = APP_CONSTANTS['transaction']['values']

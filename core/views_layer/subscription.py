@@ -14,7 +14,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
 from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings.common import SECRET_KEY
 from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
 from utils.permission import IsSubscriberOrReadOnly

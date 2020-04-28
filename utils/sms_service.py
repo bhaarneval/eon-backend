@@ -3,7 +3,7 @@ SMS service Configuration
 """
 import boto3
 
-from eon_backend.settings import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
+from eon_backend.settings.common import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
 
 
 def send_sms(numbers_list, message):

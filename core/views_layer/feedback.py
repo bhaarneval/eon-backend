@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import Question, UserProfile, UserFeedback, Feedback, Event
 from core.serializers import FeedBackSerializer, QuestionSerializer
 from utils.permission import IsOrganizer, IsSubscriberOrReadOnly
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings.common import SECRET_KEY
 
 from utils.common import api_success_response, api_error_response
 

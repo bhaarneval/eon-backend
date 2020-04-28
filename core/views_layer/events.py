@@ -16,7 +16,7 @@ from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings.common import SECRET_KEY
 from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
 

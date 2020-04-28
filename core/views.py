@@ -14,11 +14,11 @@ from rest_framework.authentication import get_authorization_header
 
 from core.models import Event, Subscription, EventType
 from core.serializers import EventTypeSerializer
-from eon_backend.settings import EVENT_URL
+from eon_backend.settings.common import EVENT_URL
 
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
-from eon_backend.settings import SECRET_KEY
+from eon_backend.settings.common import SECRET_KEY
 from utils.permission import IsOrganizer
 from utils.constants import EVENT_STATUS, MONTH
 

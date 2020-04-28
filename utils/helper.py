@@ -4,7 +4,7 @@ Place you all helper method here
 from utils.sms_service import send_sms
 from utils.mail_service import send_mail
 from core.models import Notification, User, Event
-from eon_backend.settings import SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
+from eon_backend.settings.common import SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
 
 
 def send_email_sms_and_notification(action_name, **kwargs):
