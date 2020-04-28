@@ -5,7 +5,7 @@ import json
 import requests
 import jwt
 from django.db import transaction
-from django.db.models import F, Value, IntegerField, Sum
+from django.db.models import F, Sum
 from django.db.models.functions import Coalesce
 from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
@@ -13,9 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Subscription, Event
-from core.serializers import SubscriptionListSerializer, SubscriptionSerializer
+from core.serializers import SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY
-from payment.views import event_payment
 from utils.common import api_success_response, api_error_response
 from utils.constants import PAYMENT_URL
 from utils.permission import IsSubscriberOrReadOnly
@@ -28,29 +27,6 @@ class SubscriptionViewSet(viewsets.ViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated, IsSubscriberOrReadOnly)
     queryset = Subscription.objects.filter(is_active=True)
-
-    def list(self, request, *args, **kwargs):
-        """
-        Subscription List api
-        """
-        event_id = request.GET.get("event_id", None)
-        if event_id:
-            self.queryset = self.queryset.filter(event=event_id)
-
-        self.queryset = self.queryset.select_related('user').annotate(
-            email=F('user__email'),
-            name=F('user__userprofile__name'),
-            contact_number=F('user__userprofile__contact_number'))
-
-        queryset = self.queryset.filter(payment__isnull=True)
-        self.queryset = self.queryset.filter(payment__isnull=False)
-        self.queryset = self.queryset.select_related('payment').annotate(
-            paid_amount=F('payment__total_amount'))
-        queryset = queryset.select_related('payment').annotate(paid_amount=Value(0, IntegerField()))
-        queryset = self.queryset.union(queryset)
-        serializer = SubscriptionListSerializer(queryset, many=True)
-        data = dict(total=len(queryset), subscribtion_list=serializer.data)
-        return api_success_response(data=data, status=200)
 
     @transaction.atomic()
     def create(self, request):

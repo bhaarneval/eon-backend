@@ -5,7 +5,8 @@ import json
 import jwt
 from datetime import date
 
-from django.db.models import F, Q
+import requests
+from django.db.models import F, Q, Sum
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes, permission_classes, api_view
@@ -20,7 +21,7 @@ from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from eon_backend.settings import SECRET_KEY
 from utils.permission import IsOrganizer
-from utils.constants import EVENT_STATUS, MONTH
+from utils.constants import EVENT_STATUS, MONTH, PAYMENT_URL
 
 
 @api_view(["GET"])
@@ -126,10 +127,10 @@ def get_event_summary(request):
     if event_status_filter.lower() == EVENT_STATUS['completed']:
         queryset = queryset.filter(is_active=False, is_cancelled=False)
 
-    if event_status_filter.lower() == EVENT_STATUS['cancelled']:
+    elif event_status_filter.lower() == EVENT_STATUS['cancelled']:
         queryset = queryset.filter(is_active=False, is_cancelled=True)
 
-    if event_status_filter.lower() == EVENT_STATUS['default']:
+    elif event_status_filter.lower() == EVENT_STATUS['default']:
         queryset = queryset.filter(date__gte=str(today), is_active=True)
 
     if search_text:
@@ -146,15 +147,12 @@ def get_event_summary(request):
             if event.subscription_fee == 0:
                 revenue = 0
             else:
-                total_amount_paid = sum(list(
-                    Subscription.objects.filter(event=event.id, payment__isnull=False, payment__status=0,
-                                                is_active=True).values_list(
-                        'payment__total_amount', flat=True)))
-                refund = sum(list(
-                    Subscription.objects.filter(event=event.id, payment__isnull=False, payment__status=3,
-                                                is_active=True).values_list(
-                        'payment__total_amount', flat=True)))
-                revenue = total_amount_paid - refund
+                total_amount = Subscription.objects.filter(event=event.id,
+                                                           is_active=True).aggregate(Sum("amount"))
+                if total_amount["amount__sum"]:
+                    revenue = total_amount["amount__sum"]
+                else:
+                    revenue = 0
                 total_revenue += revenue
             event_status = EVENT_STATUS['default']
             if event.is_cancelled:
@@ -247,12 +245,11 @@ def get_month_wise_revenue(event_ids):
     :param event_ids: list of event ids
     :return: sum of revenue generated from all events
     """
-    total_amount_paid = sum(list(
-        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=0,
-                                    is_active=True).values_list(
-            'payment__total_amount', flat=True)))
-    refund = sum(list(
-        Subscription.objects.filter(event_id__in=event_ids, payment__isnull=False, payment__status=3,
-                                    is_active=True).values_list(
-            'payment__total_amount', flat=True)))
-    return total_amount_paid-refund
+    total_amount = Subscription.objects.filter(event__in=event_ids,
+                                               is_active=True).aggregate(Sum("amount"))
+    if total_amount["amount__sum"]:
+        revenue = total_amount["amount__sum"]
+    else:
+        revenue = 0
+
+    return revenue

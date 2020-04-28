@@ -157,21 +157,6 @@ class AuthenticationTestCase(TestCase):
         # Check
         self.assertEqual(reset_response.status_code, 400)
 
-    def test_reset_password_with_invalid_code(self):
-        """
-        Unit test to check reset_password API with invalid code
-        :return:
-        """
-        verification_code = VerificationCode(email='user@mail.com', code='1234')
-        verification_code.save()
-        data = dict(email='user@mail.com', password="user1234", code="code")
-
-        # Run
-        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
-                                          content_type='application/json')
-        # Check
-        self.assertEqual(reset_response.status_code, 400)
-
     def test_reset_password_with_valid_code(self):
         """
         Unit test to check reset_password API with valid code
