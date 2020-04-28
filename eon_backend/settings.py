@@ -203,9 +203,15 @@ NOTIFICATION_CONFIG = NOTIFICATION_CONFIG
 
 # logger
 OUT_DIR = os.path.join(BASE_DIR, "logs/core")
+if not os.path.exists(OUT_DIR):
+    os.mkdir(BASE_DIR + '/logs')
+    os.mkdir(BASE_DIR + '/logs/core')
+
+
 CORE_APP_LOG_DIR = (
     os.environ.get("EON_LOG_DIR") if os.environ.get("EON_LOG_DIR") else OUT_DIR
 )
+
 # loggers
 LOGGING = {
     "version": 1,
