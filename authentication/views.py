@@ -164,7 +164,7 @@ def change_user_password(request):
 
     if user is None:
         logger.log_error("Invalid user credentials provided")
-        message = "Given credentials does not matches with any registered user"
+        message = "Given credentials does not matches with any registered user!"
         return api_error_response(message=message, status=400)
 
     if old_password == new_password:
