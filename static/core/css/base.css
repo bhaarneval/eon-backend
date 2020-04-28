@@ -44,12 +44,12 @@
 }
 
 #scrollArea {
-  width: 1130px;
+  width: 900px;
   overflow-x: scroll;
 }
 
 #chartArea {
-  width: 1500px;
+  width: 1200px;
 }
 
 #chartAxis {

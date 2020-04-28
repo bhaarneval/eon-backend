@@ -271,8 +271,13 @@ def event_analysis_report(request, event_status=None, event_name=None):
         ))
 
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
-    res = max(all_event_names, key=len)
-    max_length = len(res)
+
+    if all_event_names:
+        res = max(all_event_names, key=len)
+        max_length = len(res)
+        max_length = max_length*6.12
+    else:
+        max_length = 2
 
     content = dict(event_completed_count=event_completed_count,
                    event_on_going_count=event_on_going_count,
@@ -293,7 +298,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
                    ongoing=line_chart_on_going,
                    cancelled=line_chart_cancelled,
                    event_organisers=line_chart_organisers,
-                   max_length=max_length*6.12,
+                   max_length=max_length,
                    data2=dict(labels=all_event_names, datasets=[
                        dict(label="Total tickets",
                             data=all_event_no_of_tickets,
