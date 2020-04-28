@@ -169,7 +169,7 @@ def change_user_password(request):
 
     if old_password == new_password:
         logger.log_error(f"New password cannot be same as old password for user {email}")
-        return api_error_response(message="New password cannot be same as old password", status=400)
+        return api_error_response(message="New password cannot be same as old password !", status=400)
 
     try:
         user.set_password(new_password)
@@ -217,7 +217,7 @@ def reset_password(request):
             return api_error_response(message="Some internal error occur", status=500)
         if user_existed:
             logger.log_error(f"New password cannot be same as old password for reset_password request of {email}")
-            return api_error_response(message="New password cannot be same as old password")
+            return api_error_response(message="New password cannot be same as old password !")
         if code_obj and code_obj.code == code:
             user = User.objects.get(email=email)
             user.set_password(password)
