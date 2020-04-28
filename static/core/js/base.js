@@ -57,7 +57,7 @@ function update_dashboard(){
                 options : {
                     legend: {
                            display: true,
-                           position: 'left',
+                           position: 'right',
                     }
                 }
             });
