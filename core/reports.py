@@ -237,8 +237,11 @@ def event_analysis_report(request, event_status=None, event_name=None):
         ))
 
     total_count = len(event_which_has_subscribers) + len(events_not_subscribed)
-    res = max(all_event_names, key=len)
-    max_length = len(res)
+    if all_event_names:
+        res = max(all_event_names, key=len)
+        max_length = len(res)
+    else:
+        max_length = 2
 
     content = dict(event_completed_count=event_completed_count,
                    event_on_going_count=event_on_going_count,
