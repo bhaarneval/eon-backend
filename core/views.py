@@ -21,7 +21,7 @@ from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
 from utils.permission import IsOrganizer
-from utils.constants import EVENT_STATUS, MONTH, PAYMENT_URL
+from utils.constants import EVENT_STATUS
 
 logger = LOGGER_SERVICE
 

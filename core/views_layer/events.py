@@ -18,8 +18,7 @@ from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
-from eon_backend.settings import SECRET_KEY
-from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE, PAYMENT_URL
+from utils.constants import PAYMENT_URL
 from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
 from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
@@ -185,6 +184,7 @@ class EventViewSet(ModelViewSet):
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
         user_logged_in = user_id
+        token_value = request.META.get('HTTP_AUTHORIZATION').split()[1]
 
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
@@ -276,7 +276,7 @@ class EventViewSet(ModelViewSet):
                         payment_ids_list = [_[0] for _ in payment_ids_list]
                         payment_payload = {"list_of_payment_ids": payment_ids_list}
                         payment_response = requests.get(PAYMENT_URL, data=json.dumps(payment_payload),
-                                                        headers={"Authorization": f"Bearer {token.decode('utf-8')}",
+                                                        headers={"Authorization": f"Bearer {token_value}",
                                                                  "Content-type": "application/json"})
                         if payment_response.status_code != 200:
                             return api_error_response(message="Error in fetching details from payment service",
