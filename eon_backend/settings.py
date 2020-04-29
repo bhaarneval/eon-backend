@@ -9,12 +9,12 @@ https://docs.djangoproject.com/en/1.11/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
-
 import os
 from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-
+from utils.constants import APPLICATION_CONSTANTS, SMS_CONFIG, EMAIL_CONFIG, NOTIFICATION_CONFIG
+from utils.logger import Logging
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
@@ -24,34 +24,55 @@ STATIC_DIR = os.path.join(BASE_DIR, 'static')
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bzr%nozw=25$vj)'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'sc6#6@en-9r(-(6=*uiw1xsds&(xxpjea=0bzr%nozw=25$vj)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com','BitsPilaniEonBackend-env.eba-iewfgdnb.us-east-1.elasticbeanstalk.com',
+                 'localhost', '127.0.0.1', '[::1]']
 
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
+    'django_nose',
+
+    # Installed Apps
+    'core',
+    'daterangefilter',
+    'authentication',
+    'rest_framework',
+    'payment',
+]
+
+# Use nose to run all tests
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+NOSE_ARGS = [
+    '--with-coverage',
+    '--cover-package=authentication,core,payment',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'eon_backend.urls'
 
@@ -72,14 +93,20 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'eon_backend.wsgi.application'
+REST_FRAMEWORK = {
+    "EXCEPTION_HANDLER": "utils.exception_handler.api_exception_handler",
+
+}
+
+GRAPPELLI_ADMIN_TITLE = "BITS EOn"
 
 # Simple-JWT Authentication
 # https://pypi.org/project/djangorestframework-simplejwt/
 
-ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 60)
-REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 1)
+ACCESS_TOKEN_LIFETIME = os.environ.get("ACCESS_TOKEN_LIFETIME", 1)
+REFRESH_TOKEN_LIFETIME = os.environ.get("REFRESH_TOKEN_LIFETIME", 2)
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(ACCESS_TOKEN_LIFETIME)),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=int(ACCESS_TOKEN_LIFETIME)),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=int(REFRESH_TOKEN_LIFETIME)),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -94,9 +121,7 @@ SIMPLE_JWT = {
 
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
-
 }
-
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
@@ -111,7 +136,6 @@ DATABASES = {
         "PORT": os.environ.get("DB_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -131,7 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -145,11 +168,95 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIR = [
-    STATIC_DIR
-]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+
+AUTH_USER_MODEL = 'authentication.User'
+
+# constant
+APP_CONSTANTS = APPLICATION_CONSTANTS
+
+# AWS constants
+BUCKET = os.environ.get('BUCKET_NAME')
+BUCKET_PATH = os.environ.get('AWS_BUCKET_PATH')
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.environ.get("AWS_REGION")
+EMAIL_ID = os.environ.get("EMAIL_ID")
+TOPIC_NAME = os.environ.get("TOPIC_NAME")
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
+
+# configs for sms and email and notification
+SMS_CONFIG = SMS_CONFIG
+
+EMAIL_CONFIG = EMAIL_CONFIG
+
+NOTIFICATION_CONFIG = NOTIFICATION_CONFIG
+
+# logger
+OUT_DIR = os.path.join(BASE_DIR, "logs/core")
+if not os.path.exists(OUT_DIR):
+    os.mkdir(BASE_DIR + '/logs')
+    os.mkdir(BASE_DIR + '/logs/core')
+
+
+CORE_APP_LOG_DIR = (
+    os.environ.get("EON_LOG_DIR") if os.environ.get("EON_LOG_DIR") else OUT_DIR
+)
+
+# loggers
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        'console': {
+            'format': '[%(levelname)s : %(asctime)s]  %(funcName)s  %(lineno)d  %(message)s'
+        },
+        'file': {
+            'format': '[%(levelname)s : %(asctime)s]  %(funcName)s  %(lineno)d  %(message)s'
+        }
+    },
+    "handlers": {
+        "debug": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(CORE_APP_LOG_DIR, "debug.log"),
+            "formatter": 'file',
+        },
+        "info": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(CORE_APP_LOG_DIR, "info.log"),
+            "formatter": 'file',
+        },
+        "error": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(CORE_APP_LOG_DIR, "error.log"),
+            "formatter": 'file',
+        },
+        "warning": {
+            "level": "WARNING",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(CORE_APP_LOG_DIR, "warning.log"),
+            "formatter": 'file',
+        }
+    },
+    "loggers": {
+        "debug_logger": {"handlers": ["debug"], "level": "DEBUG", "propagate": True},
+        "info_logger": {"handlers": ["info"], "level": "INFO", "propagate": True},
+        "error_logger": {"handlers": ["error"], "level": "ERROR", "propagate": True},
+        "warning_logger": {"handlers": ["warning"], "level": "WARNING", "propagate": True}
+    },
+}
+LOGGER_SERVICE = Logging()
+
+EVENT_URL = "http://d10crzu2ups2gn.cloudfront.net/event-details?id="

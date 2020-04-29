@@ -1,0 +1,65 @@
+.box {
+  float: left;
+  margin: 1em;
+
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 200px;
+  background-color: #EEE;
+  border-radius: 3px;
+  height: 100px;
+  margin-bottom: 7px;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  background-color: #DDD;
+}
+
+.container {
+  padding: 2px 16px;
+}
+
+.text-color{
+  color: black;
+}
+
+.disp{
+    display: none;
+}
+
+.disp1{
+    display: block;
+}
+
+#contain {
+  position:relative;
+  left: 0;
+  top: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#scrollArea {
+  width: 1130px;
+  overflow-x: scroll;
+}
+
+#chartArea {
+  width: 1500px;
+}
+
+#chartAxis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+}
+
+.strike{
+     text-decoration: line-through !important;
+}
+

@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+from django.urls import path
+from django.urls import include
 
 urlpatterns = [
+    path('grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
+    url(r'^core/', include('core.urls')),
+    path('authentication/', include('authentication.urls')),
 ]
