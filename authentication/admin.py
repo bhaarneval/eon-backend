@@ -3,11 +3,11 @@ Added model for admin view so admin user can see the model and can update also
 """
 from django.contrib import admin
 from django.contrib.auth.models import Group
-from django.db.models.signals import post_save, post_init
+from django.db.models.signals import post_save, post_init, pre_save
 
 from utils.helper import send_email_sms_and_notification
 from .models import User, Role
-from .signals import post_save_method, remember_state_method
+from .signals import post_save_method, remember_state_method, pre_save_method
 
 
 def block_user(modelAdmin, request, queryset):
@@ -39,14 +39,14 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ("id", "email")
     search_fields = ("email",)
     list_filter = ("is_active",)
-    readonly_fields = ('email',)
-    fieldsets = (
-        (
-            "", {
-                "fields": ('email', 'is_active')
-            }
-        ),
-    )
+    # readonly_fields = ('email',)
+    # fieldsets = (
+    #     (
+    #         "", {
+    #             "fields": ('email', 'is_active')
+    #         }
+    #     ),
+    # )
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -55,6 +55,7 @@ class UserAdmin(admin.ModelAdmin):
         return False
 
 
+pre_save.connect(pre_save_method, sender=User)
 post_save.connect(post_save_method, sender=User)
 post_init.connect(remember_state_method, sender=User)
 
