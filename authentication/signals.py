@@ -11,8 +11,6 @@ def post_save_method(sender, **kwargs):
         elif not instance.previous_state and instance.is_active:
             send_email_sms_and_notification(action_name="user_unblocked",
                                             email_ids=[instance.email])
-    else:
-        pass
 
 
 def remember_state_method(sender, **kwargs):
@@ -22,7 +20,8 @@ def remember_state_method(sender, **kwargs):
 
 def pre_save_method(sender, **kwargs):
     instance = kwargs.get('instance')
-    if not instance.created_at:
-        instance.method_name = "new_instance"
+    updated_fields = kwargs.get('updated_fields')
+    if updated_fields is None:
+        instance.method_name = 'new_instance'
     else:
-        instance.method_name = "old_instance"
+        instance.method_name = 'old_instance'
