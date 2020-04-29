@@ -129,7 +129,7 @@ class FeedbackTestCase(APITestCase):
         data = dict(email="user20@gmail.com", password="user123")
         login_response = self.client.post('/authentication/login', json.dumps(data),
                                           content_type='application/json')
-        user_id = login_response.data['data']['user']['user_id']
+        # user_id = login_response.data['data']['user']['user_id']
         token = login_response.data['data']['access']
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(token)
@@ -159,7 +159,8 @@ class FeedbackTestCase(APITestCase):
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
@@ -179,7 +180,8 @@ class FeedbackTestCase(APITestCase):
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
@@ -199,7 +201,8 @@ class FeedbackTestCase(APITestCase):
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 200)

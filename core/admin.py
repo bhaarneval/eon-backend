@@ -96,10 +96,9 @@ class SubscriptionAdmin(admin.ModelAdmin):
     """
     Added subscription model in admin
     """
-    list_display = ("id", "event", "user", "no_of_tickets", "payment", 'is_active')
+    list_display = ("id", "event", "user", "no_of_tickets", "amount", 'is_active')
     search_fields = ("event__name", "user__email")
-    readonly_fields = ('is_active', 'user', 'event', 'no_of_tickets', 'payment')
-    list_filter = ("payment__status",)
+    readonly_fields = ('is_active', 'user', 'event', 'no_of_tickets', 'amount')
 
     def has_delete_permission(self, request, obj=None):
         return False

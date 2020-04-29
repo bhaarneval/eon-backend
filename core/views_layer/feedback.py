@@ -104,7 +104,7 @@ class FeedbackView(APIView):
                 'name': UserProfile.objects.get(user_id=instance.user.id).name,
                 'email': instance.user.email,
                 'contact': UserProfile.objects.get(user_id=instance.user.id).contact_number
-            },
+                },
                 'responses': []}
             for response in feedback:
                 image = response.image

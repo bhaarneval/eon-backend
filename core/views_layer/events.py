@@ -2,7 +2,9 @@
 Events related functions are here
 """
 from datetime import date
+import json
 
+import requests
 import jwt
 from django.db.models import ExpressionWrapper, F, IntegerField, Q
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +18,7 @@ from utils.common import api_error_response, api_success_response
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
+from utils.constants import PAYMENT_URL
 from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
 from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
@@ -181,6 +184,7 @@ class EventViewSet(ModelViewSet):
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
         user_logged_in = user_id
+        token_value = request.META.get('HTTP_AUTHORIZATION').split()[1]
 
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
@@ -194,6 +198,7 @@ class EventViewSet(ModelViewSet):
         try:
             curr_event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
+
             logger.log_error("Invalid event_id {} provided in retrieve request".format(event_id))
             return api_error_response(message="Given event {} does not exist".format(event_id))
 
@@ -266,24 +271,24 @@ class EventViewSet(ModelViewSet):
                         discount_percentage = 0
                     else:
                         # paid event
-                        refund_queryset = Subscription.objects.filter(user=user_id, event=event_id,
-                                                                      payment__isnull=False, payment__status=3,
-                                                                      is_active=True)
-                        refund_amount = int(sum(list(
-                            refund_queryset.values_list('payment__total_amount', flat=True))))
-                        discount_updated = int(sum(
-                            refund_queryset.values_list('payment__discount_amount', flat=True)))
+                        payment_ids_list = Subscription.objects.filter(user=user_id, event=event_id,
+                                                                       is_active=True).values_list("id_payment")
+                        payment_ids_list = [_[0] for _ in payment_ids_list]
+                        payment_payload = {"list_of_payment_ids": payment_ids_list}
+                        payment_response = requests.get(PAYMENT_URL, data=json.dumps(payment_payload),
+                                                        headers={"Authorization": f"Bearer {token_value}",
+                                                                 "Content-type": "application/json"})
+                        if payment_response.status_code != 200:
+                            return api_error_response(message="Error in fetching details from payment service",
+                                                      status=500)
+                        payment_object = payment_response.json().get('data')
+                        total_amount_paid = sum([item["total_amount"]
+                                                 if item["status"] == 0 else item["total_amount"] * (-1)
+                                                 for item in payment_object])
+                        total_discount_given = sum([item["discount_amount"]
+                                                    if item["status"] == 0 else item["discount_amount"] * (-1)
+                                                    for item in payment_object])
 
-                        total_amount_paid = int(sum(list(
-                            Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0,
-                                                        is_active=True).values_list
-                            ('payment__total_amount', flat=True)))) - refund_amount
-                        total_discount_given = int(sum(list(
-                            Subscription.objects.filter(user=user_id, event=event_id,
-                                                        payment__isnull=False, payment__status=0,
-                                                        is_active=True).values_list
-                            ('payment__discount_amount', flat=True)))) - discount_updated
                         try:
                             discount_percentage = \
                                 Invitation.objects.get(user_id=user_id,
