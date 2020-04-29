@@ -67,13 +67,6 @@ BUCKET_PATH=
 BROKER_URL=redis://localhost:6379
 ```
 
-## Run Celery
-Open separate terminal with your virtualenv activated. Then paste the below command.
-
-```bash
-$ celery -A eon_backend worker -l info
-```
-
 ## Run Server
 
 ```bash
