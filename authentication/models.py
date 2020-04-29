@@ -71,7 +71,6 @@ class User(AbstractUser, ModelBase):
     """
     email = models.EmailField(unique=True)
     previous_state = None
-    method_name = None
 
     objects = UserManager()
 
