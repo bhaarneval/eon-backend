@@ -1,0 +1,20 @@
+[
+{
+    "model": "authentication.role",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-08T13:01:48.724Z",
+        "updated_on": "2020-04-08T13:01:48.724Z",
+        "role": "organizer"
+    }
+},
+{
+    "model": "authentication.role",
+    "pk": 2,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-08T13:02:48.724Z",
+        "role": "subscriber"
+    }
+}
+]

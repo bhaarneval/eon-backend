@@ -1,0 +1,92 @@
+[
+{
+    "model": "core.eventtype",
+    "pk": 1,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T06:18:37.375Z",
+        "is_active": true,
+        "type": "Festival"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 2,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T06:18:56.107Z",
+        "is_active": true,
+        "type": "Conference"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 3,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T06:17:58.355Z",
+        "is_active": true,
+        "type": "Ceremony"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 4,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T06:16:50.587Z",
+        "is_active": true,
+        "type": "Athletic"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 5,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T06:16:29.955Z",
+        "is_active": true,
+        "type": "Seminar"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 6,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T05:59:58.178Z",
+        "is_active": true,
+        "type": "Trade Fair"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 7,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T05:58:25.052Z",
+        "is_active": true,
+        "type": "Formal Party"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 8,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T05:57:56.330Z",
+        "is_active": true,
+        "type": "Concert"
+    }
+},
+{
+    "model": "core.eventtype",
+    "pk": 9,
+    "fields": {
+        "created_on": "2020-04-08T13:02:48.724Z",
+        "updated_on": "2020-04-15T05:55:00.578Z",
+        "is_active": true,
+        "type": "Convention"
+    }
+},
+]
