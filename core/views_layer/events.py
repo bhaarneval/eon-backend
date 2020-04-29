@@ -1,7 +1,7 @@
 """
 Events related functions are here
 """
-from datetime import date
+from datetime import date, datetime
 import json
 
 import requests
@@ -302,7 +302,7 @@ class EventViewSet(ModelViewSet):
                         "amount_paid": total_amount_paid,
                         "discount_given": total_discount_given,
                         "discount_percentage": discount_percentage,
-                        "created_on": created_on
+                        "created_on": datetime.strftime(created_on, "%Y-%m-%d")
                     }
                 else:
                     data["subscription_details"] = {}
