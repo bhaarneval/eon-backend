@@ -11,7 +11,6 @@ from rest_framework import viewsets
 from rest_framework.authentication import get_authorization_header
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
 from core.models import Subscription, Event
 from core.serializers import SubscriptionSerializer
 from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
@@ -55,7 +54,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
         token = get_authorization_header(request).split()[1]
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
-
+        token_value = request.META.get('HTTP_AUTHORIZATION').split()[1]
         if not event_id or not no_of_tickets or not user_id:
             logger.log_error("Event_id, no_of_tickets and user_id are mandatory in request")
             return api_error_response(message="Request Parameters are invalid")
@@ -79,9 +78,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         expiry_year=expiry_year, amount=amount,
                         discount_amount=discount_amount, total_amount=total_amount,
                         no_of_tickets=no_of_tickets)
-
             payment_object = requests.post(PAYMENT_URL, data=json.dumps(data),
-                                           headers={"Authorization": f"Bearer {token.decode('utf-8')}",
+                                           headers={"Authorization": f"Bearer {token_value}",
                                                     "Content-type": "application/json"})
             if payment_object.status_code == 200:
                 payment_object = payment_object.json().get('data')
