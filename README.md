@@ -92,6 +92,27 @@ Run this command outside of project folder
 $ pylint eon-backend --rcfile=eon-backend/.pylintrc
 ```
 
+## Create Default Roles and Event_Types
+Before running the APIs create default roles and event_types using below queries from postgres command line. This should run after the migrate command.
+```
+$ sudo -s su postgres;
+$ psql <dbname_creaeted_above> <db_user_created_above>;
+Connect with DB after enter <db_password_created_above>
+
+Queries
+
+# select now();               -> This will give current date & time
+
+# insert into role(created_on, updated_on, role) values('2020-04-27 15:58:29.879506+05:30', '2020-04-27 15:58:29.879506+05:30', 'subscriber');
+
+# insert into role(created_on, updated_on, role) values('2020-04-27 15:58:29.879506+05:30', '2020-04-27 15:58:29.879506+05:30', 'organizer');
+
+# insert into core_eventtype(created_on, updated_on, is_active, type) values('2020-04-27 15:58:29.879506+05:30', '2020-04-27 15:58:29.879506+05:30', 't', 'festival');
+
+# insert into core_eventtype(created_on, updated_on, is_active, type) values('2020-04-27 15:58:29.879506+05:30', '2020-04-27 15:58:29.879506+05:30', 't', 'sport');
+```
+
+
 ### Main Libraries Used
 
 - Django-Rest-Framework : Django REST framework is a powerful and flexible toolkit for building Web APIs. It gives us multiple features that combine deeply with Django's existing structures, supporting us build RESTful HTTP resources that agree to the models.
