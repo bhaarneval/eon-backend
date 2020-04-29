@@ -2,6 +2,11 @@
 
 This is a monolithic architecture django project for BITS EOn.
 
+# Prerequisites
+
+- Postgres Setup
+- Redis
+
 ## Important Features
 
 - Python 3+
@@ -29,6 +34,11 @@ $ CREATE DATABASE <dbname>;                                        -> create a n
 $ CREATE USER <username> WITH PASSWORD <password>;                 -> create a new postgres user for local
 $ GRANT ALL PRIVILEGES ON DATABASE <dbname> TO USER <username>;    -> Grant all privileges to that user for new DB
 ```
+Create SuperUser in local to access Django admin as:
+```bash
+$ python3 manage.py createsuperuser;
+```
+
 NOTE: To connect the django app with local Database use these credentials to set the environment variables
 
 
@@ -37,9 +47,9 @@ NOTE: To connect the django app with local Database use these credentials to set
 ```
 #DJANGO
 SECRET_KEY=<something_very_secret>
-DB_NAME=<db_name>
-DB_USERNAME=<db_user>
-DB_PASSWORD=<your_password>
+DB_NAME=<db_name_created_above>
+DB_USERNAME=<db_user_created_above>
+DB_PASSWORD=<db_password_created_above>
 DB_HOSTNAME=localhost
 DB_PORT=5432
 
