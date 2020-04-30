@@ -79,6 +79,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
                         discount_amount=discount_amount, total_amount=total_amount,
                         no_of_tickets=no_of_tickets)
             payment_access_token = payment_token(user_id)
+            payment_access_token = payment_access_token.decode('UTF-8')
             payment_object = requests.post(PAYMENT_URL, data=json.dumps(data),
                                            headers={"Authorization": "Bearer {}".format(payment_access_token),
                                                     "Content-type": "application/json"})
