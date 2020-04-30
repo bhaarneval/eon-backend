@@ -91,7 +91,7 @@ EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancel
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
 
 HEADERS = {'Content-type': 'application/json'}
-PAYMENT_URL = "http://a772e5e6b5fab436d889d1acd5764004-1552015538.ap-south-1.elb.amazonaws.com:8000/core/payment/"
+PAYMENT_URL = "http://127.0.0.1:8001/core/payment/"
 
 MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
          'November', 'December']
