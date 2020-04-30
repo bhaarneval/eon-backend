@@ -56,7 +56,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
         user_id = payload['user_id']
         token_value = request.headers.get('authorization', None)
         token_value = token_value[1]
-        token_value = 'Token' + token_value
+        token_value = 'Token ' + token_value
         if not event_id or not no_of_tickets or not user_id:
             logger.log_error("Event_id, no_of_tickets and user_id are mandatory in request")
             return api_error_response(message="Request Parameters are invalid")
