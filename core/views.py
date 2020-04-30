@@ -109,7 +109,7 @@ def send_mail_to_a_friend(request):
                                     event_name=event_name,
                                     email_ids=email)
     logger.log_info(f"Mail send successfully to the friend by user {email} for event {event_id}")
-    return api_success_response(message="Mail send successfully", status=200)
+    return api_success_response(message="Mail sent successfully", status=200)
 
 
 @api_view(["GET"])
