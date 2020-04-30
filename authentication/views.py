@@ -260,3 +260,12 @@ def send_forget_password_mail(request):
     )
     logger.log_info(f"Verification code send successfully to user {email}")
     return api_success_response(message="Verification code send successfully")
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def verify_token(request):
+    user = request.user
+    data = {"user_id": user.id, "email":user.email}
+    return api_success_response(message="Token_verified", data=data, status=200)
