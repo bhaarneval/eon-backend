@@ -49,17 +49,7 @@ class Login(APIView):
             logger.log_error(f"Invalid credentials provided for user login {email}")
             message = "Given credentials do not match with any registered user!"
             return api_error_response(message=message, status=400)
-        # token = get_token_for_user(user)
-        token = {}
-        access = jwt.encode(
-            {
-                "user_id": user.id,
-                "exp": datetime.datetime.now() + datetime.timedelta(minutes=5),
-            },
-            SECRET_KEY,
-            algorithm="HS256",
-        )
-        token['access'] = access
+        token = get_token_for_user(user)
         user_obj = produce_object_for_user(user)
         if user_obj is None:
             logger.log_error("Error in creation of user object")
