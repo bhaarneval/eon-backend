@@ -60,7 +60,7 @@ class WishListViewSet(viewsets.ViewSet):
                 if not wishlist.is_active:
                     wishlist.is_active = True
                     wishlist.save()
-                    message = "WishListed Successfully"
+                    message = "Wishlisted successfully"
                 else:
                     message = "Event already wishlisted"
                 serializer = WishListSerializer(wishlist)
@@ -70,7 +70,7 @@ class WishListViewSet(viewsets.ViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             logger.log_info(f"Wishlist successfully added for user_id {user_id} for event {event_id}")
-            return api_success_response(data=serializer.data, message="WishListed Successfully",
+            return api_success_response(data=serializer.data, message="Wishlisted successfully",
                                         status=200)
         logger.log_error("Request Parameters are invalid")
         return api_error_response(message="Request Parameters are invalid", status=400)
@@ -92,7 +92,7 @@ class WishListViewSet(viewsets.ViewSet):
             instance.is_active = False
             instance.save()
             logger.log_info(f"Wishlist removed successfully for user_id {user_id}")
-            return api_success_response(message='Successfully removed from Wishlist', status=200)
+            return api_success_response(message='Successfully removed from wishlist', status=200)
 
         logger.log_error(f"Invalid event {event_id}")
         return api_error_response(message='Invalid event', status=400)
