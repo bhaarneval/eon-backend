@@ -1,11 +1,9 @@
 """
 Authentications view reference are here
 """
-import datetime
 import json
 from random import randint
 
-import jwt
 from django.db import transaction
 from django.contrib.auth import authenticate
 
@@ -16,7 +14,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE, SECRET_KEY
+from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE
 from utils.common import api_error_response, api_success_response, \
     produce_object_for_user
 from utils.helper import send_email_sms_and_notification
