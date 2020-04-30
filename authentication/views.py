@@ -1,11 +1,9 @@
 """
 Authentications view reference are here
 """
-import datetime
 import json
 from random import randint
 
-import jwt
 from django.db import transaction
 from django.contrib.auth import authenticate
 
@@ -16,7 +14,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE, SECRET_KEY
+from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE
 from utils.common import api_error_response, api_success_response, \
     produce_object_for_user
 from utils.helper import send_email_sms_and_notification
@@ -260,12 +258,3 @@ def send_forget_password_mail(request):
     )
     logger.log_info(f"Verification code send successfully to user {email}")
     return api_success_response(message="Verification code send successfully")
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([JWTAuthentication])
-def verify_token(request):
-    user = request.user
-    data = {"user_id": user.id, "email":user.email}
-    return api_success_response(message="Token_verified", data=data, status=200)
