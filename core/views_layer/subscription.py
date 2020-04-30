@@ -77,7 +77,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
             data = dict(card_number=card_number, expiry_month=expiry_month,
                         expiry_year=expiry_year, amount=amount,
                         discount_amount=discount_amount, total_amount=total_amount,
-                        no_of_tickets=no_of_tickets)
+                        no_of_tickets=no_of_tickets, token=token_value)
             payment_object = requests.post(PAYMENT_URL, data=json.dumps(data),
                                            headers={"Authorization": f"Bearer {token_value}",
                                                     "Content-type": "application/json"})
