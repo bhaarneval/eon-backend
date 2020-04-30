@@ -74,6 +74,6 @@ def produce_object_for_user(user):
 
 
 def payment_token(user_id):
-    payload = {'user_id': user_id, "exp": datetime.datetime.now() + datetime.timedelta(minutes=10)}
+    payload = {'user_id': user_id}
     encoded_jwt = jwt.encode(payload, DECODE_KEY, algorithm="HS256")
     return encoded_jwt
