@@ -6,7 +6,7 @@ import json
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import Event, EventType, Question, UserProfile
+from core.models import Event, EventType, Question, UserProfile, UserFeedback, Feedback
 
 
 class FeedbackQuestionsTestCase(APITestCase):
@@ -86,9 +86,6 @@ class FeedbackTestCase(APITestCase):
             role=role_obj)
         user_profile_obj.save()
 
-        # role2 = Role(role="subscriber")
-        # role2.save()
-
         content2 = {
             "email": "user20@gmail.com",
             "name": "user20@gmail.com",
@@ -121,6 +118,11 @@ class FeedbackTestCase(APITestCase):
         cls.event.save()
         cls.question = Question(question="Demo question1 ?")
         cls.question.save()
+
+        user_feedback_obj = UserFeedback.objects.create(user_id=cls.user_id, event=cls.event)
+        feedback_obj = Feedback.objects.create(user_feedback=user_feedback_obj, question=cls.question,
+                                               answer="Demo answer !", image="abcd.jpeg")
+        feedback_obj.save()
 
     def test_feedback_api_with_wrong_method_type(self):
         """
@@ -172,8 +174,8 @@ class FeedbackTestCase(APITestCase):
         json_content = {
             "event_id": self.event.id,
             "feedback": [{
+                "id": 1000,
                 "answer": {
-                    "id": 100,
                     "description": "abcd",
                     "image": "demo.jpeg"
                 }
@@ -254,3 +256,14 @@ class FeedbackTestCase(APITestCase):
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
+
+    def test_feedback_get_api_with_correct_event(self):
+        """
+        Test Feedback api for get with correct event id
+        """
+        response = self.client.get(
+            self.end_point + '?event_id={}'.format(self.event.id),
+            HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type="application/json"
+        )
+        self.assertEquals(response.status_code, 200)

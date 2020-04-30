@@ -6,7 +6,8 @@ import json
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import Event, EventType, UserProfile
+from core.models import Event, EventType, UserProfile, WishList
+from utils.constants import EVENT_STATUS
 
 
 class EventAPITest(APITestCase):
@@ -19,8 +20,11 @@ class EventAPITest(APITestCase):
         Data setup for Unit test case
         :return:
         """
+
         role = Role(role="organizer")
         role.save()
+        role2 = Role(role="subscriber")
+        role2.save()
 
         user = User.objects.create_user(email="user12@gmail.com", password="user123")
         role_obj = Role.objects.get(role="organizer")
@@ -48,6 +52,22 @@ class EventAPITest(APITestCase):
                           external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
+
+        subscriber_data = {
+            "email": "user20@gmail.com",
+            "name": "user20@gmail.com",
+            "password": "user1234",
+            "contact": "9999911112",
+            "address": "Rishikesh",
+            "role": "subscriber",
+            "organization": "Rockers"
+        }
+        data2 = dict(email="user20@gmail.com", password="user1234")
+        cls.client.post('/authentication/registration', json.dumps(subscriber_data), content_type='application/json')
+        login_response2 = cls.client.post('/authentication/login', json.dumps(data2),
+                                          content_type='application/json')
+        cls.user_id2 = login_response2.data['data']['user']['user_id']
+        cls.token2 = login_response2.data['data']['access']
 
     def test_event_post(self):
         """
@@ -160,6 +180,17 @@ class EventAPITest(APITestCase):
         # Check
         self.assertEqual(response.status_code, 200)
 
+    def test_event_get_all_without_parameter(self):
+        """
+        Get api test case without parameter
+        """
+        # Run
+        response = self.client.get("/core/event/", HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
     def test_event_type_get_api_with_valid_data(self):
         """
         Get Api for event test cases with valid data
@@ -240,7 +271,7 @@ class EventAPITest(APITestCase):
         """
 
         # Run
-        response = self.client.get("/core/event/12/",
+        response = self.client.get("/core/event/100/",
                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                    content_type="application/json")
 
@@ -297,3 +328,73 @@ class EventAPITest(APITestCase):
                                    content_type="application/json")
 
         self.assertEqual(response.status_code, 200)
+
+    def test_event_get_api_for_wishlisted_parameter(self):
+        """
+        Event list fetch for is_wishlisted parameter
+        """
+
+        # Run
+        response = self.client.get("/core/event/?is_wishlisted=True",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_get_api_for_subscription_type_free_parameter(self):
+        """
+        Event list fetch for subscription_type free parameter
+        """
+
+        # Run
+        response = self.client.get("/core/event/?subscription_type=free",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_get_api_for_subscription_type_paid_parameter(self):
+        """
+        Event list fetch for subscription_type paid parameter
+        """
+
+        # Run
+        response = self.client.get("/core/event/?subscription_type=paid",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_get_api_for_subscription_type_and_event_status_parameter(self):
+        """
+        Event list fetch for subscription_type and event_status both as parameter
+        """
+
+        # Run
+        response = self.client.get("/core/event/?subscription_type=paid&event_status=upcoming",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+
+        # Check
+        self.assertEqual(response.status_code, 200)
+
+    def test_event_get_api_for_subscriber_login(self):
+        """
+        Test for event list for subscriber
+        """
+        # Run
+        self.client.get("/core/event",
+                        HTTP_AUTHORIZATION="Bearer {}".format(self.token2),
+                        content_type="application/json")
+
+    def test_get_api_for_particular_event_subscriber_login(self):
+        """
+        Test for event details for subscriber
+        """
+        # Run
+        self.client.get("/core/event/{}".format(self.event.id),
+                        HTTP_AUTHORIZATION="Bearer {}".format(self.token2),
+                        content_type="application/json")
