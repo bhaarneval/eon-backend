@@ -1,9 +1,11 @@
 """
 Authentications view reference are here
 """
+import datetime
 import json
 from random import randint
 
+import jwt
 from django.db import transaction
 from django.contrib.auth import authenticate
 
@@ -14,7 +16,7 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE
+from eon_backend.settings import ADMIN_EMAIL, LOGGER_SERVICE, SECRET_KEY
 from utils.common import api_error_response, api_success_response, \
     produce_object_for_user
 from utils.helper import send_email_sms_and_notification
@@ -47,7 +49,17 @@ class Login(APIView):
             logger.log_error(f"Invalid credentials provided for user login {email}")
             message = "Given credentials do not match with any registered user!"
             return api_error_response(message=message, status=400)
-        token = get_token_for_user(user)
+        # token = get_token_for_user(user)
+        token = {}
+        access = jwt.encode(
+            {
+                "user_id": user.id,
+                "exp": datetime.datetime.now() + datetime.timedelta(minutes=5),
+            },
+            SECRET_KEY,
+            algorithm="HS256",
+        )
+        token['access'] = access
         user_obj = produce_object_for_user(user)
         if user_obj is None:
             logger.log_error("Error in creation of user object")
