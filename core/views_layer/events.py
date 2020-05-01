@@ -14,7 +14,7 @@ from rest_framework.authentication import get_authorization_header
 
 from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback, Feedback
 from core.serializers import ListUpdateEventSerializer, EventSerializer
-from utils.common import api_error_response, api_success_response
+from utils.common import api_error_response, api_success_response, payment_token
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
@@ -184,7 +184,8 @@ class EventViewSet(ModelViewSet):
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
         user_logged_in = user_id
-        token_value = request.META.get('HTTP_AUTHORIZATION').split()[1]
+        payment_access_token = payment_token(user_id)
+        payment_access_token = payment_access_token.decode('UTF-8')
 
         try:
             user_role = UserProfile.objects.get(user_id=user_logged_in).role.role
@@ -276,7 +277,7 @@ class EventViewSet(ModelViewSet):
                         payment_ids_list = [_[0] for _ in payment_ids_list]
                         payment_payload = {"list_of_payment_ids": payment_ids_list}
                         payment_response = requests.get(PAYMENT_URL, data=json.dumps(payment_payload),
-                                                        headers={"Authorization": f"Bearer {token_value}",
+                                                        headers={"Authorization": f"Bearer {payment_access_token}",
                                                                  "Content-type": "application/json"})
                         if payment_response.status_code != 200:
                             return api_error_response(message="Error in fetching details from payment service",
