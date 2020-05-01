@@ -261,4 +261,4 @@ LOGGER_SERVICE = Logging()
 
 EVENT_URL = "http://d10crzu2ups2gn.cloudfront.net/event-details?id="
 
-DECODE_KEY = os.environ.get('DECODE_KEY')
+ENCODE_KEY = os.environ.get('ENCODE_KEY')
