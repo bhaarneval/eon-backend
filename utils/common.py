@@ -75,5 +75,5 @@ def produce_object_for_user(user):
 
 def payment_token(user_id):
     payload = {'user_id': user_id}
-    encoded_jwt = jwt.encode(payload, "THISISVERYSECRETKEY", algorithm="HS256")
+    encoded_jwt = jwt.encode(payload, "THISISVERYSECRET", algorithm="HS256")
     return encoded_jwt
