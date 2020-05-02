@@ -240,7 +240,7 @@ def event_analysis_report(request, event_status=None, event_name=None):
     if all_event_names:
         res = max(all_event_names, key=len)
         max_length = len(res)
-        max_length = max_length * 6.12
+        max_length = max_length * 6 - 2
     else:
         max_length = 2
 
