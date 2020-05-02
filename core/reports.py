@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Case, When, Value, CharField, F, Sum, Q, Count, IntegerField
 from django.db.models.functions import Coalesce
 from django.http import JsonResponse
@@ -6,27 +7,7 @@ from django.shortcuts import render
 from core.models import Event, Subscription
 
 
-def event_summary(request):
-    content = event_analysis_report(request)
-    return render(request, 'core/event_analysis.html', content)
-
-
-def filtered_event_summary(request):
-    event_status = request.GET.get('event_status', None)
-    event_name = request.GET.get('event_name', None)
-    content = event_analysis_report(request, event_status=event_status, event_name=event_name)
-    data = []
-    for entry in content['events_not_subscribed']:
-        temp_data = {
-            "name": entry.name,
-            "no_of_tickets": entry.no_of_tickets,
-            "sold_tickets": entry.sold_tickets,
-            "status": entry.status,
-            "event_created_by": entry.event_created_by.email
-        }
-        data.append(temp_data)
-    content['events_not_subscribed'] = data
-
+def paginate_data(content, page):
     data = []
     for entry in content['event_which_has_subscribers']:
         temp_data = {
@@ -39,6 +20,47 @@ def filtered_event_summary(request):
         }
         data.append(temp_data)
     content['event_which_has_subscribers'] = data
+
+    data = []
+    for entry in content['events_not_subscribed']:
+        temp_data = {
+            "name": entry.name,
+            "total_tickets": entry.no_of_tickets,
+            "total_sold_tickets": entry.sold_tickets,
+            "status": entry.status,
+            "final_amount": entry.sold_tickets * entry.subscription_fee,
+            "event_created_by": entry.event_created_by.email
+        }
+        data.append(temp_data)
+    content['events_not_subscribed'] = data
+
+    total_data = content['event_which_has_subscribers'] + content['events_not_subscribed']
+
+    if page != 'no_pagination':
+        paginator = Paginator(total_data, 100)
+        try:
+            total_data = paginator.page(page)
+        except PageNotAnInteger:
+            total_data = paginator.page(1)
+        except EmptyPage:
+            total_data = paginator.page(paginator.num_pages)
+    content['total_data'] = total_data
+    return content
+
+
+def event_summary(request):
+    content = event_analysis_report(request)
+    page = request.GET.get('page', 1)
+    content = paginate_data(content, page)
+    return render(request, 'core/event_analysis.html', content)
+
+
+def filtered_event_summary(request):
+    event_status = request.GET.get('event_status', None)
+    event_name = request.GET.get('event_name', None)
+    content = event_analysis_report(request, event_status=event_status, event_name=event_name)
+    page = 'no_pagination'
+    content = paginate_data(content, page)
     return JsonResponse(content)
 
 
@@ -155,7 +177,6 @@ def event_analysis_report(request, event_status=None, event_name=None):
         all_event_no_of_tickets.append(event_and_popularity.no_of_tickets)
         all_event_status.append(event_and_popularity.status)
 
-
     event_completed_count = len(events_queryset.filter(is_active=False, is_cancelled=False))
     event_on_going_count = len(events_queryset.filter(is_active=True, is_cancelled=False))
     event_cancelled_count = len(events_queryset.filter(is_active=False, is_cancelled=True))
@@ -163,7 +184,8 @@ def event_analysis_report(request, event_status=None, event_name=None):
     event_which_has_subscribers_1 = event_which_has_subscribers.filter(id_payment__isnull=False)
     event_which_has_subscribers_1 = event_which_has_subscribers_1.values('event').annotate(
         final_amount=Sum('amount'), total_sold_tickets=F('event__sold_tickets'),
-        total_tickets=F('event__no_of_tickets'), name=F('event__name'), event_created_by=F('event__event_created_by__email'),
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'),
+        event_created_by=F('event__event_created_by__email'),
         status=Case(
             When(
                 event__is_active=False,
@@ -186,7 +208,8 @@ def event_analysis_report(request, event_status=None, event_name=None):
     event_which_has_subscribers_3 = event_which_has_subscribers.filter(id_payment__isnull=True)
     event_which_has_subscribers_3 = event_which_has_subscribers_3.values('event').annotate(
         final_amount=Coalesce('amount', 0), total_sold_tickets=F('event__sold_tickets'),
-        total_tickets=F('event__no_of_tickets'), name=F('event__name'), event_created_by=F('event__event_created_by__email'),
+        total_tickets=F('event__no_of_tickets'), name=F('event__name'),
+        event_created_by=F('event__event_created_by__email'),
         status=Case(
             When(
                 event__is_active=False,
