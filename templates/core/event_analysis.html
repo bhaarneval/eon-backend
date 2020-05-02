@@ -296,7 +296,7 @@ var lineChart = new Chart(ctx, {
       onComplete: function() {
         if (!this.rectangleSet) {
           var scale = window.devicePixelRatio;
-          var copyWidth = lineChart.scales['y-axis-0'].width + 3 ;
+          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + {{max_length}};
 
           targetCtx.scale(scale, scale);
@@ -311,7 +311,7 @@ var lineChart = new Chart(ctx, {
       },
       onProgress: function() {
         if (this.rectangleSet) {
-          var copyWidth = lineChart.scales['y-axis-0'].width;
+          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + 10;
           ctx.clearRect(0, 0, copyWidth, copyHeight);
         }

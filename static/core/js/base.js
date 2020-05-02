@@ -137,9 +137,12 @@ function update_dashboard(){
                                 stacked: true,
                                 id: "bar-x-axis1",
                                 ticks: {
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90
+                                    autoSkip: false,
+                                    maxRotation: 90,
+                                    minRotation: 90
+                                },
+                                gridLines: {
+                                    display:false
                                 }
                             },
                             {
@@ -148,10 +151,14 @@ function update_dashboard(){
                                 id: "bar-x-axis2",
                                 offset: true,
                                 ticks: {
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90
+                                    autoSkip: false,
+                                    maxRotation: 90,
+                                    minRotation: 90
+                                },
+                                gridLines: {
+                                    display:false
                                 }
+
                             },
                         ],
                         yAxes:[{
@@ -172,7 +179,7 @@ function update_dashboard(){
                       onComplete: function() {
                         if (!this.rectangleSet) {
                           var scale = window.devicePixelRatio;
-                          var copyWidth = lineChart.scales['y-axis-0'].width + 3;
+                          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
                           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + max_length;
 
                           targetCtx.scale(scale, scale);
@@ -187,7 +194,7 @@ function update_dashboard(){
                       },
                       onProgress: function() {
                         if (this.rectangleSet) {
-                          var copyWidth = lineChart.scales['y-axis-0'].width;
+                          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
                           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + 10;
                           ctx.clearRect(0, 0, copyWidth, copyHeight);
                         }
