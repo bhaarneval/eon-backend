@@ -25,7 +25,7 @@ lazy-object-proxy==1.4.3
 mccabe==0.6.1
 nose==1.3.7
 numpy==1.18.3
-postgresql-devel
+#postgresql-devel
 pandas==1.0.3
 psycopg2==2.8.4
 psycopg2-binary==2.8.5
