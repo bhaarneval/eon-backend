@@ -1,17 +1,22 @@
 pipeline {
-    agent any
-
+    agent none
     stages {
         stage('Build') {
-            steps {
-                sh 'pip3 install --no-cache-dir -r requirements.txt'
-		sh 'python manage.py test'
+            agent {
+                docker {
+                    image 'python:3-alpine'
+                }
             }
-        }
-        stage('Pushing to S3') {
             steps {
-                sh 'aws s3 rm s3://${bucket_name}  --recursive'
-                sh 'aws s3 sync build/ s3://${bucket_name}'
+                withEnv(["HOME=${env.WORKSPACE}"]) {
+                    sh 'pip install --user -r requirements.txt'
+                    sh 'python WebChecker.py'
+                }
+            }
+            post {
+                always {
+                    junit 'output.xml'
+                }
             }
         }
     }
