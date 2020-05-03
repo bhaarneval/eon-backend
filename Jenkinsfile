@@ -5,7 +5,7 @@ pipeline {
         stage('Build') {
             steps {
               script{
-                 withPythonEnv('path_to_venv/bin'){
+                 withPythonEnv('/usr/bin/python3.7'){
 		   sh 'pip3 install --no-cache-dir -r requirements.txt'
 			}
 		    }
