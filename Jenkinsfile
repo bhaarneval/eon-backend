@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-		sh 'pip install --no-cache-dir -r requirements.txt'
+		sh 'pip3 install --no-cache-dir -r requirements.txt'
             }
         }
         stage('Pushing to S3') {
