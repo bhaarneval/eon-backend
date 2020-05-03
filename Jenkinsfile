@@ -1,22 +1,23 @@
 pipeline {
-    agent none
+    agent any
+
     stages {
         stage('Build') {
-            agent {
-                docker {
-                    image 'python:3-alpine'
-                }
-            }
             steps {
-                withEnv(["HOME=${env.WORKSPACE}"]) {
-                    sh 'pip install --user -r requirements.txt'
-                    sh 'python WebChecker.py'
-                }
+                sh 'virtualenv venv --distribute'
+		sh '. venv/bin/activate'
+		sh 'pip install -r requirements.txt'
             }
-            post {
-                always {
-                    junit 'output.xml'
-                }
+        }
+        stage('Pushing to S3') {
+            steps {
+                sh 'aws s3 rm s3://${bucket_name}  --recursive'
+                sh 'aws s3 sync build/ s3://${bucket_name}'
+            }
+        }
+        stage('Cloudfront invalidation') {
+            steps {
+                sh 'aws cloudfront create-invalidation  --distribution-id ${cloudfront_distro_id}  --paths "/*"'
             }
         }
     }
