@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import UserProfile, UserInterest
 from core.serializers import UserProfileSerializer
 from utils.common import api_error_response, api_success_response
-from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
 
 logger = LOGGER_SERVICE
 

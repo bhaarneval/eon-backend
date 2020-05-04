@@ -7,7 +7,7 @@ import jwt
 from rest_framework import status as http_status
 from rest_framework.response import Response
 
-from eon_backend.settings import ENCODE_KEY
+from eon_backend.settings.common import ENCODE_KEY
 
 
 def api_error_response(message, status=None):
