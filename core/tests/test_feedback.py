@@ -119,11 +119,6 @@ class FeedbackTestCase(APITestCase):
         cls.question = Question(question="Demo question1 ?")
         cls.question.save()
 
-        user_feedback_obj = UserFeedback.objects.create(user_id=cls.user_id, event=cls.event)
-        feedback_obj = Feedback.objects.create(user_feedback=user_feedback_obj, question=cls.question,
-                                               answer="Demo answer !", image="abcd.jpeg")
-        feedback_obj.save()
-
     def test_feedback_api_with_wrong_method_type(self):
         """
         Test Feedback api with wrong method name
@@ -192,6 +187,7 @@ class FeedbackTestCase(APITestCase):
         """
         Test Feedback api for post api
         """
+
         json_content = {
             "event_id": self.event.id,
             "feedback": [{
