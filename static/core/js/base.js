@@ -1,6 +1,9 @@
 function update_dashboard(){
     var event_status = $('#filtering').find(":selected").text();
     var event_name = $("#search").find('input').val()
+    if (event_status == 'All'){
+       return document.location.reload(true)
+    }
     $.ajax({
         url: 'filtered_event_summary',
         data: {'event_status':event_status, "event_name":event_name},
@@ -8,31 +11,25 @@ function update_dashboard(){
         success: function(data){
             $('#rank_table tbody').empty();
             var html = '';
-            for (var each in data['event_which_has_subscribers']) {
-            html += '<tr><th>' + data['event_which_has_subscribers'][each]['name'] +
-                    '</th><td>' + data['event_which_has_subscribers'][each]['total_tickets'] +
-                    '</td><td>' + data['event_which_has_subscribers'][each]['total_sold_tickets'] +
-                    '</td><td>' + data['event_which_has_subscribers'][each]['final_amount'] +
-                    '</td><td>' + data['event_which_has_subscribers'][each]['status'] +
-                    '</td><td>' + data['event_which_has_subscribers'][each]['event_created_by'] + '</td></tr>';
+            for (var each in data['total_data']) {
+            html += '<tr><th>' + data['total_data'][each]['name'] +
+                    '</th><td>' + data['total_data'][each]['total_tickets'] +
+                    '</td><td>' + data['total_data'][each]['total_sold_tickets'] +
+                    '</td><td>' + data['total_data'][each]['final_amount'] +
+                    '</td><td>' + data['total_data'][each]['status'] +
+                    '</td><td>' + data['total_data'][each]['event_created_by'] + '</td></tr>';
             }
-            for (var each in data['events_not_subscribed']) {
-            html += '<tr><th>' + data['events_not_subscribed'][each]['name'] +
-                    '</th><td>' + data['events_not_subscribed'][each]['no_of_tickets'] +
-                    '</td><td>' + data['events_not_subscribed'][each]['sold_tickets'] +
-                    '</td><td>' + data['events_not_subscribed'][each]['sold_tickets'] +
-                    '</td><td>' + data['events_not_subscribed'][each]['status'] +
-                    '</td><td>' + data['events_not_subscribed'][each]['event_created_by'] + '</td></tr>';
-            }
-            $('#rank_table tbody').append(html)
+            $('#remove-pagination').remove()
+            $('#remove-pagination1').remove()
+            $('#rank_table tbody').append(html);
             $('#rank_table tbody tr:odd').addClass('grp-row grp-row-odd');
             $('#rank_table tbody tr:even').addClass('grp-row grp-row-even');
-            $('#rank_table tr').attr('scope','row')
+            $('#rank_table tr').attr('scope','row');
             $('#rank_table tr td:first-child').css('text-align','center');
-            $('#count').val(data['total_count']+" total").html(data['total_count']+" total")
-            $('#count1').val(data['total_count']+" total").html(data['total_count']+" total")
-            $('#revenue').val(data['total_revenue']).html(data['total_revenue'])
-            $('#revenue').addClass('text-color')
+            $('#count').val(data['total_count']+" total").html(data['total_count']+" total");
+            $('#count1').val(data['total_count']+" total").html(data['total_count']+" total");
+            $('#revenue').val(data['total_revenue']).html(data['total_revenue']);
+            $('#revenue').addClass('text-color');
             $("a.grp-pulldown-handler").closest(".grp-pulldown-container").removeClass('grp-pulldown-state-open').children(".grp-pulldown-content").removeClass('disp1');
             $("a.grp-pulldown-handler").closest(".grp-pulldown-container").children(".grp-pulldown-content").addClass('disp');
             var data2 = data['data2'];
@@ -137,9 +134,12 @@ function update_dashboard(){
                                 stacked: true,
                                 id: "bar-x-axis1",
                                 ticks: {
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90
+                                    autoSkip: false,
+                                    maxRotation: 90,
+                                    minRotation: 90
+                                },
+                                gridLines: {
+                                    display:false
                                 }
                             },
                             {
@@ -148,10 +148,14 @@ function update_dashboard(){
                                 id: "bar-x-axis2",
                                 offset: true,
                                 ticks: {
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90
+                                    autoSkip: false,
+                                    maxRotation: 90,
+                                    minRotation: 90
+                                },
+                                gridLines: {
+                                    display:false
                                 }
+
                             },
                         ],
                         yAxes:[{
@@ -172,7 +176,7 @@ function update_dashboard(){
                       onComplete: function() {
                         if (!this.rectangleSet) {
                           var scale = window.devicePixelRatio;
-                          var copyWidth = lineChart.scales['y-axis-0'].width + 3;
+                          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
                           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + max_length;
 
                           targetCtx.scale(scale, scale);
@@ -187,7 +191,7 @@ function update_dashboard(){
                       },
                       onProgress: function() {
                         if (this.rectangleSet) {
-                          var copyWidth = lineChart.scales['y-axis-0'].width;
+                          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
                           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + 10;
                           ctx.clearRect(0, 0, copyWidth, copyHeight);
                         }

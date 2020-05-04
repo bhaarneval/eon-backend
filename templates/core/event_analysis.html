@@ -91,6 +91,17 @@
                     <li class="grp-results">
                         <span id="count1">{{total_count}} total</span>
                     </li>
+                    <div id="remove-pagination1">
+                        {% if total_data.has_other_pages %}
+                            {% for i in total_data.paginator.page_range %}
+                              {% if total_data.number == i %}
+                                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                              {% else %}
+                                <li><a href="?page={{ i }}">{{ i }}</a></li>
+                              {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </ul>
             </nav>
             </div>
@@ -121,22 +132,12 @@
             </th>
         </thead>
         <tbody>
-        {% for data in event_which_has_subscribers %}
+        {% for data in total_data %}
             <tr class="grp-row">
                 <th>{{ data.name }}</th>
                 <td>{{ data.total_tickets }}</td>
                 <td>{{ data.total_sold_tickets }}</td>
                 <td>{{ data.final_amount }}</td>
-                <td>{{ data.status}}</td>
-                <td>{{ data.event_created_by }}</td>
-            </tr>
-        {% endfor %}
-        {% for data in events_not_subscribed %}
-            <tr class="grp-row">
-                <th>{{ data.name }}</th>
-                <td>{{ data.no_of_tickets }}</td>
-                <td>{{ data.sold_tickets }}</td>
-                <td>{{ data.sold_tickets }}</td>
                 <td>{{ data.status}}</td>
                 <td>{{ data.event_created_by }}</td>
             </tr>
@@ -155,6 +156,17 @@
                 <li class="grp-results">
                     <span id="count">{{total_count}} total</span>
                 </li>
+                <div id="remove-pagination">
+                    {% if total_data.has_other_pages %}
+                        {% for i in total_data.paginator.page_range %}
+                          {% if total_data.number == i %}
+                            <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                          {% else %}
+                            <li><a href="?page={{ i }}">{{ i }}</a></li>
+                          {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </ul>
         </nav>
     </div>
@@ -296,7 +308,7 @@ var lineChart = new Chart(ctx, {
       onComplete: function() {
         if (!this.rectangleSet) {
           var scale = window.devicePixelRatio;
-          var copyWidth = lineChart.scales['y-axis-0'].width + 3 ;
+          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + {{max_length}};
 
           targetCtx.scale(scale, scale);
@@ -311,7 +323,7 @@ var lineChart = new Chart(ctx, {
       },
       onProgress: function() {
         if (this.rectangleSet) {
-          var copyWidth = lineChart.scales['y-axis-0'].width;
+          var copyWidth = lineChart.scales['y-axis-0'].width + 0.3;
           var copyHeight = lineChart.scales['y-axis-0'].height + lineChart.scales['y-axis-0'].top + 10;
           ctx.clearRect(0, 0, copyWidth, copyHeight);
         }

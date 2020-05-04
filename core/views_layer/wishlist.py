@@ -60,7 +60,7 @@ class WishListViewSet(viewsets.ViewSet):
                 if not wishlist.is_active:
                     wishlist.is_active = True
                     wishlist.save()
-                    message = "WishListed Successfully"
+                    message = "Wishlisted successfully"
                 else:
                     message = "Event already wishlisted"
                 serializer = WishListSerializer(wishlist)

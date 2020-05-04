@@ -19,7 +19,7 @@ class Event(ActiveModel):
     """
     Event model added here
     """
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=32)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     description = models.CharField(max_length=512)
     date = models.DateField()

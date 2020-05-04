@@ -61,6 +61,29 @@ class AuthenticationTestCase(TestCase):
         # Check
         self.assertEqual(register.status_code, 400)
 
+    def test_register_user_with_role_as_organizer(self):
+        """
+         Test: unit test for register a user as organizer
+
+        """
+
+        # Setup
+        content = {
+            "email": "user1@mail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        # Run
+        register = self.client.post('/authentication/registration', json.dumps(content),
+                                    content_type='application/json')
+
+        # Check
+        self.assertEqual(register.status_code, 400)
+
     def test_user_login_with_valid_credentials(self):
         """
         TEST: Unit test for user login with valid credential,
