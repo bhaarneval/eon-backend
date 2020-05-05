@@ -3,6 +3,11 @@ from eon_backend.settings.common.base import BASE_DIR
 from utils.logger import Logging
 
 OUT_DIR = os.path.join(BASE_DIR, "logs/core")
+
+if not os.path.exists(OUT_DIR):
+    os.mkdir(BASE_DIR + '/logs')
+    os.mkdir(BASE_DIR + '/logs/core')
+
 CORE_APP_LOG_DIR = (
     os.environ.get("EON_LOG_DIR") if os.environ.get("EON_LOG_DIR") else OUT_DIR
 )
