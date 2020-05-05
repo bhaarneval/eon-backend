@@ -18,6 +18,7 @@ This is a monolithic architecture django project for BITS EOn.
 - AWS services - S3, SES, SNS, Elastic Beanstalk
 
 ## Installation
+Note: If you have the zip of this project, then skip the git clone command and extract the project.
 
 ```bash
 $ git clone https://github.com/bits-pgp-fse/eon-backend.git
@@ -27,7 +28,7 @@ $ cd eon-backend
 $ pip install -r requirements.txt
 ```
 
-Note: As this project requires celery for background tasks. Make sure it is running in different terminal.
+Note:  As this project requires celery for background tasks. Make sure it is running in a different terminal.
 
 ## Running Celery
 ```bash
@@ -40,8 +41,6 @@ $ celery worker -A eon_backend.celery:app --loglevel=INFO
 ```CREATE USER bits_eon WITH PASSWORD 'password';```
 
 ```ALTER USER bits_eon WITH SUPERUSER;```
-
-NOTE: To connect the django app with local Database use these credentials to set the environment variables
 
 
 ## Environment Variables
@@ -79,19 +78,19 @@ $ python3 manage.py migrate
 $ python3 manage.py runserver
 ```
 
-This project have some dependency on values in database. So for this, load the data from fixtures:
+This project has some dependency on values in the database. So for this, load the data from fixtures:
 ```bash
 $ python3 manage.py loaddata fixtures/roles.json
 $ python3 manage.py loaddata fixtures/event_types.json
 $ python3 manage.py loaddata fixtures/questions.json
 ```
 
-Create SuperUser in local to access Django admin as:
+Create super user to access Django admin:
 ```bash
 $ python3 manage.py createsuperuser;
 ```
 
-## Run Test (with coverage html, if you don't want cover html than remove --cover-html option)
+## Run Test (with coverage html, if you don't want cover html than remove --cover-html option from command)
 ```bash
 $ python3 manage.py test --cover-html
 ```

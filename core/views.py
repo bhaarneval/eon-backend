@@ -2,10 +2,10 @@
 Added core related api view here
 """
 import json
-import jwt
 from datetime import date
 
-import requests
+import jwt
+
 from django.db.models import F, Q, Sum
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated

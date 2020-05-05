@@ -27,7 +27,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 
 ALLOWED_HOSTS = ['dev-env-bits-pilani-backend.us-east-1.elasticbeanstalk.com',
-                 'BitsPilaniEonBackend-env.eba-iewfgdnb.us-east-1.elasticbeanstalk.com','http://bitspilanieonbackenddeployebs-env.eba-v3hw7gqp.ap-south-1.elasticbeanstalk.com',
+                 'BitsPilaniEonBackend-env.eba-iewfgdnb.us-east-1.elasticbeanstalk.com',
+                 'http://bitspilanieonbackenddeployebs-env.eba-v3hw7gqp.ap-south-1.elasticbeanstalk.com',
                  'localhost', '127.0.0.1', '[::1]', 'https://backend-eb.bits-pilani-eon.net']
 
 # Application definition

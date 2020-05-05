@@ -9,7 +9,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Question, UserProfile, UserFeedback, Feedback, Event
 from core.serializers import FeedBackSerializer, QuestionSerializer
-from utils.permission import IsOrganizer, IsSubscriberOrReadOnly
+from utils.permission import IsSubscriberOrReadOnly
 from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
 
 from utils.common import api_success_response, api_error_response
@@ -28,7 +28,7 @@ class FeedbackView(APIView):
     def post(self, request):
         """
         API to post feedback
-        :param request: body will contain event_id and answer to all the questions in provided format
+        :param request: body will contain event_id and answer of all questions in provided format
         :return: success response
         """
         logger.log_info("Feedback creation starts")
@@ -49,7 +49,8 @@ class FeedbackView(APIView):
             question_id = response.get("id", None)
             if not question_id:
                 logger.log_error("No question id provided")
-                return api_error_response(message="You must provide question id for all questions", status=400)
+                return api_error_response(message="You must provide question id for all questions",
+                                          status=400)
             try:
                 question = Question.objects.get(id=question_id)
             except Question.DoesNotExist:
@@ -81,7 +82,8 @@ class FeedbackView(APIView):
         event_id = request.GET.get("event_id", None)
         if not event_id:
             logger.log_error("Event_id is missing in params")
-            return api_error_response(message="You have to provide event_id in feedback details", status=400)
+            return api_error_response(message="You have to provide event_id in feedback details",
+                                      status=400)
         event_id = int(event_id)
         try:
             event = Event.objects.get(id=event_id)
@@ -90,8 +92,10 @@ class FeedbackView(APIView):
             return api_error_response(message="Provided event doesn't exist", status=400)
         user_role = UserProfile.objects.get(user=request.user).role.role
         if user_role == 'organizer' and event.event_created_by != request.user:
-            logger.log_error(f"Organizer with id {user_id} is not the owner of the event with id {event_id}")
-            return api_error_response(message="You can only see feedback for self organized events", status=400)
+            logger.log_error(
+                f"Organizer with id {user_id} is not the owner of the event with id {event_id}")
+            return api_error_response(message="You can only see feedback for self organized events",
+                                      status=400)
 
         user_feedback = UserFeedback.objects.filter(event_id=event_id)
         if user_role == 'subscriber':
@@ -104,8 +108,7 @@ class FeedbackView(APIView):
                 'name': UserProfile.objects.get(user_id=instance.user.id).name,
                 'email': instance.user.email,
                 'contact': UserProfile.objects.get(user_id=instance.user.id).contact_number
-                },
-                'responses': []}
+                }, 'responses': []}
             for response in feedback:
                 image = response.image
                 if image != '':
@@ -137,4 +140,5 @@ def get_feedback_questions(request):
     serializer = QuestionSerializer(query, many=True)
 
     logger.log_info("Feedback questions list fetched successfully !!!")
-    return api_success_response(message="Feedback questions list", status=200, data=serializer.data)
+    return api_success_response(message="Feedback questions list", status=200,
+                                data=serializer.data)

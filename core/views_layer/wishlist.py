@@ -69,7 +69,8 @@ class WishListViewSet(viewsets.ViewSet):
             serializer = WishListSerializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            logger.log_info(f"Wishlist successfully added for user_id {user_id} for event {event_id}")
+            logger.log_info(
+                f"Wishlist successfully added for user_id {user_id} for event {event_id}")
             return api_success_response(data=serializer.data, message="Wishlisted successfully",
                                         status=200)
         logger.log_error("Request Parameters are invalid")
