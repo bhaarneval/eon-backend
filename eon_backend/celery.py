@@ -4,7 +4,7 @@ from celery import Celery
 
 # set the default Django settings module for the 'celery' program.
 # always default to local. QA/Production must be explicit
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'eon_backend.settings.local')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'eon_backend.settings.dev')
 
 app = Celery('eon_backend')
 
