@@ -23,9 +23,9 @@ SMS_CONFIG = {
 }
 
 EMAIL_CONFIG = {
-    "new_organiser_created": {"status": True,
-                              "message": "Please provide {user_email} access for organiser account.",
-                              "subject": "Permission for Organiser Account"},
+    "new_organizer_created": {"status": True,
+                              "message": "Please provide {user_email} access for organizer account.",
+                              "subject": "Permission for Organizer Account"},
     "user_blocked": {"status": True,
                      "message": "Your account has been blocked by Admin.",
                      "subject": "Account Blocked"},
