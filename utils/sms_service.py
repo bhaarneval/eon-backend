@@ -3,9 +3,11 @@ SMS service Configuration
 """
 import boto3
 
+from celery import shared_task
 from eon_backend.settings.common import AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION
 
 
+@shared_task
 def send_sms(numbers_list, message):
     """
         -send SMS using SNS

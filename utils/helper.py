@@ -14,12 +14,12 @@ def send_email_sms_and_notification(action_name, **kwargs):
 
     if SMS_CONFIG.get(action_name, {}).get("status"):
         event_dict = SMS_CONFIG.get(action_name)
-        send_sms(numbers_list=kwargs["numbers_list"],
-                 message=event_dict["message"].format(**kwargs))
+        send_sms.dalay(numbers_list=kwargs["numbers_list"],
+                       message=event_dict["message"].format(**kwargs))
 
     if EMAIL_CONFIG.get(action_name, {}).get("status"):
         event_dict = EMAIL_CONFIG.get(action_name)
-        send_mail(
+        send_mail.dalay(
             receiver_list=kwargs["email_ids"],
             message=event_dict["message"].format(**kwargs),
             subject=event_dict["subject"]

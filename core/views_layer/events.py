@@ -18,8 +18,8 @@ from utils.common import api_error_response, api_success_response, payment_token
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
-from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
-from utils.constants import PAYMENT_URL, EVENT_STATUS, SUBSCRIPTION_TYPE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE, PAYMENT_URL
+from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
 logger = LOGGER_SERVICE
 
