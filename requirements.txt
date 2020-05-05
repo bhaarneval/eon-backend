@@ -30,7 +30,6 @@ numpy==1.18.3
 pandas==1.0.3
 psycopg2==2.8.4
 psycopg2-binary==2.8.5
-pycurl==7.43.0 --global-option="--with-nss"
 PyJWT==1.7.1
 pylint==2.4.4
 pylint-django==2.0.14
