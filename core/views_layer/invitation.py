@@ -17,7 +17,7 @@ from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganizer
-from eon_backend.settings import SECRET_KEY, EVENT_URL, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, EVENT_URL, LOGGER_SERVICE
 
 logger = LOGGER_SERVICE
 

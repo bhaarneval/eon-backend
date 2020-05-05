@@ -64,43 +64,6 @@ class SubscriptionAPITest(APITestCase):
         )
         self.assertEquals(response.status_code, 405)
 
-    def test_subscription_api_with_wrong_token(self):
-        """
-        Providing wrong token for subscription method
-        """
-        response = self.client.get(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format("wrong token")
-        )
-        self.assertEquals(response.status_code, 401)
-
-    def test_subscription_get_api(self):
-        """
-        Test for get api of subscription
-        """
-        response = self.client.get(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-        )
-        self.assertEquals(response.status_code, 200)
-
-    def test_subscription_get_api_with_particular_event(self):
-        """
-        Test for subscription get api with event id
-        """
-        response = self.client.get(
-            self.end_point, {"event_id": 3}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-        )
-        self.assertEquals(response.status_code, 200)
-
-    def test_subscription_get_api_with_invalid_event(self):
-        """
-        Providing invalid event id for subscription get api
-        """
-        response = self.client.get(
-            self.end_point, {"event_id": 400}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-        )
-        self.assertEquals(response.data['data']['total'], 0)
-        self.assertEquals(response.status_code, 200)
-
     def test_subscription_api_without_passing_required_fields(self):
         """Required fields are
                     1. event_id
@@ -113,7 +76,6 @@ class SubscriptionAPITest(APITestCase):
             self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
         )
-        self.assertEquals(response.data['message'], "Request Parameters are invalid")
         self.assertEquals(response.status_code, 400)
 
     def test_subscription_api_with_free_event(self):
@@ -184,7 +146,6 @@ class SubscriptionAPITest(APITestCase):
             self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
             content_type='application/json'
         )
-        self.assertEquals(response.data['message'], "Number of tickets are invalid")
         self.assertEquals(response.status_code, 400)
 
     def test_payment_api_with_wrong_length_of_card_number(self):

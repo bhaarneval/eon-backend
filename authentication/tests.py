@@ -61,6 +61,29 @@ class AuthenticationTestCase(TestCase):
         # Check
         self.assertEqual(register.status_code, 400)
 
+    def test_register_user_with_role_as_organizer(self):
+        """
+         Test: unit test for register a user as organizer
+
+        """
+
+        # Setup
+        content = {
+            "email": "user1@mail.com",
+            "password": "user123",
+            "contact": "9999911111",
+            "address": "Bangalore",
+            "role": "organizer",
+            "organization": "Eventhigh"
+        }
+
+        # Run
+        register = self.client.post('/authentication/registration', json.dumps(content),
+                                    content_type='application/json')
+
+        # Check
+        self.assertEqual(register.status_code, 400)
+
     def test_user_login_with_valid_credentials(self):
         """
         TEST: Unit test for user login with valid credential,
@@ -150,21 +173,6 @@ class AuthenticationTestCase(TestCase):
         data = dict(email='user@mail.com', password="user1234", code="code")
         verification_code = VerificationCode(email="user@mail.com", code=1234)
         verification_code.save()
-
-        # Run
-        reset_response = self.client.post('/authentication/reset-password', json.dumps(data),
-                                          content_type='application/json')
-        # Check
-        self.assertEqual(reset_response.status_code, 400)
-
-    def test_reset_password_with_invalid_code(self):
-        """
-        Unit test to check reset_password API with invalid code
-        :return:
-        """
-        verification_code = VerificationCode(email='user@mail.com', code='1234')
-        verification_code.save()
-        data = dict(email='user@mail.com', password="user1234", code="code")
 
         # Run
         reset_response = self.client.post('/authentication/reset-password', json.dumps(data),

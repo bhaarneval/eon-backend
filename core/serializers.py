@@ -57,7 +57,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         fields = ('user',
                   'event',
                   'no_of_tickets',
-                  'payment')
+                  'amount',
+                  'id_payment')
 
 
 class SubscriptionListSerializer(serializers.ModelSerializer):

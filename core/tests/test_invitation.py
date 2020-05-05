@@ -6,7 +6,7 @@ import json
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import EventType, Event, UserProfile
+from core.models import EventType, Event, UserProfile, Invitation
 
 
 class InvitationTestCase(APITestCase):
@@ -78,6 +78,16 @@ class InvitationTestCase(APITestCase):
         )
         self.assertEquals(response.status_code, 200)
 
+    def test_invitation_get_api_after_creating_invitation(self):
+        """
+         Test the get api of invitation after creating invitation
+        """
+        Invitation.objects.create(event=self.event, discount_percentage=10, email="abcd@gmail.com")
+        response = self.client.get(
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+        )
+        self.assertEquals(response.status_code, 200)
+
     def test_invitation_get_api_with_particular_event(self):
         """
          Test the get api invitation with specific event id
@@ -129,7 +139,7 @@ class InvitationTestCase(APITestCase):
         data = {
             "event": self.event.id,
             "discount_percentage": 10,
-            "invitee_list": ["email@gmail.com", "email1@gmail.com"],
+            "invitee_list": ["email@gmail.com", "email1@gmail.com", "user12@gmail.com"],
             "testing": True
         }
         response = self.client.post(

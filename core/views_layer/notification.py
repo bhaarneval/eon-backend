@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import Notification
 from core.serializers import NotificationSerializer
-from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
 
 from utils.common import api_success_response, api_error_response
 

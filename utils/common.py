@@ -1,8 +1,13 @@
 """
 Common methods are here
 """
+import datetime
+
+import jwt
 from rest_framework import status as http_status
 from rest_framework.response import Response
+
+from eon_backend.settings.common import ENCODE_KEY
 
 
 def api_error_response(message, status=None):
@@ -66,3 +71,9 @@ def produce_object_for_user(user):
                 'address': user_profile.address,
                 'role': {'id': user_profile.role.id, 'role': user_profile.role.role}}
     return response
+
+
+def payment_token(user_id):
+    payload = {'user_id': user_id}
+    encoded_jwt = jwt.encode(payload, ENCODE_KEY, algorithm="HS256")
+    return encoded_jwt

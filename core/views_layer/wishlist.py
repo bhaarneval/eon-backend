@@ -12,7 +12,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import WishList, Event
 from core.serializers import WishListSerializer
-from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
 from utils.common import api_error_response, api_success_response
 from utils.permission import IsSubscriberOrReadOnly
 
@@ -60,7 +60,7 @@ class WishListViewSet(viewsets.ViewSet):
                 if not wishlist.is_active:
                     wishlist.is_active = True
                     wishlist.save()
-                    message = "WishListed Successfully"
+                    message = "Wishlisted successfully"
                 else:
                     message = "Event already wishlisted"
                 serializer = WishListSerializer(wishlist)

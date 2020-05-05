@@ -105,7 +105,6 @@ Queries
 # insert into core_eventtype(created_on, updated_on, is_active, type) values('2020-04-27 15:58:29.879506+05:30', '2020-04-27 15:58:29.879506+05:30', 't', 'sport');
 ```
 
-
 ### Main Libraries Used
 
 - Django-Rest-Framework : Django REST framework is a powerful and flexible toolkit for building Web APIs. It gives us multiple features that combine deeply with Django's existing structures, supporting us build RESTful HTTP resources that agree to the models.

@@ -6,7 +6,7 @@ import json
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import Event, EventType, Question, UserProfile
+from core.models import Event, EventType, Question, UserProfile, UserFeedback, Feedback
 
 
 class FeedbackQuestionsTestCase(APITestCase):
@@ -86,9 +86,6 @@ class FeedbackTestCase(APITestCase):
             role=role_obj)
         user_profile_obj.save()
 
-        # role2 = Role(role="subscriber")
-        # role2.save()
-
         content2 = {
             "email": "user20@gmail.com",
             "name": "user20@gmail.com",
@@ -129,7 +126,7 @@ class FeedbackTestCase(APITestCase):
         data = dict(email="user20@gmail.com", password="user123")
         login_response = self.client.post('/authentication/login', json.dumps(data),
                                           content_type='application/json')
-        user_id = login_response.data['data']['user']['user_id']
+        # user_id = login_response.data['data']['user']['user_id']
         token = login_response.data['data']['access']
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(token)
@@ -159,7 +156,8 @@ class FeedbackTestCase(APITestCase):
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
@@ -171,15 +169,16 @@ class FeedbackTestCase(APITestCase):
         json_content = {
             "event_id": self.event.id,
             "feedback": [{
+                "id": 1000,
                 "answer": {
-                    "id": 100,
                     "description": "abcd",
                     "image": "demo.jpeg"
                 }
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
@@ -188,6 +187,7 @@ class FeedbackTestCase(APITestCase):
         """
         Test Feedback api for post api
         """
+
         json_content = {
             "event_id": self.event.id,
             "feedback": [{
@@ -199,7 +199,8 @@ class FeedbackTestCase(APITestCase):
             }]
         }
         response = self.client.post(
-            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token), data=json.dumps(json_content),
+            self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            data=json.dumps(json_content),
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 200)
@@ -251,3 +252,14 @@ class FeedbackTestCase(APITestCase):
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 400)
+
+    def test_feedback_get_api_with_correct_event(self):
+        """
+        Test Feedback api for get with correct event id
+        """
+        response = self.client.get(
+            self.end_point + '?event_id={}'.format(self.event.id),
+            HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type="application/json"
+        )
+        self.assertEquals(response.status_code, 200)

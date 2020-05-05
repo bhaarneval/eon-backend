@@ -5,7 +5,6 @@ from django.db import models
 
 # Create your models here.
 from authentication.models import ModelBase, User, Role, ActiveModel
-from payment.models import Payment
 
 
 class EventType(ActiveModel):
@@ -20,7 +19,7 @@ class Event(ActiveModel):
     """
     Event model added here
     """
-    name = models.CharField(max_length=256)
+    name = models.CharField(max_length=32)
     type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     description = models.CharField(max_length=512)
     date = models.DateField()
@@ -81,7 +80,8 @@ class Subscription(ActiveModel):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     event = models.ForeignKey(Event, on_delete=models.DO_NOTHING)
     no_of_tickets = models.FloatField()
-    payment = models.ForeignKey(Payment, on_delete=models.DO_NOTHING, null=True, blank=True)
+    id_payment = models.PositiveIntegerField(null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         """
@@ -97,7 +97,7 @@ class Subscription(ActiveModel):
 
 class UserInterest(ActiveModel):
     """
-    User intrest model created here
+    User interest model created here
     """
     event_type = models.ForeignKey(EventType, on_delete=models.DO_NOTHING)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

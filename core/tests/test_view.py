@@ -92,6 +92,36 @@ class RestAPITest(APITestCase):
         # check
         self.assertEqual(response.status_code, 401)
 
+    def test_for_get_user_details_api_with_invalid_user_id(self):
+        """
+        Get api of user details with invalid id
+        :return:
+        """
+        user_interest = UserInterest(event_type=self.event_type, user=self.user)
+        user_interest.save()
+
+        # Run
+        response = self.client.get("/core/user/207/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 400)
+
+    def test_for_get_user_details_api_with_valid_user_id(self):
+        """
+        Get api of user details with valid id
+        :return:
+        """
+        user_interest = UserInterest(event_type=self.event_type, user=self.user)
+        user_interest.save()
+
+        # Run
+        response = self.client.get(f"/core/user/{self.user_id}/",
+                                   HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                   content_type="application/json")
+        # check
+        self.assertEqual(response.status_code, 200)
+
     def test_for_patch_user_api_without_parameter(self):
         """
         Patch api of user without parameter
