@@ -1,0 +1,46 @@
+[
+  {
+    "model": "core.question",
+    "pk": 1,
+    "fields":
+    {
+      "created_on": "2020-04-29T17:10:47.655Z",
+      "updated_on": "2020-04-29T17:10:47.655Z",
+      "is_active": true,
+      "question": "How was the event?"
+    }
+  },
+  {
+    "model": "core.question",
+    "pk": 2,
+    "fields":
+    {
+      "created_on": "2020-04-29T17:11:26.947Z",
+      "updated_on": "2020-04-29T17:11:26.947Z",
+      "is_active": true,
+      "question": "Was event helpful?"
+    }
+  },
+  {
+    "model": "core.question",
+    "pk": 3,
+    "fields":
+    {
+      "created_on": "2020-04-29T17:12:07.050Z",
+      "updated_on": "2020-04-29T17:12:07.050Z",
+      "is_active": true,
+      "question": "Any feedback about the event?"
+    }
+  },
+  {
+    "model": "core.question",
+    "pk": 4,
+    "fields":
+    {
+      "created_on": "2020-04-29T17:12:24.857Z",
+      "updated_on": "2020-04-29T17:12:24.857Z",
+      "is_active": true,
+      "question": "Did you enjoy it?"
+    }
+  }
+]

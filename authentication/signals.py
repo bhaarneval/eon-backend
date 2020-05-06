@@ -1,4 +1,3 @@
-from core.models import UserProfile
 from utils.helper import send_email_sms_and_notification
 
 

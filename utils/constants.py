@@ -23,9 +23,9 @@ SMS_CONFIG = {
 }
 
 EMAIL_CONFIG = {
-    "new_organiser_created": {"status": True,
-                              "message": "Please provide {user_email} access for organiser account.",
-                              "subject": "Permission for Organiser Account"},
+    "new_organizer_created": {"status": True,
+                              "message": "Please provide {user_email} access for organizer account.",
+                              "subject": "Permission for Organizer Account"},
     "user_blocked": {"status": True,
                      "message": "Your account has been blocked by Admin.",
                      "subject": "Account Blocked"},
@@ -89,9 +89,6 @@ NOTIFICATION_CONFIG = {
 
 EVENT_STATUS = dict(default='upcoming', completed='completed', cancelled='cancelled', all='all')
 SUBSCRIPTION_TYPE = dict(default='all', free='free', paid='paid')
-
-HEADERS = {'Content-type': 'application/json'}
-PAYMENT_URL = "http://a772e5e6b5fab436d889d1acd5764004-1552015538.ap-south-1.elb.amazonaws.com:8000/core/payment/"
 
 MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October',
          'November', 'December']

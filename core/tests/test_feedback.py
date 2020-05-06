@@ -6,7 +6,7 @@ import json
 from rest_framework.test import APITestCase
 
 from authentication.models import Role, User
-from core.models import Event, EventType, Question, UserProfile, UserFeedback, Feedback
+from core.models import Event, EventType, Question, UserProfile
 
 
 class FeedbackQuestionsTestCase(APITestCase):

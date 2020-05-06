@@ -13,9 +13,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import Subscription, Event
 from core.serializers import SubscriptionSerializer
-from eon_backend.settings import SECRET_KEY, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE, PAYMENT_URL
 from utils.common import api_success_response, api_error_response, payment_token
-from utils.constants import PAYMENT_URL
 from utils.permission import IsSubscriberOrReadOnly
 
 logger = LOGGER_SERVICE

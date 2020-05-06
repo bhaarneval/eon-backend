@@ -17,7 +17,7 @@ from core.serializers import InvitationSerializer
 from utils.common import api_success_response, api_error_response
 from utils.helper import send_email_sms_and_notification
 from utils.permission import IsOrganizer
-from eon_backend.settings import SECRET_KEY, EVENT_URL, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, EVENT_URL, LOGGER_SERVICE
 
 logger = LOGGER_SERVICE
 
@@ -63,8 +63,9 @@ class InvitationViewSet(generics.GenericAPIView):
             logger.log_error(f"No event exist with id={event_id}")
             return api_error_response(message="No event exist with id={}".format(event_id))
         if event.event_created_by.id != user_id:
-            logger.log_error(f"LoggedIn user with id {user_id} is not the organizer of provided event with id "
-                             f"{event_id}")
+            logger.log_error(
+                f"LoggedIn user with id {user_id} is not the organizer of provided event with id "
+                f"{event_id}")
             return api_error_response(message="You are not allowed to perform this action",
                                       status=400)
         for invitee in invitee_list:
@@ -137,7 +138,8 @@ class InvitationViewSet(generics.GenericAPIView):
                                             url=EVENT_URL+str(event_id),
                                             numbers_list=contact_nos)
         data_object = {'invitee_list': data}
-        logger.log_info(f"Invitee list successfully updated for the event {event_id} by user {user_id}")
+        logger.log_info(
+            f"Invitee list successfully updated for the event {event_id} by user {user_id}")
         return api_success_response(message="Successful invited", data=data_object)
 
     def delete(self, request):
@@ -219,5 +221,6 @@ class InvitationViewSet(generics.GenericAPIView):
             response_obj['discount_percentage'] = invited.discount_percentage
             data.append(response_obj)
         data_object = {'invitee_list': data}
-        logger.log_info(f"Invitee list successfully fetched by user_id {user_id} for event {event_id}")
+        logger.log_info(
+            f"Invitee list successfully fetched by user_id {user_id} for event {event_id}")
         return api_success_response(message="Invitations details", data=data_object)
