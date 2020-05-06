@@ -72,51 +72,55 @@ def event_analysis_report(request, event_status=None, event_name=None):
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=False)
             events_queryset = events_queryset.filter(
                 Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=False).select_related(
-                'event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=False,
+                event__is_cancelled=False).select_related('event')
             event_which_has_subscribers = event_which_has_subscribers.filter(
                 Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=False)
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=False).select_related('event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=False,
+                event__is_cancelled=False
+            ).select_related('event')
 
     elif event_status == "Cancelled":
         if event_name:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
             events_queryset = events_queryset.filter(
                 Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=True).select_related(
-                'event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=False,
+                event__is_cancelled=True).select_related('event')
             event_which_has_subscribers = event_which_has_subscribers.filter(
                 Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=False, is_cancelled=True)
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=False,
-                                                                      event__is_cancelled=True).select_related('event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=False,
+                event__is_cancelled=True).select_related('event')
     elif event_status == "Ongoing":
         if event_name:
             events_queryset = Event.objects.filter(is_active=True, is_cancelled=False)
             events_queryset = events_queryset.filter(
                 Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
-                                                                      event__is_cancelled=False).select_related(
-                'event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=True,
+                event__is_cancelled=False).select_related('event')
             event_which_has_subscribers = event_which_has_subscribers.filter(
                 Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name))
         else:
             events_queryset = Event.objects.filter(is_active=True, is_cancelled=False)
-            event_which_has_subscribers = Subscription.objects.filter(event__is_active=True,
-                                                                      event__is_cancelled=False).select_related('event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                event__is_active=True,
+                event__is_cancelled=False).select_related('event')
     else:
         if event_name:
             events_queryset = Event.objects.filter(
                 Q(name__iexact=event_name) | Q(event_created_by__email__icontains=event_name))
-            event_which_has_subscribers = Subscription.objects.filter(Q(event__name__iexact=event_name) | Q(
-                event__event_created_by__email__icontains=event_name)).select_related(
-                'event')
+            event_which_has_subscribers = Subscription.objects.filter(
+                Q(event__name__iexact=event_name) | Q(event__event_created_by__email__icontains=event_name)
+            ).select_related('event')
         else:
             events_queryset = Event.objects.all()
             event_which_has_subscribers = Subscription.objects.all().select_related('event')

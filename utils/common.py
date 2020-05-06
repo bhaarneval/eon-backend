@@ -1,8 +1,6 @@
 """
 Common methods are here
 """
-import datetime
-
 import jwt
 from rest_framework import status as http_status
 from rest_framework.response import Response

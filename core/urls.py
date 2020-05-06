@@ -5,7 +5,7 @@ from django.conf.urls import url
 from django.urls import include, re_path
 
 from core.presigned_url import PresignedUrl
-from core.reports import event_analysis_report, filtered_event_summary, event_summary
+from core.reports import filtered_event_summary, event_summary
 from core.routes import router
 from core.views import get_event_types, SubscriberNotify, send_mail_to_a_friend, get_event_summary
 from core.views_layer.invitation import InvitationViewSet

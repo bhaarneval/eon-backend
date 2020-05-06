@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import get_authorization_header
 
-from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback, Feedback
+from core.models import Event, UserProfile, Subscription, WishList, Invitation, UserFeedback
 from core.serializers import ListUpdateEventSerializer, EventSerializer
 from utils.common import api_error_response, api_success_response, payment_token
 from utils.helper import send_email_sms_and_notification
@@ -114,9 +114,12 @@ class EventViewSet(ModelViewSet):
 
         for curr_event in self.queryset:
             response_obj = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date,
-                            "time": curr_event.time, "location": curr_event.location, "event_type": curr_event.type.id,
-                            "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
-                            "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+                            "time": curr_event.time, "location": curr_event.location,
+                            "event_type": curr_event.type.id,
+                            "description": curr_event.description,
+                            "no_of_tickets": curr_event.no_of_tickets,
+                            "sold_tickets": curr_event.sold_tickets,
+                            "subscription_fee": curr_event.subscription_fee,
                             "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
                                       + curr_event.images, "external_links": curr_event.external_links,
                             'is_free': curr_event.subscription_fee == 0,
@@ -225,12 +228,17 @@ class EventViewSet(ModelViewSet):
                         pass
                 response_obj['discount_percentage'] = invited.discount_percentage
                 invitee_data.append(response_obj)
-            data = {"id": curr_event.id, "name": curr_event.name, "date": curr_event.date, "time": curr_event.time,
-                    "location": curr_event.location, "event_type": curr_event.type.id,
-                    "description": curr_event.description, "no_of_tickets": curr_event.no_of_tickets,
-                    "sold_tickets": curr_event.sold_tickets, "subscription_fee": curr_event.subscription_fee,
+            data = {"id": curr_event.id, "name": curr_event.name,
+                    "date": curr_event.date, "time": curr_event.time,
+                    "location": curr_event.location,
+                    "event_type": curr_event.type.id,
+                    "description": curr_event.description,
+                    "no_of_tickets": curr_event.no_of_tickets,
+                    "sold_tickets": curr_event.sold_tickets,
+                    "subscription_fee": curr_event.subscription_fee,
                     "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
-                    "external_links": curr_event.external_links, "invitee_list": invitee_data,
+                    "external_links": curr_event.external_links,
+                    "invitee_list": invitee_data,
                     "self_organised": self_organised, 'event_status': event_status,
                     'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count()}
             logger.log_info("Event details successfully returned !!!")
@@ -413,7 +421,7 @@ class EventViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + \
-                                        serializer.data['images'],
+                                        serializer.data['images']
             serializer.data['event_type'] = serializer.data.pop('type')
         except Exception as err:
             logger.log_error(str(err))
