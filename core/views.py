@@ -264,3 +264,8 @@ def get_month_wise_revenue(event_ids):
         revenue = 0
 
     return revenue
+
+
+@api_view(["GET"])
+def health_check(request):
+    return api_success_response(message="All good")
