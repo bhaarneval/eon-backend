@@ -161,7 +161,7 @@ class SubscriptionViewSet(viewsets.ViewSet):
             return api_success_response(message="Subscribed Successfully", data=data, status=201)
 
         logger.log_error(f"Number of tickets are invalid for subscription request of user_id {user_id}")
-        return api_error_response(message="Requested number of tickets are more than availabl", status=400)
+        return api_error_response(message="Requested number of tickets are more than available", status=400)
 
     def destroy(self, request, pk=None):
         """
