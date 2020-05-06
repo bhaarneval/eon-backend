@@ -4,9 +4,15 @@ This is a monolithic architecture django project for BITS EOn.
 
 ## Prerequisites
 
-- Postgres Setup
+- Postgres
 - Redis
 - Celery
+
+Note: Make sure that Postgres and Redis is installed and running on your system. 
+If your don't have these. Please installed them from below link.
+
+- Postgres - https://www.postgresql.org/download/
+- Redis - https://redis.io/topics/quickstart
 
 ## Important Features
 
@@ -104,6 +110,12 @@ $ pylint eon-backend --rcfile=eon-backend/.pylintrc
 
 ### Main Libraries Used
 
+- Django:
+  It is a Python-based free and open-source web framework, 
+  which follows the model-template-view architectural pattern.
+  
+  https://docs.djangoproject.com/en/3.0/
+
 - Django-Rest-Framework: 
   Django REST framework is a powerful and flexible toolkit for building Web APIs. 
   It gives us multiple features that combine deeply with Django's existing structures, 
@@ -119,7 +131,7 @@ $ pylint eon-backend --rcfile=eon-backend/.pylintrc
 
 - Grappelli: 
   To style and configure the Django admin interface we used grappelli. 
-  Grappelli adds a consistent and grid-based look & feel
+  Grappelli adds a consistent and grid-based look & feel.
   
   https://django-grappelli.readthedocs.io/
   
@@ -132,7 +144,6 @@ $ pylint eon-backend --rcfile=eon-backend/.pylintrc
   To run the background processes.
   
   https://docs.celeryproject.org/en/stable/getting-started/introduction.html
-
 
 
 ### Folder Structure
