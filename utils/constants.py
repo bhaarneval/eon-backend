@@ -79,7 +79,7 @@ NOTIFICATION_CONFIG = {
                       "message": "The {field} has been changed "
                                  "by the organizer from {prev_value} to {next_value}."},
     "event_deleted": {"status": True,
-                      "message": "This event has been deleted by the organize due to {message}. "
+                      "message": "This event has been deleted by the organizer due to {message}. "
                                  "Your amount is initiated for refund."},
     "event_reminder": {"status": True,
                        "message": "Reminder from the organizer with a note.\n'{message}'"},
