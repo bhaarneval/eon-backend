@@ -33,7 +33,7 @@ class Logging:
                 msg,
             )
         else:
-            self.error_logger.error("DETAILS :: %s \n", msg, stack_info=True)
+            self.error_logger.error("DETAILS :: %s \n", msg, exc_info=True)
 
     def log_info(self, msg, details=True):
         """
@@ -52,7 +52,7 @@ class Logging:
                 msg,
             )
         else:
-            self.info_logger.warning("DETAILS :: %s \n", msg, stack_info=True)
+            self.info_logger.warning("DETAILS :: %s \n", msg, exc_info=True)
 
     def log_warning(self, msg, details=True):
         """
@@ -71,4 +71,4 @@ class Logging:
                 msg,
             )
         else:
-            self.warning_logger.warning("DETAILS :: %s \n", msg)
+            self.warning_logger.warning("DETAILS :: %s \n", msg, exc_info=True)
