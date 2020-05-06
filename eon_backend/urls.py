@@ -17,10 +17,12 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from core.views import health_check
 
 urlpatterns = [
     path('grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^core/', include('core.urls')),
     path('authentication/', include('authentication.urls')),
+    url(r'^healthCheck', health_check, name="health_check_up")
 ]
