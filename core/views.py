@@ -160,6 +160,8 @@ def get_event_summary(request):
                     revenue = total_amount["amount__sum"]
                 else:
                     revenue = 0
+                if event.is_cancelled:
+                    revenue = 0
                 total_revenue += revenue
             event_status = EVENT_STATUS['default']
             if event.is_cancelled:
@@ -242,7 +244,7 @@ def get_month_wise_data(queryset):
         event_count[1]['data'].append(completed_events)
         event_count[2]['data'].append(cancelled_events)
 
-        event_ids = current_queryset.values_list('id', flat=True)
+        event_ids = current_queryset.filter(is_cancelled=False).values_list('id', flat=True)
         monthly_revenue.append(get_month_wise_revenue(event_ids))
 
     return {'events': event_count, 'revenue': monthly_revenue}
