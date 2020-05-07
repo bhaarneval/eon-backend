@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Case, When, Value, CharField, F, Sum, Q, Count, IntegerField
 from django.db.models.functions import Coalesce
@@ -48,6 +49,7 @@ def paginate_data(content, page):
     return content
 
 
+@login_required
 def event_summary(request):
     content = event_analysis_report(request)
     page = request.GET.get('page', 1)
@@ -55,6 +57,7 @@ def event_summary(request):
     return render(request, 'core/event_analysis.html', content)
 
 
+@login_required
 def filtered_event_summary(request):
     event_status = request.GET.get('event_status', None)
     event_name = request.GET.get('event_name', None)
