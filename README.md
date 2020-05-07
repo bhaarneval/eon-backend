@@ -86,6 +86,11 @@ BROKER_URL=redis://localhost:6379
 $ python3 manage.py migrate
 $ python3 manage.py runserver
 ```
+Note: If you are seeing on master branch and running runserver command, then you will receive some warning.
+You can ignore this warning or run the below command to resolve this warning.
+```
+$ python3 manage.py collectstatic
+```
 
 This project has some dependency on values in the database. So for this, load the data from fixtures:
 ```bash
