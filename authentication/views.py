@@ -15,8 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from eon_backend.settings.common import ADMIN_EMAIL, LOGGER_SERVICE
-from utils.common import api_error_response, api_success_response, \
-    produce_object_for_user
+from utils.common import api_error_response, api_success_response, produce_object_for_user
 from utils.helper import send_email_sms_and_notification
 from core.models import UserProfile
 from .models import User, Role, VerificationCode

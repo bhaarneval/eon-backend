@@ -18,7 +18,7 @@ from utils.common import api_error_response, api_success_response, payment_token
 from utils.helper import send_email_sms_and_notification
 from utils.s3 import AwsS3
 from utils.permission import IsOrganizerOrReadOnlySubscriber
-from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE, PAYMENT_URL
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE, PAYMENT_URL, BUCKET, AWS_REGION
 from utils.constants import EVENT_STATUS, SUBSCRIPTION_TYPE
 
 logger = LOGGER_SERVICE
@@ -120,8 +120,8 @@ class EventViewSet(ModelViewSet):
                             "no_of_tickets": curr_event.no_of_tickets,
                             "sold_tickets": curr_event.sold_tickets,
                             "subscription_fee": curr_event.subscription_fee,
-                            "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/"
-                                      + curr_event.images, "external_links": curr_event.external_links,
+                            "images": f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/{curr_event.images}",
+                            "external_links": curr_event.external_links,
                             'is_free': curr_event.subscription_fee == 0,
                             'feedback_count': UserFeedback.objects.filter(event_id=curr_event.id).count(),
                             'event_status': event_status
@@ -166,13 +166,15 @@ class EventViewSet(ModelViewSet):
         payload = jwt.decode(token, SECRET_KEY)
         user_id = payload['user_id']
         logger.log_info(f"Event creation started by user {user_id}")
+        if user_id != request.data["event_created_by"]:
+            return api_error_response(message="You are not authorized to perform this action",
+                                      status=400)
         request.data['type'] = request.data.pop('event_type', None)
         self.serializer_class = EventSerializer
         response = super(EventViewSet, self).create(request, *args, **kwargs)
         response.data['event_type'] = response.data.pop('type')
         response.data['images'] = \
-            "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + response.data[
-                'images']
+            f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/{response.data['images']}",
         response.data['self_organised'] = True
         response.data['event_status'] = EVENT_STATUS['default']
         logger.log_info(f"Event created Successfully for user {user_id}")
@@ -236,7 +238,7 @@ class EventViewSet(ModelViewSet):
                     "no_of_tickets": curr_event.no_of_tickets,
                     "sold_tickets": curr_event.sold_tickets,
                     "subscription_fee": curr_event.subscription_fee,
-                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
+                    "images": f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/{curr_event.images}",
                     "external_links": curr_event.external_links,
                     "invitee_list": invitee_data,
                     "self_organised": self_organised, 'event_status': event_status,
@@ -250,7 +252,7 @@ class EventViewSet(ModelViewSet):
                     "description": curr_event.description,
                     "subscription_fee": curr_event.subscription_fee,
                     "no_of_tickets": curr_event.no_of_tickets,
-                    "images": "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + curr_event.images,
+                    "images": f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/{curr_event.images}",
                     "external_links": curr_event.external_links, 'event_status': event_status
                     }
             try:
@@ -420,8 +422,9 @@ class EventViewSet(ModelViewSet):
             serializer = EventSerializer(event_obj, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            serializer.data['images'] = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + \
-                                        serializer.data['images']
+            serializer.data['images'] = f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/" \
+                                        f"{serializer.data['images']}"
+
             serializer.data['event_type'] = serializer.data.pop('type')
         except Exception as err:
             logger.log_error(str(err))

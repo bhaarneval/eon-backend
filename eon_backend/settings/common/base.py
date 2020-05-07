@@ -180,7 +180,7 @@ EMAIL_CONFIG = EMAIL_CONFIG
 NOTIFICATION_CONFIG = NOTIFICATION_CONFIG
 
 
-EVENT_URL = "http://d10crzu2ups2gn.cloudfront.net/event-details?id="
+EVENT_URL = os.environ.get("EVENT_URL", "")
 PAYMENT_URL = os.environ.get("PAYMENT_URL", "")
 
 # rest framework
