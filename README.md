@@ -63,6 +63,7 @@ DB_PASSWORD=password
 DB_HOSTNAME=localhost
 DB_PORT=5432
 PAYMENT_URL="http://localhost:8001/core/payment/"
+EVENT_URL="http://localhost:8000/event-details?id="
 
 #JWT
 ACCESS_TOKEN_LIFETIME=1(day)
@@ -74,7 +75,7 @@ AWS_SECRET_ACCESS_KEY=
 AWS_REGION=
 EMAIL_ID=<application_email_id>
 ADMIN_EMAIL=<admin_email_id>
-BUCKET=
+BUCKET_NAME=
 BUCKET_PATH=
 BROKER_URL=redis://localhost:6379
 ```
