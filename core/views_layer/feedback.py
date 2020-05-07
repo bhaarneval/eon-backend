@@ -10,7 +10,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import Question, UserProfile, UserFeedback, Feedback, Event
 from core.serializers import FeedBackSerializer, QuestionSerializer
 from utils.permission import IsSubscriberOrReadOnly
-from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE
+from eon_backend.settings.common import SECRET_KEY, LOGGER_SERVICE, BUCKET, AWS_REGION
 
 from utils.common import api_success_response, api_error_response
 
@@ -102,7 +102,7 @@ class FeedbackView(APIView):
             user_feedback = user_feedback.filter(user_id=user_id)
         data = []
         for instance in user_feedback:
-            feedback = Feedback.objects.filter(user_feedback=instance)
+            feedback = Feedback.objects.filter(user_feedback=instance).order_by("id")
             current_response = {'user': {
                 'id': instance.user.id,
                 'name': UserProfile.objects.get(user_id=instance.user.id).name,
@@ -112,7 +112,7 @@ class FeedbackView(APIView):
             for response in feedback:
                 image = response.image
                 if image != '':
-                    image = "https://s3.ap-south-1.amazonaws.com/backend-bucket-bits-pilani/" + image
+                    image = f"https://s3.{AWS_REGION}.amazonaws.com/{BUCKET}/{image}"
                 current_response['responses'].append({
                     'question_id': response.question.id,
                     'question': response.question.question,

@@ -4,7 +4,7 @@ from django.contrib import admin
 # Register your models here.
 from core import filters
 from core.models import EventType, Event, Invitation, Subscription, UserProfile, WishList, \
-    UserInterest, Question, Feedback, UserFeedback
+    UserInterest
 
 """
 Register all the core related model here
@@ -148,61 +148,3 @@ class WishListAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
-
-
-# @admin.register(Question)
-# class QuestionAdmin(admin.ModelAdmin):
-#     """
-#     Added user profile model in admin
-#     """
-#     list_display = ("id", "question")
-#     readonly_fields = ('question',)
-#     search_fields = ('question',)
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request):
-#         return True
-#
-#     def has_change_permission(self, request, obj=None):
-#         return False
-
-
-# @admin.register(UserFeedback)
-# class UserFeedbackAdmin(admin.ModelAdmin):
-#     """
-#     Added user profile model in admin
-#     """
-#     list_display = ("id", "user", "event")
-#     readonly_fields = ('user', 'event')
-#     search_fields = ('user__email', 'event__name')
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request):
-#         return False
-#
-#     def has_change_permission(self, request, obj=None):
-#         return False
-
-
-# @admin.register(Feedback)
-# class FeedbackAdmin(admin.ModelAdmin):
-#     """
-#     Added user profile model in admin
-#     """
-#     list_display = ("id", "user_feedback", "question")
-#     readonly_fields = ('user_feedback', 'question')
-#     list_filter = ('question',)
-#     search_fields = ('user_feedback__user__email', 'user_feedback__event__name')
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request):
-#         return False
-#
-#     def has_change_permission(self, request, obj=None):
-#         return False

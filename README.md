@@ -42,6 +42,8 @@ $ celery worker -A eon_backend.celery:app --loglevel=INFO
 ``` 
 
 ## Postgres
+```sudo -u postgres psql```
+
 ```CREATE DATABASE eon;```
 
 ```CREATE USER bits_eon WITH PASSWORD 'password';```
