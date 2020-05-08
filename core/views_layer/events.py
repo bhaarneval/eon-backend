@@ -347,6 +347,7 @@ class EventViewSet(ModelViewSet):
         event_id = int(kwargs.get('pk'))
         data = request.data
         message = data.get("message", "")
+        testing = data.pop("testing", False)
         logger.log_info(f"Event deletion request from user {user_id} for event {event_id}")
         try:
             event = self.queryset.get(id=event_id)
@@ -366,12 +367,13 @@ class EventViewSet(ModelViewSet):
         user_ids = list({_["users_id"] for _ in user_obj})
         self.queryset.filter(id=event_id).update(is_cancelled=True)
         self.queryset.filter(id=event_id).update(is_active=False)
-        send_email_sms_and_notification(action_name="event_deleted",
-                                        email_ids=email_ids,
-                                        message=message,
-                                        event_name=event.name,
-                                        user_ids=user_ids,
-                                        event_id=event_id)
+        if not testing:
+            send_email_sms_and_notification(action_name="event_deleted",
+                                            email_ids=email_ids,
+                                            message=message,
+                                            event_name=event.name,
+                                            user_ids=user_ids,
+                                            event_id=event_id)
         logger.log_info(f"Event deletion successful for event_id {event_id} by user {user_id}")
         return api_success_response(message="Event successfully deleted", status=200)
 
@@ -387,6 +389,7 @@ class EventViewSet(ModelViewSet):
         user_id = payload['user_id']
         event_id = int(kwargs.get('pk'))
         data = request.data
+        testing = data.pop("testing", False)
         user_logged_in = user_id
         logger.log_info(f"Event update request started by user {user_id} for event {event_id}")
         try:
@@ -460,14 +463,15 @@ class EventViewSet(ModelViewSet):
         email_ids = list({_["email"] for _ in user_obj})
         user_ids = list({_["users_id"] for _ in user_obj})
         if field:
-            send_email_sms_and_notification(action_name="event_updated",
-                                            email_ids=email_ids,
-                                            field=field,
-                                            prev_value=prev_value,
-                                            next_value=next_value,
-                                            event_name=event_name,
-                                            user_ids=user_ids,
-                                            event_id=event_id)
+            if not testing:
+                send_email_sms_and_notification(action_name="event_updated",
+                                                email_ids=email_ids,
+                                                field=field,
+                                                prev_value=prev_value,
+                                                next_value=next_value,
+                                                event_name=event_name,
+                                                user_ids=user_ids,
+                                                event_id=event_id)
             logger.log_info("Subscribers notified for event details update")
         logger.log_info(f"Event with id {event_id} successfully updated by user with id {user_id}")
         return api_success_response(data=serializer.data, status=200)

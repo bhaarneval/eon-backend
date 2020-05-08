@@ -74,7 +74,8 @@ class AuthenticationTestCase(TestCase):
             "contact": "9999911111",
             "address": "Bangalore",
             "role": "organizer",
-            "organization": "Eventhigh"
+            "organization": "Eventhigh",
+            "testing": True
         }
 
         # Run

@@ -55,6 +55,7 @@ class SubscriberNotify(APIView):
         event_id = data.get("event_id", None)
         message = data.get("message", "")
         _type = data.get("type", "reminder").lower()
+        testing = data.pop("testing", False)
         if event_id:
             event_name = Event.objects.values_list("name", flat=True).get(id=event_id)
             if event_name:
@@ -69,12 +70,13 @@ class SubscriberNotify(APIView):
                     action_name = "event_reminder"
                 else:
                     action_name = "send_updates"
-                send_email_sms_and_notification(action_name=action_name,
-                                                email_ids=email_ids,
-                                                message=message,
-                                                event_name=event_name,
-                                                user_ids=user_ids,
-                                                event_id=event_id)
+                if not testing:
+                    send_email_sms_and_notification(action_name=action_name,
+                                                    email_ids=email_ids,
+                                                    message=message,
+                                                    event_name=event_name,
+                                                    user_ids=user_ids,
+                                                    event_id=event_id)
                 logger.log_info(f"Subscribers notified successfully for event {event_id}.")
                 return api_success_response(message="Subscribers notified successfully.")
 
@@ -92,6 +94,7 @@ def send_mail_to_a_friend(request):
     data = json.loads(request.body)
     email = data.get("email_id")
     event_id = data.get("event_id")
+    testing = data.pop("testing", False)
     if not (event_id and email):
         logger.log_error("Event_id or email is missing in the request")
         return api_error_response(message="Please provide necessary details", status=400)
@@ -103,11 +106,12 @@ def send_mail_to_a_friend(request):
     except Event.DoesNotExist:
         logger.log_error("Invalid email id")
         return api_error_response(message="Invalid email id", status=400)
-    send_email_sms_and_notification(action_name="user_share",
-                                    message=message,
-                                    url=EVENT_URL + str(event_id),
-                                    event_name=event_name,
-                                    email_ids=email)
+    if not testing:
+        send_email_sms_and_notification(action_name="user_share",
+                                        message=message,
+                                        url=EVENT_URL + str(event_id),
+                                        event_name=event_name,
+                                        email_ids=email)
     logger.log_info(f"Mail send successfully to the friend by user {email} for event {event_id}")
     return api_success_response(message="Mail sent successfully", status=200)
 

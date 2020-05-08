@@ -102,24 +102,6 @@ class EventAPITest(APITestCase):
         self.assertEqual(response.data['subscription_fee'], json_content['subscription_fee'])
         self.assertEqual(response.data['event_created_by'], self.user_id)
 
-    def test_event_post_without_parameter(self):
-        """
-        Unit test for Event post Api
-        :return:
-        """
-        # Setup
-        json_content = {}
-
-        # Run
-
-        response = self.client.post("/core/event/", data=json.dumps(json_content),
-                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-                                    content_type="application/json")
-
-        # Check
-
-        self.assertEqual(response.status_code, 400)
-
     def test_event_post_with_invalid_event_type_id(self):
         """
         Unit test for Event post Api without required information
@@ -138,7 +120,7 @@ class EventAPITest(APITestCase):
             "images": "https://www.google.com/images",
             "subscription_fee": 499,
             "no_of_tickets": 200,
-            "user_created_by": self.user_id
+            "event_created_by": self.user_id
         }
 
         # Run
@@ -209,16 +191,21 @@ class EventAPITest(APITestCase):
         """
         # Setup
         event_id = self.event.id
+        json_content = {
+            "message": "TESTING",
+            "testing": True
+        }
 
         # Run
         response = self.client.delete("/core/event/{event_id}/".format(event_id=event_id),
+                                      data=json.dumps(json_content),
                                       HTTP_AUTHORIZATION="Bearer {}".format(self.token),
                                       content_type="application/json")
 
         # Check
         self.assertEqual(response.status_code, 200)
 
-    def test_event_delete_api_with_invalid_even_id(self):
+    def test_event_delete_api_with_invalid_event_id(self):
         """
         Test case for delete api event with wrong event id
         :return:
@@ -252,6 +239,7 @@ class EventAPITest(APITestCase):
             "location": "Giridih",
             "subscription_fee": 499,
             "no_of_tickets": 200,
+            "testing": True
         }
 
         # Run
