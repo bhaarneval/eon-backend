@@ -15,7 +15,7 @@ class FeedbackQuestionsTestCase(APITestCase):
     """
     def setUp(cls):
         """
-        Setup for Feedback Questions GET Api
+        Data setup for Feedback Question Unit test cases
         """
         role = Role(role="organizer")
         role.save()
@@ -34,10 +34,12 @@ class FeedbackQuestionsTestCase(APITestCase):
         cls.user_id = login_response.data['data']['user']['user_id']
         cls.token = login_response.data['data']['access']
         cls.end_point = "/core/feedback-questions/"
+        cls.question = Question(question="Demo question1 ?")
+        cls.question.save()
 
     def test_feedback_questions_api_with_wrong_method_type(self):
         """
-        Test Feedback questions api with wrong method name
+        Unit test for feedback question get api with wrong method
         """
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
@@ -46,7 +48,7 @@ class FeedbackQuestionsTestCase(APITestCase):
 
     def test_feedback_questions_api_with_wrong_token(self):
         """
-        Test Feedback questions api with wrong method name
+        Unit test for feedback question get api with wrong token
         """
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format('token')
@@ -55,7 +57,7 @@ class FeedbackQuestionsTestCase(APITestCase):
 
     def test_get_api_for_feedback_questions(self):
         """
-            Test Feedback questions api
+        Unit test for feedback question get api with correct method and token
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
@@ -70,7 +72,7 @@ class FeedbackTestCase(APITestCase):
 
     def setUp(cls):
         """
-        Setup for Feedback GET/POST APIs
+        Data setup for Feedback Unit test cases
         """
         role = Role(role="organizer")
         role.save()
@@ -121,12 +123,11 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_api_with_wrong_method_type(self):
         """
-        Test Feedback api with wrong method name
+        Unit test for feedback get api with wrong method
         """
         data = dict(email="user20@gmail.com", password="user123")
         login_response = self.client.post('/authentication/login', json.dumps(data),
                                           content_type='application/json')
-        # user_id = login_response.data['data']['user']['user_id']
         token = login_response.data['data']['access']
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(token)
@@ -135,7 +136,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_api_with_wrong_token(self):
         """
-        Test Feedback api with wrong token
+        Unit test for feedback get api with wrong token
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format('token')
@@ -144,7 +145,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_post_api_with_no_question_id(self):
         """
-        Test Feedback api for post api with no question id
+        Unit test for feedback post api with no question id
         """
         json_content = {
             "event_id": self.event.id,
@@ -164,7 +165,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_post_api_with_wrong_question_id(self):
         """
-        Test Feedback api for post api with wrong question id
+        Unit test for feedback post api with wrong question id
         """
         json_content = {
             "event_id": self.event.id,
@@ -185,7 +186,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_post_api_with_correct_data(self):
         """
-        Test Feedback api for post api
+        Unit test for feedback post with correct data
         """
 
         json_content = {
@@ -207,7 +208,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_get_api_with_subscriber_login(self):
         """
-        Test Feedback api for get with subscriber login
+        Unit test for feedback get api for subscriber
         """
         response = self.client.get(
             self.end_point + '?event_id={}'.format(self.event.id),
@@ -218,7 +219,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_get_api_with_organizer_login(self):
         """
-        Test Feedback api for get with organizer login
+        Unit test for feedback get api for organizer
         """
         data = dict(email="user21@gmail.com", password="user123")
         login_response = self.client.post('/authentication/login', json.dumps(data),
@@ -233,7 +234,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_get_api_with_no_event_in_parameter(self):
         """
-        Test Feedback api for get with no event id as parameter
+        Unit test for feedback get api with no event
         """
         response = self.client.get(
             self.end_point,
@@ -244,7 +245,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_get_api_with_wrong_event(self):
         """
-        Test Feedback api for get with wrong event id
+        Unit test for feedback get api with wrong event id
         """
         response = self.client.get(
             self.end_point + '?event_id={}'.format(100),
@@ -255,7 +256,7 @@ class FeedbackTestCase(APITestCase):
 
     def test_feedback_get_api_with_correct_event(self):
         """
-        Test Feedback api for get with correct event id
+        Unit test for feedback get api with correct event id
         """
         response = self.client.get(
             self.end_point + '?event_id={}'.format(self.event.id),
