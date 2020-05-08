@@ -193,7 +193,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 NOSE_ARGS = [
     '--with-coverage',
-    '--cover-package=authentication,core,payment',
+    '--cover-package=authentication,core',
 ]
 
 ENCODE_KEY = os.environ.get('ENCODE_KEY')

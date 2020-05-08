@@ -52,7 +52,7 @@ class InvitationViewSet(generics.GenericAPIView):
         event_id = data.get('event', None)
         discount_percentage = data.get('discount_percentage', 0)
         invitee_list = data.get('invitee_list', [])
-        testing = data.get("testing", False)
+        testing = data.pop("testing", False)
 
         response = []
         contact_nos = []
@@ -152,7 +152,7 @@ class InvitationViewSet(generics.GenericAPIView):
         data = request.data
         list_of_ids = data.get('invitation_ids')
         event_id = data.get('event_id')
-        testing = data.get("testing", False)  # for not running mail service for testing
+        testing = data.pop("testing", False)  # for not running mail service for testing
         if not event_id:
             logger.log_error("Event Id not provided for invitee delete request")
             return api_error_response(message="Event Id missing", status=400)

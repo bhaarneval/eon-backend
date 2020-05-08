@@ -78,6 +78,7 @@ class Register(APIView):
         password = data.get('password')
         organization = data.get('organization')
         role_name = data.get('role')
+        testing = data.pop("testing", False)
 
         if email is None or password is None or role_name is None:
             logger.log_error("Email, password or role is missing in registration request")
@@ -121,9 +122,10 @@ class Register(APIView):
                 user.is_active = False
                 user.save()
                 token = {}
-                send_email_sms_and_notification(action_name="new_organizer_created",
-                                                email_ids=[ADMIN_EMAIL],
-                                                user_email=email)
+                if not testing:
+                    send_email_sms_and_notification(action_name="new_organizer_created",
+                                                    email_ids=[ADMIN_EMAIL],
+                                                    user_email=email)
             else:
                 token = get_token_for_user(user)
 
@@ -241,6 +243,7 @@ def send_forget_password_mail(request):
     """
     data = json.loads(request.body)
     email = data.get('email')
+    testing = data.pop("testing", False)
     try:
         User.objects.get(email=email)
     except User.DoesNotExist:
@@ -250,10 +253,11 @@ def send_forget_password_mail(request):
     VerificationCode.objects.filter(email=email, is_active=True).update(is_active=False)
     code = VerificationCode(email=email, code=verification_code)
     code.save()
-    send_email_sms_and_notification(
-        action_name="forget_password",
-        verification_code=verification_code,
-        email_ids=[email]
-    )
+    if not testing:
+        send_email_sms_and_notification(
+            action_name="forget_password",
+            verification_code=verification_code,
+            email_ids=[email]
+        )
     logger.log_info(f"Verification code send successfully to user {email}")
     return api_success_response(message="Verification code send successfully")
