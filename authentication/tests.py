@@ -16,6 +16,7 @@ class AuthenticationTestCase(TestCase):
 
     def setUp(cls):
         Role.objects.create(role='subscriber')
+        Role.objects.create(role="organizer")
         content = {
             "email": "user@mail.com",
             "name": "user_test",
@@ -27,21 +28,17 @@ class AuthenticationTestCase(TestCase):
         }
         cls.register = cls.client.post('/authentication/registration', json.dumps(content),
                                        content_type='application/json')
-        print(cls.register.data)
 
     def test_register_user_with_complete_details(self):
         """
-         Test: unit test for register a user with complete information
-               mocked the user detail and call the register api.
+         Test: unit test for register a user.
 
         """
         self.assertEqual(self.register.status_code, 201)
 
     def test_register_user_without_password(self):
         """
-         Test: unit test for register a user with incomplete information
-               mocked the user detail and call the register api.
-
+         Test: unit test for register a user without password.
         """
 
         # Setup
@@ -83,7 +80,7 @@ class AuthenticationTestCase(TestCase):
                                     content_type='application/json')
 
         # Check
-        self.assertEqual(register.status_code, 400)
+        self.assertEqual(register.status_code, 201)
 
     def test_user_login_with_valid_credentials(self):
         """

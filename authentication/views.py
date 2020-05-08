@@ -65,8 +65,7 @@ class Register(APIView):
     @transaction.atomic()
     def post(self, request):
         """
-            :param request: email : user's emailId for logging in
-            :param request: password : user's password for logging in
+            :param request
             :return: api success response if registration is successful
         """
         logger.log_info("User registration started")
