@@ -219,7 +219,7 @@ class EventAPITest(APITestCase):
                                       content_type="application/json")
 
         # Check
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
 
     def test_event_patch_api_with_valid_event_id(self):
         """
