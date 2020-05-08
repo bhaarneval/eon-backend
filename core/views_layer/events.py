@@ -107,7 +107,6 @@ class EventViewSet(ModelViewSet):
             self.queryset = self.queryset.annotate(diff=ExpressionWrapper(
                 F('sold_tickets') * 100000 / F('no_of_tickets'), output_field=IntegerField()))
             self.queryset = self.queryset.order_by('-diff')
-
         is_subscriber = (user_role == 'subscriber')
 
         data = []

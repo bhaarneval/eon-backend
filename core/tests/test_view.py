@@ -59,7 +59,8 @@ class RestAPITest(APITestCase):
         json_data = {
             "event_id": self.event.id,
             "message": "test message",
-            "type": "reminder"
+            "type": "reminder",
+            "testing": True
         }
 
         # Run
