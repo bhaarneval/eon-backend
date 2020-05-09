@@ -76,7 +76,7 @@ AWS_REGION=
 EMAIL_ID=<application_email_id>
 ADMIN_EMAIL=<admin_email_id>
 BUCKET_NAME=
-BUCKET_PATH=
+AWS_BUCKET_PATH=
 BROKER_URL=redis://localhost:6379
 ```
 
