@@ -293,9 +293,9 @@ class EventAPITest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_event_get_api_for_wishlisted_parameter(self):
+    def test_event_get_api_for_wish_listed_parameter(self):
         """
-        Unit test for event get api for whishlisted events
+        Unit test for event get api for wish listed events
         """
 
         # Run
@@ -429,7 +429,7 @@ class EventAPITest(APITestCase):
 
     def test_event_get_api_for_event_created_by(self):
         """
-        Unit test for event get api for event type
+        Unit test for event get api for event created by
         """
 
         response = self.client.get("/core/event/?event_created_by=True",
@@ -440,7 +440,7 @@ class EventAPITest(APITestCase):
 
     def test_event_get_api_for_date_range(self):
         """
-        Unit test for event get api for event type
+        Unit test for event get api for event date range
         """
 
         response = self.client.get("/core/event/?start_date=2020-04-01&end_date=2020-05-01",
@@ -476,3 +476,16 @@ class EventAPITest(APITestCase):
 
         #  Check
         self.assertEqual(response.status_code, 400)
+
+    def test_pre_signed_url_post_api(self):
+        """
+        Unit test for pre signed url post api
+        """
+        data = {
+            "path_name": "abc.png"
+        }
+        response = self.client.post("/core/presigned-url/", json.dumps(data),
+                                    HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+                                    content_type="application/json")
+
+        self.assertEqual(response.status_code, 200)

@@ -13,15 +13,15 @@ from core.models import Event, EventType, Notification
 
 class NotificationTestCase(TestCase):
     """
-    Notifications Method Test cases are here
+    Notification methods test cases are added in this class
     """
 
     def setUp(cls):
         role = Role(role="subscriber")
         role.save()
         content = {
-            "email": "usertest@mail.com",
-            "name": "usertest@mail.com",
+            "email": "usertest@gmail.com",
+            "name": "user test",
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
@@ -29,14 +29,11 @@ class NotificationTestCase(TestCase):
             "organization": "Eventhigh"
         }
 
-        cls.client.post('/authentication/registration', json.dumps(content),
-                        content_type='application/json')
+        response = cls.client.post('/authentication/registration', json.dumps(content),
+                                   content_type='application/json')
 
-        data = dict(email="usertest@mail.com", password="user123")
-        login_response = cls.client.post('/authentication/login', json.dumps(data),
-                                         content_type='application/json')
-        cls.user_id = login_response.data['data']['user']['user_id']
-        cls.token = login_response.data['data']['access']
+        cls.user_id = response.data['data']['user']['user_id']
+        cls.token = response.data['data']['access']
         cls.user = User.objects.get(id=cls.user_id)
 
         event_type = EventType(type="test")
@@ -44,16 +41,16 @@ class NotificationTestCase(TestCase):
 
         cls.event = Event(name="test_event", type=event_type, description="New Event",
                           date="2020-04-02",
-                          time="12:38:00", location="karnal", subscription_fee=499,
+                          time="12:38:00", location="karnal", subscription_fee=500,
                           no_of_tickets=250,
-                          images="https://www.google.com/images", sold_tickets=2,
+                          images="https://www.google.com/images", sold_tickets=0,
                           external_links="google.com",
                           event_created_by_id=cls.user_id)
         cls.event.save()
 
     def test_notification_api_patch_for_valid_data(self):
         """
-          Test for updated notification status has_read false to true
+        Unit test for notification patch api with valid data
         """
 
         # Setup
@@ -72,8 +69,7 @@ class NotificationTestCase(TestCase):
 
     def test_notification_api_patch_for_empty_list_of_notification_id(self):
         """
-          Test for updated notification status has_read false to true
-
+        Unit test for notification patch api for empty notification id
         """
 
         # Setup
@@ -89,8 +85,7 @@ class NotificationTestCase(TestCase):
 
     def test_for_notification_get_when_no_unread_notification_for_that_user(self):
         """
-          Test for notification when there is no unread notification for a user
-
+        Unit test for notification get api for no unread notification
         """
 
         # Setup
@@ -108,8 +103,7 @@ class NotificationTestCase(TestCase):
 
     def test_for_notification_get_data_when_unread_notification(self):
         """
-          Test for notification when there is unread notification for a user
-
+        Unit test for notification get api for unread notification
         """
 
         # Setup

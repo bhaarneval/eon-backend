@@ -11,7 +11,7 @@ from core.models import Event, EventType, Question, UserProfile
 
 class FeedbackQuestionsTestCase(APITestCase):
     """
-    Test cases are created in this class
+    Feedback question methods test cases are added in this class
     """
     def setUp(cls):
         """
@@ -67,7 +67,7 @@ class FeedbackQuestionsTestCase(APITestCase):
 
 class FeedbackTestCase(APITestCase):
     """
-    Test cases are created in this class
+    Feedback methods test cases are added in this class
     """
 
     def setUp(cls):
@@ -80,17 +80,17 @@ class FeedbackTestCase(APITestCase):
         role2.save()
 
         user = User.objects.create_user(email="user21@gmail.com", password="user123")
-        role_obj = Role.objects.get(role="organizer")
+        cls.role_obj = Role.objects.get(role="organizer")
 
         user_profile_obj = UserProfile.objects.create(
             user=user, name="user21@gmail.com", contact_number="9999911111",
             organization="organization", address="Bangalore",
-            role=role_obj)
+            role=cls.role_obj)
         user_profile_obj.save()
 
         content2 = {
             "email": "user20@gmail.com",
-            "name": "user20@gmail.com",
+            "name": "user 20",
             "password": "user123",
             "contact": "9999911111",
             "address": "Bangalore",
@@ -98,13 +98,10 @@ class FeedbackTestCase(APITestCase):
             "organization": "Eventhigh"
         }
 
-        cls.client.post('/authentication/registration', json.dumps(content2),
-                        content_type='application/json')
-        data = dict(email="user20@gmail.com", password="user123")
-        login_response = cls.client.post('/authentication/login', json.dumps(data),
-                                         content_type='application/json')
-        cls.user_id = login_response.data['data']['user']['user_id']
-        cls.token = login_response.data['data']['access']
+        response = cls.client.post('/authentication/registration', json.dumps(content2),
+                                   content_type='application/json')
+        cls.user_id = response.data['data']['user']['user_id']
+        cls.token = response.data['data']['access']
         cls.end_point = "/core/feedback/"
 
         cls.event_type = EventType(type="test")
@@ -264,3 +261,27 @@ class FeedbackTestCase(APITestCase):
             content_type="application/json"
         )
         self.assertEquals(response.status_code, 200)
+
+    def test_feedback_get_api_with_another_organizer_credentials(self):
+        """
+        Unit test for feedback get api with another organizer credentials
+        """
+        user = User.objects.create_user(email="user121@gmail.com", password="user123")
+
+        user_profile_obj = UserProfile.objects.create(
+            user=user, name="user121@gmail.com", contact_number="9999911111",
+            organization="organization", address="Bangalore",
+            role=self.role_obj)
+        user_profile_obj.save()
+        data = dict(email="user121@gmail.com", password="user123")
+
+        login_response = self.client.post('/authentication/login', json.dumps(data),
+                                          content_type='application/json')
+        another_org_token = login_response.data['data']['access']
+
+        response = self.client.get(
+            self.end_point + '?event_id={}'.format(self.event.id),
+            HTTP_AUTHORIZATION="Bearer {}".format(another_org_token),
+            content_type="application/json"
+        )
+        self.assertEquals(response.status_code, 400)

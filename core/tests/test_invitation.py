@@ -11,13 +11,12 @@ from core.models import EventType, Event, UserProfile, Invitation
 
 class InvitationTestCase(APITestCase):
     """
-    Test cases for the methods started from here
+    Invitation methods test cases are added in this class
     """
 
     def setUp(cls):
         """
-        Data setup for Unit test case
-        :return:
+        Data setup for Invitation Unit test cases
         """
         role = Role(role="organizer")
         role.save()
@@ -53,7 +52,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_api_with_wrong_method(self):
         """
-        Testing the api with wrong method name
+        Unit test for invitation get api with wrong method
         """
         response = self.client.put(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token)
@@ -62,7 +61,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_api_with_wrong_token(self):
         """
-        providing wrong token and testing the invitation api
+        Unit test for invitation get api with wrong token
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format('token')
@@ -71,7 +70,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api(self):
         """
-         Test the get api of invitation
+        Unit test for invitation get api with valid token
         """
         response = self.client.get(
             self.end_point, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -80,7 +79,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_after_creating_invitation(self):
         """
-         Test the get api of invitation after creating invitation
+        Unit test for invitation get api with valid invitation content
         """
         Invitation.objects.create(event=self.event, discount_percentage=10, email="abcd@gmail.com")
         response = self.client.get(
@@ -90,7 +89,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_event(self):
         """
-         Test the get api invitation with specific event id
+        Unit test for invitation get api with event id
         """
         response = self.client.get(
             self.end_point, {"event_id": 10}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -99,7 +98,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_user(self):
         """
-        Test the get api invitation with specific user id
+        Unit test for invitation get api for particular user
         """
         response = self.client.get(
             self.end_point, {"user_id": 9}, HTTP_AUTHORIZATION="Bearer {}".format(self.token),
@@ -108,7 +107,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_get_api_with_particular_invalid_parameters(self):
         """
-        Test the get api invitation for invalid parameter
+        Unit test for invitation get api for checking user and event specific data
         """
         response = self.client.get(
             self.end_point, {"event_id": 1, "user_id": 1},
@@ -119,7 +118,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_with_invalid_event_id(self):
         """
-        Test the post api invitation with wrong data
+        Unit test for invitation post api with invalid event id
         """
         data = {"event": 1000,
                 "discount_percentage": 10,
@@ -134,7 +133,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_with_valid_details(self):
         """
-        Test the post api invitation for valid data
+        Unit test for invitation post api with valid event id
         """
         data = {
             "event": self.event.id,
@@ -150,7 +149,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_event_id_and_users(self):
         """
-        Test the post api invitation for same user and event id
+        Unit test for invitation post api when user invited again
         """
         data = {"event": self.event.id,
                 "discount_percentage": 10,
@@ -176,7 +175,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_event_id_not_users(self):
         """
-        Test the post api invitation for same event id
+        Unit test for invitation post api with for different user
         """
         data = {"event": self.event.id,
                 "discount_percentage": 10,
@@ -202,7 +201,7 @@ class InvitationTestCase(APITestCase):
 
     def test_invitation_post_api_for_same_user_not_event(self):
         """
-        Test the post api invitation for same user
+        Unit test for invitation post api for same user but different event
         """
         data = {"event": self.event.id,
                 "discount_percentage": 10,
@@ -226,28 +225,35 @@ class InvitationTestCase(APITestCase):
         self.assertNotEquals(prev_id, response.data['data']['invitee_list'][0].get('invitation_id'))
         self.assertEquals(response.status_code, 200)
 
-    # def test_invitation_delete_api_with_valid_invitation_id(self):
-    #     """
-    #     Test of invitation delete api with valid id
-    #     :return: response : 200
-    #     """
-    #     import pdb; pdb.set_trace()
-    #     data = {
-    #         "invitation_ids": [1, 2],
-    #         "event_id": self.event.id,
-    #         "testing": True
-    #     }
-    #     response = self.client.delete(
-    #         self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
-    #         content_type='application/json'
-    #     )
-    #
-    #     self.assertEquals(response.status_code, 200)
+    def test_invitation_delete_api_with_valid_invitation_id(self):
+        """
+        Unit test case for invitation delete api with valid invitation id
+        """
+        data = {"event": self.event.id,
+                "discount_percentage": 10,
+                "invitee_list": ["email1@gmail.com"],
+                "testing": True
+                }
+        response = self.client.post(
+            self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+        invitation_id = response.data['data']['invitee_list'][0].get('invitation_id')
+        data = {
+            "invitation_ids": [invitation_id],
+            "event_id": self.event.id,
+            "testing": True
+        }
+        response = self.client.delete(
+            self.end_point, json.dumps(data), HTTP_AUTHORIZATION="Bearer {}".format(self.token),
+            content_type='application/json'
+        )
+
+        self.assertEquals(response.status_code, 200)
 
     def test_invitation_delete_api_with_invalid_invitation_id(self):
         """
-        Test for delete api with invalid id
-        :return:
+        Unit test for invitation delete api with invalid invitation id
         """
         data = {
             "invitation_ids": [1, 2],
