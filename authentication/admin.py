@@ -14,7 +14,7 @@ def block_user(modelAdmin, request, queryset):
     queryset.update(is_active=False)
     email_ids = queryset.values_list('email', flat=True)
     send_email_sms_and_notification(action_name="user_blocked",
-                                    email_ids=email_ids)
+                                    email_ids=list(email_ids))
 
 
 block_user.short_description = "Block selected Users"
@@ -24,7 +24,7 @@ def unblock_user(modelAdmin, request, queryset):
     queryset.update(is_active=True)
     email_ids = queryset.values_list('email', flat=True)
     send_email_sms_and_notification(action_name="user_unblocked",
-                                    email_ids=email_ids)
+                                    email_ids=list(email_ids))
 
 
 unblock_user.short_description = "Activate selected Users"
